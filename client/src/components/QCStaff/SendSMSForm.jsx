@@ -62,20 +62,28 @@ const SendSMSForm = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const data = await response.json();
+            const responseData = await response.json();
+    
+            // Access the data property from the response
+            const data = responseData.data;
+    
+            // Check if data exists and is an array with at least one item
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error('No voter details found');
+            }
     
             setFormData(prev => ({
                 ...prev,
-                Total_mobile_numbers: data[0].Total_mobile_numbers,
-                total_records: data[0].total_records 
+                Total_mobile_numbers: data[0].Total_mobile_numbers || 0,
+                total_records: data[0].total_records || 0
             }));
             
-            toast.success(data.message || 'Voters details fetched successfully');
+            toast.success(responseData.message || 'Voters details fetched successfully');
         } catch (error) {
-         
             toast.error(`Error in fetching voters details: ${error.message}`);
         }
     };
+    
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];

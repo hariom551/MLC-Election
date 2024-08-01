@@ -43,7 +43,7 @@ function Caste() {
         }
         setCasteDetails(data);
         if (content) {
-          const caste = data.find(item => { console.log(content); return item.ID == content });
+          const caste = data.find(item => {  return item.Id == content });
 
           if (caste) {
             setFormData(caste);
@@ -136,7 +136,7 @@ function Caste() {
 
   const columns = useMemo(() => [
     {
-      accessorKey: 'ID',
+      accessorKey: 'Id',
       header: 'S.No',
       size: 10,
     },
@@ -147,7 +147,7 @@ function Caste() {
       Cell: ({ row }) => (
         <Button variant="primary" className="changepassword">
           <Link
-            to={{ pathname: "/CasteManagement", search: `?content=${row.original.ID}` }}
+            to={{ pathname: "/CasteManagement", search: `?content=${row.original.Id}` }}
           >
             Edit
           </Link>

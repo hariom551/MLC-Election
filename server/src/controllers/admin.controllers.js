@@ -12,9 +12,23 @@ const AddCaste = asyncHandler(async (req, res) => {
     }
 
     try {
+
+        const existCaste = await queryDatabase('SELECT Id FROM caste WHERE ECaste = ?',[ECaste]);
+        let CasteId; 
+        if (existCaste.length>0) {
+         CasteId = existCaste[0].Id;
+        }
+        else{
+            const result= await queryDatabase(
+                'INSERT INTO caste (ECaste, HCaste) VALUES (?, ?)',
+                [ECaste, HCaste]
+            );
+            CasteId = result.insertId;
+        }
+      
         await queryDatabase(
-            'INSERT INTO caste (ESurname, HSurname, ECaste, HCaste) VALUES (?, ?, ?, ?)',
-            [ESurname, HSurname, ECaste, HCaste]
+            'INSERT INTO surname (ESurname, HSurname, CasteId ) VALUES (?, ?, ?)',
+            [ESurname, HSurname, CasteId]
         );
 
         const addedCaste = {
@@ -32,7 +46,7 @@ const AddCaste = asyncHandler(async (req, res) => {
 
 const casteDetails = asyncHandler(async (req, res) => {
     try {
-        const results = await queryDatabase('SELECT * FROM caste');
+        const results = await queryDatabase('SELECT surname.Id, caste.ECaste, caste.HCaste, surname.ESurname, surname.HSurname FROM caste RIGHT JOIN surname ON surname.casteId= caste.Id');
         return res.json(results); // Should correctly return the results array
     } catch (error) {
         console.error('Database query error', error);
@@ -45,10 +59,23 @@ const UpdateCasteDetail = asyncHandler(async (req, res) => {
     if (!ID || !ESurname || !HSurname || !ECaste || !HCaste) {
         throw new ApiError(400, "Please enter all details!")
     }
-    try {
+    try {  
+        const existCaste = await queryDatabase('SELECT Id FROM caste WHERE ECaste = ?',[ECaste]);
+        let CasteId; 
+        if (existCaste.length>0) {
+         CasteId = existCaste[0].Id;
+        }
+        else{
+            const result= await queryDatabase(
+                'INSERT INTO caste (ECaste, HCaste) VALUES (?, ?)',
+                [ECaste, HCaste]
+            );
+            CasteId = result.insertId;
+        }
+
         await queryDatabase(
-            'UPDATE caste SET ESurname= ?, HSurname= ?, ECaste= ?, HCaste= ? WHERE ID= ?',
-            [ESurname, HSurname, ECaste, HCaste, ID]
+            'UPDATE surname SET ESurname= ?, HSurname= ?, casteId= ? WHERE ID= ?',
+            [ESurname, HSurname, CasteId, ID]
         );
 
         const updatedCaste = {

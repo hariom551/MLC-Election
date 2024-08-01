@@ -48,7 +48,9 @@ function DispatchLetter() {
             });
 
             if (result.ok) {
-                const data = await result.json();
+
+                const results = await result.json();
+                const data= results.data;
                 if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid voter list data');
 
                 setVotersDetails(data);
@@ -70,12 +72,32 @@ function DispatchLetter() {
                 size: 50,
                 Cell: ({ row }) => row.index + 1,
             },
-            { accessorKey: 'RegNo', header: 'Id', size: 10 },
-            { accessorKey: 'EFName', header: 'Name (English)', size: 20 },
-            { accessorKey: 'HFName', header: 'Name (Hindi)', size: 20 },
+            { accessorKey: 'Id', header: 'Id', size: 10 },
+            { accessorKey: 'EFName', header: 'Name (English)', size: 20,
+                Cell : ({cell}) =>{
+                    const {EFName, ELName }= cell.row.original;
+                    return `${EFName} ${ELName}`
+                },
+             },
+            { accessorKey: 'HFName', header: 'Name (Hindi)', size: 20,
+                Cell : ({cell}) =>{
+                    const {HFName, HLName }= cell.row.original;
+                    return `${HFName} ${HLName}`
+                },
+             },
             { accessorKey: 'RType', header: 'Relation', size: 10 },
-            { accessorKey: 'ERFName', header: 'Relative Name (English)', size: 20 },
-            { accessorKey: 'HRFName', header: 'Relative Name (Hindi)', size: 20 },
+            { accessorKey: 'ERFName', header: 'Relative Name (English)', size: 20,
+                Cell : ({cell}) =>{
+                    const {ERFName, ERLName }= cell.row.original;
+                    return `${ERFName} ${ERLName}`
+                },
+             },
+            { accessorKey: 'HRFName', header: 'Relative Name (Hindi)', size: 20,
+                Cell : ({cell}) =>{
+                    const {HRFName, HRLName }= cell.row.original;
+                    return `${HRFName} ${HRLName}`
+                },
+             },
             {
                 accessorKey: 'EAreaVillHNo',
                 header: 'Address',
@@ -129,7 +151,6 @@ function DispatchLetter() {
                 },
             },
         ];
-
         return baseColumns;
     }, []);
 
@@ -210,7 +231,11 @@ function DispatchLetter() {
                                     id="WBSelect"
                                     name="WBId"
                                     value={WBOptions.find(option => option.value === formData.WBId)}
-                                    onChange={option => setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }))}
+                                    onChange={option => {
+                                        setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }));
+                                        setVotersDetails([]); // Clear the voter list when the selection changes
+                                    }}
+                                    
                                     options={WBOptions}
                                     placeholder="Select WardBlock"
                                 />

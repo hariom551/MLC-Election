@@ -38,7 +38,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const folderName = file.fieldname === 'Image' ? 'photo' : (file.fieldname === 'Degree' ? 'Degree' : (file.fieldname === 'IdProof' ? 'IdProof' : 'misc'));
         const ext = path.extname(file.originalname);
-        const fileName = `${req.regNo}_${folderName}${ext}`;
+        const fileName = `${req.idNo}_${folderName}${ext}`;
         cb(null, fileName);
     }
 });

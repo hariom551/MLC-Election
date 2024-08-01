@@ -471,7 +471,7 @@ function IncomingForms() {
                                 <Form.Label>Mobile No. 1<sup className='text-red-500'>*</sup></Form.Label>
                                 <Typeahead
                                     id="VMob1"
-                                    selected={formData.VMob1 ? [{ VMob1: formData.VMob1 }] : []}
+                                    selected={formData.VMob1 ? [formData.VMob1] : []}
                                     onInputChange={(inputValue) => {
                                         const error = validateFormsAdmin("VMob1", inputValue);
                                         setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
@@ -481,39 +481,42 @@ function IncomingForms() {
                                         }));
                                         fetchSuggestedMobiles(inputValue, setSuggestedMobiles)
                                     }}
-
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
-                                            const [choice] = selected;
+                                            const choice = selected[0];
                                             setFormData(prevData => ({
                                                 ...prevData,
-                                                VMob1: choice.VMob1,
+                                                VMob1: choice.VMob1 || choice,
                                                 VMob2: choice.VMob2 || '',
-                                                VEName: choice.VEName,
-                                                VHName: choice.VHName,
+                                                VEName: choice.VEName || '',
+                                                VHName: choice.VHName || '',
                                                 VEAddress: choice.VEAddress || '',
                                                 VHAddress: choice.VHAddress || '',
                                             }));
-                                            const error = validateFormsAdmin("VMob1", choice.VMob1);
+                                            const error = validateFormsAdmin("VMob1", choice.VMob1 || choice);
                                             setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                         } else {
                                             setFormData((prevDetails) => ({
                                                 ...prevDetails,
-                                                EAreaVill: '', // Reset if cleared
+                                                VMob1: '',
+                                                VMob2: '',
+                                                VEName: '',
+                                                VHName: '',
+                                                VEAddress: '',
+                                                VHAddress: '',
                                             }));
                                         }
                                     }}
                                     options={suggestedMobiles}
                                     placeholder="Mobile Number 1"
                                     labelKey="VMob1"
-                                    defaultInputValue={formData.VMob1}
                                     renderMenuItemChildren={(option) => (
                                         <div>
                                             {option.VMob1} - {option.VEName}
                                         </div>
                                     )}
                                 />
-                            {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
+                                {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
                             </Form.Group>
                         </div>
 
@@ -521,7 +524,7 @@ function IncomingForms() {
                             <Form.Group >
                                 <Form.Label>Mobile No. 2</Form.Label>
                                 <Form.Control type="tel" placeholder="Mobile No. 2" name="VMob2" value={formData.VMob2} onChange={handleChange} />
-                            {errors.VMob2 && <div className="text-danger">{errors.VMob2}</div>}
+                                {errors.VMob2 && <div className="text-danger">{errors.VMob2}</div>}
                             </Form.Group>
                         </div>
                         <div className="col-md-3 mb-3">
@@ -555,7 +558,7 @@ function IncomingForms() {
                                 <Form.Control type="text" placeholder="Address (Hindi)" name="VHAddress"
                                     value={formData.VHAddress}
                                     onChange={handleChange} />
-                                       {errors.VHAddress && <div className="text-danger">{errors.VHAddress}</div>}
+                                {errors.VHAddress && <div className="text-danger">{errors.VHAddress}</div>}
                             </Form.Group>
                         </div>
                     </Row>

@@ -2,22 +2,7 @@ import jwt from 'jsonwebtoken';
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { pool } from '../db/database.js';
-
-
-
-
-function queryDatabase(sql, params) {
-    return new Promise((resolve, reject) => {
-        pool.query(sql, params, (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
-            }
-        });
-    });
-}
+import { queryDatabase } from '../utils/queryDatabase.js';
 
 // const generateToken = (payload) => {
 //     return jwt.sign(
@@ -52,13 +37,12 @@ const checkRole = (requiredRole) => {
 
 const loginUser = asyncHandler(async (req, res) => {
     const { userid, password } = req.body;
-
     if (!userid || !password) {
         throw new ApiError(400, "UserId or password is required");
     }
 
     try {
-        const results = await queryDatabase('SELECT * FROM usersadminformsdata WHERE userid = ?', [userid]);
+        const results = await queryDatabase('SELECT * FROM userlogin WHERE userid = ?', [userid]);
         if (results.length > 0) {
             const user = results[0];
             if (password == user.password) {
@@ -82,7 +66,6 @@ const loginUser = asyncHandler(async (req, res) => {
                 };
 
                 // res.cookie('token', token, options).status(200).send({ success: true, message: 'Logged in',token ,results})
-               
                 return res
                     .status(200)
                     .cookie("token", token, options)
@@ -122,7 +105,7 @@ const submitDetails = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO usersadminformsdata (userId, password, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO userlogin (userId, password, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [userId, password, name, mobile1, mobile2, email, address, permission, role, loginUserId, SDate]
         );
 
@@ -151,7 +134,7 @@ const submitDetails = asyncHandler(async (req, res) => {
 const hariom = asyncHandler(async (req, res) => {
     const { role, loginUserId } = req.body;
     try {
-        const results = await queryDatabase('SELECT * FROM usersadminformsdata WHERE role = ? AND SBy= ?', [role, loginUserId]);  // no need to destructure
+        const results = await queryDatabase('SELECT * FROM userlogin WHERE role = ? AND SBy= ?', [role, loginUserId]);  // no need to destructure
         return res.json(results); // Should correctly return the results array
     } catch (error) {
         console.error('Database query error', error);
@@ -173,7 +156,7 @@ const changePassword = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'UPDATE usersadminformsdata SET userId = ?, password = ? WHERE userId = ?',
+            'UPDATE userlogin SET userId = ?, password = ? WHERE userId = ?',
             [userId, password, userId]
         );
 

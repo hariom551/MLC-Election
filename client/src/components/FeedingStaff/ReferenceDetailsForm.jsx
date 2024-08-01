@@ -132,6 +132,12 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
         }));
     };
 
+    useEffect(() => {
+        if (referenceDetails.PacketNo) {
+            fetchRefrenceDetails(referenceDetails.PacketNo);
+        }
+    }, [referenceDetails.PacketNo]);
+
     return (
         <div className='w-full py-4 h-full mx-auto bg-gray-100' style={{ boxShadow: '0 0 5px 1px #ddd' }}>
             <div className="container-fluid flex-col gap-2 flex">
@@ -150,6 +156,7 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
                             <Typeahead
                                 id="PacketNo"
                                 name="PacketNo"
+                                selected={referenceDetails.PacketNo ? [referenceDetails.PacketNo ] : []}
                                 onInputChange={(value) => {fetchPacketOptions(value);
                                     const error = validateVoterDetails("PacketNo", value);
                                     setErrors(prevErrors => ({
@@ -212,20 +219,7 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
                   
                         </Form.Group>
                     </div>
-                    <div className="col-md-3 flex-col gap-2 flex mt-1">
-                        <Form.Group>
-                            <Form.Label>Volunteer (Hindi)</Form.Label>
-                            <Form.Control
-                                className='px-2'
-                                type="text"
-                                name="VHName"
-                                value={referenceDetails.VHName || ''}
-                                onChange={handleChange}
-                                placeholder='Enter Volunteer Name'
-                                readOnly
-                            />
-                        </Form.Group>
-                    </div>
+                  
                     <div className="col-md-3 flex-col gap-2 flex mt-1">
                         <Form.Group>
                             <Form.Label>Volunteer (English)</Form.Label>
@@ -240,6 +234,22 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
                             />
                         </Form.Group>
                     </div>
+
+                    <div className="col-md-3 flex-col gap-2 flex mt-1">
+                        <Form.Group>
+                            <Form.Label>Volunteer (Hindi)</Form.Label>
+                            <Form.Control
+                                className='px-2'
+                                type="text"
+                                name="VHName"
+                                value={referenceDetails.VHName || ''}
+                                onChange={handleChange}
+                                placeholder='Enter Volunteer Name'
+                                readOnly
+                            />
+                        </Form.Group>
+                    </div>
+                    
                     <div className="col-md-3 flex-col gap-2 flex mt-1">
                         <Form.Group>
                             <Form.Label>Mobile 2</Form.Label>

@@ -225,7 +225,10 @@ function VoterList() {
                                     id="WBSelect"
                                     name="WBId"
                                     value={WBOptions.find(option => option.value === formData.WBId)}
-                                    onChange={option => setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }))}
+                                    onChange={option => {
+                                        setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }));
+                                        setVotersDetails([]); // Clear the voter list when the selection changes
+                                    }}
                                     options={WBOptions}
                                     placeholder="Select WardBlock"
                                 />

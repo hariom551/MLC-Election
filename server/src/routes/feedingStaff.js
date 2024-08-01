@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { AddVoter, allAreaDetails, searchAreaVill, searchCaste, searchSurname, getPerseemanDetails, ChakNoBlock, SearchPacketNo, ReferenceDetails  } from "../controllers/feedingStaff.controllers.js";
+import { AddVoter, allAreaDetails, searchAreaVill, searchCaste, searchSurname, getPerseemanDetails, ChakNoBlock, SearchPacketNo, ReferenceDetails, UpdateVoter  } from "../controllers/feedingStaff.controllers.js";
 
 const feedingStaffRouter = Router()
 

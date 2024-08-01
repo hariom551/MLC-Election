@@ -93,6 +93,21 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
         }));
     };
 
+    useEffect(() => {
+        if (voterDetails.ELName) {
+            fetchCasteOptions(voterDetails.ELName);
+        }
+    }, [voterDetails.ELName]);
+
+    useEffect(() => {
+        if (casteOptions.length === 1) {
+            setVoterDetails(prevDetails => ({
+                ...prevDetails,
+                CasteId: casteOptions[0].CasteId
+            }));
+        }
+    }, [casteOptions]);
+
 
     return (
         <>
@@ -141,6 +156,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                             <Form.Label>Last Name (English)<sup className='text-red-500'>*</sup></Form.Label>
                             <Typeahead
                                 id="last-name-english"
+                                selected={voterDetails.ELName ? [voterDetails.ELName ]  : []}          
                                 name="ELName"
                                 onInputChange={(value) => fetchSurnameOptions(value, setSurnameOptions)}
                                 onChange={(selected) => {
@@ -149,6 +165,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                                         setVoterDetails(prevDetails => ({
                                             ...prevDetails,
                                             ELName: choice.ESurname,
+                                            HLName: choice.HSurname
                                         }));
                                         fetchCasteOptions(choice.ESurname);
                                     } else {
@@ -207,7 +224,6 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                                 name="RType"
                                 value={voterDetails.RType}
                                 onChange={handleChange}
-
                             >
                                 <option value="">--select relation--</option>
                                 {Relation.map((c) => (
@@ -253,6 +269,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                             <Form.Label>Rel. Last Name (English)<sup className='text-red-500'>*</sup></Form.Label>
                             <Typeahead
                                 id="rel-last-name-english"
+                                selected={voterDetails.ERLName ? [voterDetails.ERLName ] : []}
                                 onInputChange={(value) => fetchSurnameOptions(value, setRelativeSurnameOptions)}
                                 onChange={(selected) => {
                                     if (selected.length > 0) {
@@ -260,6 +277,8 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                                         setVoterDetails(prevDetails => ({
                                             ...prevDetails,
                                             ERLName: choice.ESurname,
+                                            HRLName: choice.HSurname,
+
                                         }));
                                     }
                                     const error = validateVoterDetails("ERLName", selected.length > 0 ? selected[0].ERLName : "");

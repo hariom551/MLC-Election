@@ -56,8 +56,8 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
         );
         setCBOption(uniqueCBFiltered);
       }
-    } else if(name== 'ChkBlkId'){
-      const selectedCB = CBOption.find((CB)=> CB.ChkBlkId === parseInt(value));
+    } else if (name == 'ChkBlkId') {
+      const selectedCB = CBOption.find((CB) => CB.ChkBlkId === parseInt(value));
       console.log(selectedCB);
       setAddressDetail((prevDetails) => ({
         ...prevDetails,
@@ -70,7 +70,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       }));
     }
   };
-  
+
 
   const fetchAreaVillOptions = async (input) => {
     try {
@@ -95,7 +95,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
 
   const fetchAllAreaDetails = async (EAreaVill, HnoRange) => {
     try {
-      
+
       const response = await fetch('/api/v1/feedingStaff/allAreaDetails', {
         method: 'POST',
         headers: {
@@ -192,9 +192,16 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
         ...prevDetails,
         ChkBlkId: singleCB.ChkBlkId,
       }));
-   
+
     }
-  }, [ CBOption, AreaFullDetails, setAddressDetail]);
+  }, [CBOption, AreaFullDetails, setAddressDetail]);
+
+  useEffect(() => {
+    if (addressDetail.EAreaVill) {
+      fetchAllAreaDetails(addressDetail.EAreaVill, addressDetail.HnoRange);
+      fetchAreaVillOptions(addressDetail.EAreaVill);
+    }
+  }, [addressDetail.EAreaVill])
 
   return (
     <div className="w-full h-full mx-auto my-5 px-2 py-4 bg-gray-100" style={{ boxShadow: '0 0 5px 1px #ddd' }}>
@@ -209,18 +216,38 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       </div>
 
       <div className="row flex mt-3">
+
         <div className="col-md-3 flex-col gap-2 flex mt-1">
           <Form.Group>
             <Form.Label>Area / Village</Form.Label>
             <Typeahead
               id="area-village-typeahead"
-              onInputChange={(value) => fetchAreaVillOptions(value)}
+              // Set the selected option based on the current addressDetail
+              selected={
+                addressDetail.EAreaVill 
+                  ? [{ EAreaVill: addressDetail.EAreaVill }]
+                  : []
+              }
+              // Handle input change and fetch options
+              onInputChange={(value) => {
+                fetchAreaVillOptions(value);
+                if (!value) {
+                  // Reset address detail if the input is cleared
+                  setAddressDetail((prevDetails) => ({
+                    ...prevDetails,
+                    EAreaVill: '',
+                    HnoRange: '',
+                  }));
+                }
+              }}
+              // Handle selection of an option
               onChange={(selected) => {
                 if (selected.length > 0) {
-                  const { EAreaVill, HnoRange} = selected[0];
+                  const { EAreaVill, HnoRange } = selected[0];
                   setAddressDetail((prevDetails) => ({
                     ...prevDetails,
                     EAreaVill,
+                    HnoRange,
                     AreaId: '',
                     TehId: '',
                     counId: '',
@@ -228,18 +255,26 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
                     WBId: '',
                     ChkBlkId: '',
                   }));
+
+                  // Reset other options
                   setTehsilOption([]);
                   setCouncilOption([]);
                   setVSOption([]);
                   setWBOption([]);
                   setCBOption([]);
+
+                  // Fetch additional area details
                   fetchAllAreaDetails(EAreaVill, HnoRange);
                 }
               }}
               options={AreaVillOptions}
               placeholder="Area/Village"
-              labelKey="EAreaVill"
-              renderMenuItemChildren={(option) => <div>{option.EAreaVill + ' | '+ option.HnoRange}</div>}
+              labelKey={(option) => `${option.EAreaVill}`}
+              renderMenuItemChildren={(option) => (
+                <div>
+                  {option.EAreaVill} | {option.HnoRange}
+                </div>
+              )}
             />
           </Form.Group>
         </div>
@@ -337,7 +372,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
               <option value="">--Select Chak Block/ Panchayat--</option>
               {CBOption.map((CBP) => (
                 <option key={CBP.ChkBlkId} value={CBP.ChkBlkId}>
-                  {CBP.ChakNo + ' - ' +  CBP.ECBPanch}
+                  {CBP.ChakNo + ' - ' + CBP.ECBPanch}
                 </option>
               ))}
             </Form.Control>

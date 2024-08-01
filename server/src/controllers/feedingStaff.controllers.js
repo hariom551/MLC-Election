@@ -11,9 +11,8 @@ const searchSurname = asyncHandler(async (req, res) => {
     if (!query) {
         return res.status(400).json({ error: 'Query parameter is required' });
     }
-
     try {
-        const results = await queryDatabase(`SELECT ESurname FROM caste WHERE ESurname LIKE ?`, [`%${query}%`]);
+        const results = await queryDatabase(`SELECT ESurname, HSurname FROM surname WHERE ESurname LIKE ?`, [`%${query}%`]);
         return res.json(results);
     } catch (error) {
         console.error('Database query error', error);
@@ -29,7 +28,7 @@ const searchCaste = asyncHandler(async (req, res) => {
     }
 
     try {
-        const results = await queryDatabase(`SELECT ECaste, Id as CasteId FROM caste WHERE ESurname LIKE ?`, [`%${surname}%`]);
+        const results = await queryDatabase(`SELECT ECaste, caste.Id as CasteId FROM caste jOIN surname ON caste.Id = surname.casteId WHERE ESurname =?`, [surname]);
         return res.json(results);
     } catch (error) {
         console.error('Database query error', error);
@@ -59,30 +58,40 @@ const searchAreaVill = asyncHandler(async (req, res) => {
 
 const allAreaDetails = asyncHandler(async (req, res) => {
     const { EAreaVill, HnoRange } = req.body;
-
+    console.log(EAreaVill, HnoRange);
     if (!EAreaVill) {
         return res.status(400).json({ error: 'EAreaVill parameter is required' });
     }
 
     try {
-        const results = await queryDatabase(`
-            SELECT 
-                A.EAreaVill, A.Id, 
-                C.ECBPanch, C.Id AS ChkBlkId, C.ChakNo ,
-                C.WBId, W.EWardBlock, W.WardNo, 
-                W.VSId, V.EVidhanSabha, 
-                V.counId, cc.ECouncil, 
-                cc.TehId, T.EName 
-            FROM areavill AS A 
-            LEFT JOIN chakblockpanch AS C ON A.CBPId = C.Id 
-            LEFT JOIN wardblock AS W ON C.WBId = W.Id 
-            LEFT JOIN vidhansabha AS V ON V.ID = W.VSId 
-            LEFT JOIN council AS cc ON cc.Id = V.counId 
-            LEFT JOIN tehsillist AS T ON T.ID = cc.TehId 
-            
-            WHERE A.EAreaVill = ? AND A.HnoRange= ?`,
-            [EAreaVill, HnoRange]
-        );
+        let query = `
+        SELECT 
+            A.EAreaVill, A.Id, 
+            C.ECBPanch, C.Id AS ChkBlkId, C.ChakNo,
+            C.WBId, W.EWardBlock, W.WardNo, 
+            W.VSId, V.EVidhanSabha, 
+            V.counId, cc.ECouncil, 
+            cc.TehId, T.EName 
+        FROM areavill AS A 
+        LEFT JOIN chakblockpanch AS C ON A.CBPId = C.Id 
+        LEFT JOIN wardblock AS W ON C.WBId = W.Id 
+        LEFT JOIN vidhansabha AS V ON V.ID = W.VSId 
+        LEFT JOIN council AS cc ON cc.Id = V.counId 
+        LEFT JOIN tehsillist AS T ON T.ID = cc.TehId 
+        WHERE A.EAreaVill = ?
+    `;
+    
+    // If HnoRange is provided, add it to the query
+    if (HnoRange === null) {
+        query += ` AND A.HnoRange IS NULL`;
+    } else {
+        query += ` AND A.HnoRange = ?`;
+    }
+    
+    // Execute the query with the appropriate parameters
+    const parameters = HnoRange === null ? [EAreaVill] : [EAreaVill, HnoRange];
+    const results = await queryDatabase(query, parameters);
+    
 
         // const groupedResults = results.reduce((acc, curr) => {
         //     if (!acc[curr.EAreaVill]) {
@@ -190,12 +199,15 @@ const ReferenceDetails = asyncHandler(async (req, res) => {
 });
 
 
+
 const AddVoter = [
     asyncHandler(async (req, res, next) => {
         try {
-            const maxRegNoResult = await queryDatabase(`SELECT MAX(RegNo) AS maxRegNo FROM voterlist`);
-            const RegNo = maxRegNoResult && maxRegNoResult.length > 0 && maxRegNoResult[0].maxRegNo !== null ? maxRegNoResult[0].maxRegNo + 1 : 1001;
-            req.regNo = RegNo;
+            // Fetch the maximum IdNo from the database
+            const maxIdNoResult = await queryDatabase(`SELECT MAX(Id) AS maxIdNo FROM voterlist`);
+            const IdNo = maxIdNoResult && maxIdNoResult.length > 0 && maxIdNoResult[0].maxIdNo !== null ? maxIdNoResult[0].maxIdNo + 1 : 1;
+
+            req.idNo = IdNo; // Set generated IdNo for the voter
             next();
         } catch (error) {
             console.error('Error:', error.message);
@@ -208,6 +220,7 @@ const AddVoter = [
             if (!req.body.referenceDetails || !req.body.voterDetails || !req.body.addressDetail) {
                 return res.status(400).json(new ApiResponse(400, null, 'Missing required fields in the request body'));
             }
+            
 
             let referenceDetails, voterDetails, addressDetail;
             try {
@@ -216,6 +229,14 @@ const AddVoter = [
                 addressDetail = JSON.parse(req.body.addressDetail);
             } catch (e) {
                 return res.status(400).json(new ApiResponse(400, null, 'Invalid JSON data in the request body'));
+            }
+
+            const duplicateCheckQuery = `SELECT * FROM voterlist WHERE EFName = ? AND ELName =? AND ERFName = ? AND ERLName = ?`;
+            const duplicateCheckValues = [voterDetails.EFName, voterDetails.ELName, voterDetails.ERFName, voterDetails.ERLName ];
+            const duplicateResult = await queryDatabase(duplicateCheckQuery, duplicateCheckValues);
+            // console.log(duplicateResult);
+            if (duplicateResult.length > 0) {
+                return res.status(400).json(new ApiResponse(400, null, 'Duplicate voter entry found'));
             }
 
             const voterDocs = {};
@@ -231,7 +252,7 @@ const AddVoter = [
             }
 
             const query = `INSERT INTO voterlist (
-                RegNo, PacketNo, EFName, HFName,
+                Id, PacketNo, EFName, HFName,
                 ELName, HLName, RType, ERFName, HRFName, 
                 ERLName, HRLName, CasteId, Qualification, Occupation, 
                 Age, DOB, Sex, MNo, MNo2,
@@ -247,7 +268,7 @@ const AddVoter = [
                 ?, ?, ?, ?)`;
 
             const values = [
-                req.regNo, referenceDetails.PacketNo, voterDetails.EFName, voterDetails.HFName,
+                req.idNo, referenceDetails.PacketNo, voterDetails.EFName, voterDetails.HFName,
                 voterDetails.ELName, voterDetails.HLName, voterDetails.RType, voterDetails.ERFName, voterDetails.HRFName,
                 voterDetails.ERLName, voterDetails.HRLName, voterDetails.CasteId, voterDetails.Qualification, voterDetails.Occupation,
                 voterDetails.Age, voterDetails.DOB, voterDetails.Sex, voterDetails.MNo, voterDetails.MNo2,
@@ -263,7 +284,95 @@ const AddVoter = [
             return res.status(500).json(new ApiResponse(500, null, 'Database insert error'));
         }
     })
+];
 
+const UpdateVoter = [
+    asyncHandler(async (req, res, next) => {
+        try {
+            const { idNo } = req.params; 
+
+            const currentVoterResult = await queryDatabase(`SELECT * FROM voterlist WHERE Id = ?`, [idNo]);
+            if (currentVoterResult.length === 0) {
+                return res.status(404).json(new ApiResponse(404, null, 'Voter not found'));
+            }
+
+            req.currentVoter = currentVoterResult[0]; 
+            req.idNo = idNo;
+            next();
+        } catch (error) {
+            console.error('Error fetching voter:', error.message);
+            return res.status(500).json(new ApiResponse(500, null, 'Database query error'));
+        }
+    }),
+    uploadFiles,
+    asyncHandler(async (req, res) => {
+        try {
+            const { referenceDetails, voterDetails, addressDetail } = req.body;
+
+            if (!referenceDetails || !voterDetails || !addressDetail) {
+                return res.status(400).json(new ApiResponse(400, null, 'Missing required fields in the request body'));
+            }
+
+            // Parse incoming JSON data
+            let parsedReferenceDetails, parsedVoterDetails, parsedAddressDetail;
+            try {
+                parsedReferenceDetails = JSON.parse(referenceDetails);
+                parsedVoterDetails = JSON.parse(voterDetails);
+                parsedAddressDetail = JSON.parse(addressDetail);
+            } catch (e) {
+                return res.status(400).json(new ApiResponse(400, null, 'Invalid JSON data in the request body'));
+            }
+
+            const voterDocs = {};
+
+            if (req.files['Image']) {
+                voterDocs.Image = req.files['Image'][0].filename;
+            } else {
+                voterDocs.Image = req.currentVoter.Image; // Retain current image if not updated
+            }
+            if (req.files['IdProof']) {
+                voterDocs.IdProof = req.files['IdProof'][0].filename;
+            } else {
+                voterDocs.IdProof = req.currentVoter.IdProof; // Retain current IdProof if not updated
+            }
+            if (req.files['Degree']) {
+                voterDocs.Degree = req.files['Degree'][0].filename;
+            } else {
+                voterDocs.Degree = req.currentVoter.Degree; // Retain current Degree if not updated
+            }
+
+            const query = `UPDATE voterlist SET 
+                PacketNo = ?, EFName = ?, HFName = ?, ELName = ?, HLName = ?, 
+                RType = ?, ERFName = ?, HRFName = ?, ERLName = ?, HRLName = ?, 
+                CasteId = ?, Qualification = ?, Occupation = ?, Age = ?, 
+                DOB = ?, Sex = ?, MNo = ?, MNo2 = ?, AadharNo = ?, 
+                VIdNo = ?, GCYear = ?, AreaId = ?, TehId = ?, 
+                CounId = ?, VSId = ?, WBId = ?, ChkBlkId = ?, 
+                HNo = ?, Landmark = ?, Image = ?, IdProof = ?, Degree = ?
+                WHERE Id = ?`;
+
+            const values = [
+                parsedReferenceDetails.PacketNo, parsedVoterDetails.EFName, parsedVoterDetails.HFName,
+                parsedVoterDetails.ELName, parsedVoterDetails.HLName, parsedVoterDetails.RType,
+                parsedVoterDetails.ERFName, parsedVoterDetails.HRFName, parsedVoterDetails.ERLName,
+                parsedVoterDetails.HRLName, parsedVoterDetails.CasteId, parsedVoterDetails.Qualification,
+                parsedVoterDetails.Occupation, parsedVoterDetails.Age, parsedVoterDetails.DOB,
+                parsedVoterDetails.Sex, parsedVoterDetails.MNo, parsedVoterDetails.MNo2,
+                parsedVoterDetails.AadharNo, parsedVoterDetails.VIdNo, parsedVoterDetails.GCYear,
+                parsedAddressDetail.AreaId, parsedAddressDetail.TehId, parsedAddressDetail.CounId,
+                parsedAddressDetail.VSId, parsedAddressDetail.WBId, parsedAddressDetail.ChkBlkId,
+                parsedAddressDetail.HNo, parsedAddressDetail.Landmark,
+                voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
+                req.params.idNo // The ID to update
+            ];
+
+            await queryDatabase(query, values);
+            return res.status(200).json(new ApiResponse(200, null, "Voter updated successfully"));
+        } catch (error) {
+            console.error('Database update error:', error);
+            return res.status(500).json(new ApiResponse(500, null, 'Database update error'));
+        }
+    })
 ];
 
 
@@ -322,6 +431,6 @@ const ChakNoBlock = asyncHandler(async (req, res) => {
 export {
     SearchPacketNo, ReferenceDetails, searchSurname, searchCaste,
     searchAreaVill, allAreaDetails,
-    AddVoter,
+    AddVoter, UpdateVoter,
     getPerseemanDetails, ChakNoBlock
 };

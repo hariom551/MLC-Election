@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 import fetch from 'node-fetch';
-
+import uploadFiles from "../middleware/multer.middleware.js";
 
 const wardwiseVoterContact = asyncHandler(async (req, res) => {
     const { WBId } = req.body;
@@ -124,23 +124,33 @@ const DeleteVoter = asyncHandler(async (req, res) => {
 
 const voterDetailById = asyncHandler(async (req, res)=>{
     const {content}= req.body;
-    console.log("hariom",content);
+    
     if(!content){
         return res.status(400).json({ error: "Id is required" });
     }
     try {
-        const results = await queryDatabase('SELECT * FROM voterlist WHERE Id = ?',[content]);
+        const results1= await queryDatabase(`SELECT PacketNo FROM voterlist WHERE ID= ?`, [content]);
 
+
+        const results2 = await queryDatabase(`SELECT EFName, HFName,ELName, HLName, RType, ERFName, HRFName, 
+                ERLName, HRLName, CasteId, Qualification, Occupation, 
+                Age, DATE_FORMAT(DOB, '%Y-%m-%d') AS DOB, Sex, MNo, MNo2,
+                AadharNo, VIdNo, GCYear FROM voterlist WHERE Id = ?`,[content]);
+
+        const result3 = await queryDatabase(`SELECT AreaId, TehId, 
+                CounId, VSId, WBId, ChkBlkId, HNo, areavill.EAreaVill, areavill.HnoRange, 
+                Landmark FROM voterlist JOIN areavill ON voterlist.AreaId = areavill.Id WHERE voterlist.Id=?`,[content]);
+
+        const result4= await queryDatabase(`SELECT MobileNoRemark, AddressRemark, NameRemark, FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark FROM voterlist WHERE Id=?`, [content])
         return res.status(201).json(
-            new ApiResponse(200, results, " details fetched successfully")
+            new ApiResponse(200, [results1, results2, result3, result4], " details fetched successfully")
         )
     } catch (error) {
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 
-
-
-
 });
+
+
 
 export { wardwiseVoterContact, sendSMS, DeleteVoter, voterDetailById }; 
