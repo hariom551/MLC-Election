@@ -40,7 +40,7 @@ function Login() {
         }
       });
       const data = await result.json();
-      console.log(data)
+   
       if (result.status === 200) {
         const { user, token } = data.data;
         localStorage.setItem('user', JSON.stringify(user));

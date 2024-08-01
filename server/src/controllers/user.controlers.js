@@ -4,15 +4,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 
-// const generateToken = (payload) => {
-//     return jwt.sign(
-//         payload,
-//         process.env.ACCESS_TOKEN_SECRET,
-//         {
-//             expiresIn: process.env.ACCESS_TOKEN_EXPIRY 
-//         });
-// };
-
 const generateToken = (payload) => {
     return jwt.sign(
         payload,
@@ -45,8 +36,8 @@ const loginUser = asyncHandler(async (req, res) => {
         const results = await queryDatabase('SELECT * FROM userlogin WHERE userid = ?', [userid]);
         if (results.length > 0) {
             const user = results[0];
-            if (password == user.password) {
-
+            // Check if the password matches
+            if (password === user.password) {
                 const tokenPayload = {
                     userid: user.userid,
                     role: user.role,
@@ -58,14 +49,22 @@ const loginUser = asyncHandler(async (req, res) => {
                 console.log('JWT token generated');
 
                 const options = {
-                    httpOnly: false, // Make sure this is false if you need to access it in JavaScript
+                    httpOnly: false, 
                     secure: false, // Should be true in production
-                    maxAge: 60*60 * 1000, // 100 seconds in milliseconds
-                    sameSite: 'Lax', // Adjust SameSite attribute if needed
-                    path: '/', // Ensure the cookie is accessible in the entire app
+                    maxAge: 60 * 60 * 1000, 
+                    sameSite: 'Lax', 
+                    path: '/', 
                 };
 
-                // res.cookie('token', token, options).status(200).send({ success: true, message: 'Logged in',token ,results})
+                // Create a sanitized user object without sensitive information
+                const sanitizedUser = {
+                    userid: user.userid,
+                    role: user.role,
+                    name: user.name,
+                    DId: user.DId
+                    // Add any other fields you want to expose
+                };
+
                 return res
                     .status(200)
                     .cookie("token", token, options)
@@ -73,12 +72,12 @@ const loginUser = asyncHandler(async (req, res) => {
                         new ApiResponse(
                             200,
                             {
-                                user: user, token
+                                user: sanitizedUser, 
+                                token
                             },
                             "User logged in successfully"
                         )
                     );
-
             } else {
                 throw new ApiError(401, "Invalid user credentials");
             }
@@ -91,28 +90,37 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
+const DistrictDetails = asyncHandler(async(req, res)=>{
+    try {
+        const result = await queryDatabase('SELECT Id, EDistrict FROM district ')
+        return res.json(result);
+    } catch (error) {
+        return res.status(500).send('A database error occurred.');
+    }
 
+
+});
 
 const submitDetails = asyncHandler(async (req, res) => {
-    const { userId, password, confirmPassword, name, mobile1, mobile2, email, address, permission, role, loginUserId } = req.body;
+    const { userId, password, DId, name, mobile1, mobile2, email, address, permission, role, loginUserId } = req.body;
 
-    if (!userId || !password || !confirmPassword || !name || !mobile1 || !role || !loginUserId) {
+    if (!userId || !password || !DId || !name || !mobile1 || !role || !loginUserId) {
         throw new ApiError(400, "Please enter all details!");
     }
 
     const currentDate = new Date();
-    const SDate = currentDate.toISOString(); // Use ISO 8601 format
+    const SDate = currentDate.toISOString(); 
 
     try {
         await queryDatabase(
-            'INSERT INTO userlogin (userId, password, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [userId, password, name, mobile1, mobile2, email, address, permission, role, loginUserId, SDate]
+            'INSERT INTO userlogin (userId, password,DId, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [userId, password,DId, name, mobile1, mobile2, email, address, permission, role, loginUserId, SDate]
         );
 
         const createdUser = {
             userId,
-            password,
             name,
+            DId,
             mobile1,
             mobile2,
             email,
@@ -130,19 +138,16 @@ const submitDetails = asyncHandler(async (req, res) => {
     }
 });
 
-
 const hariom = asyncHandler(async (req, res) => {
     const { role, loginUserId } = req.body;
     try {
         const results = await queryDatabase('SELECT * FROM userlogin WHERE role = ? AND SBy= ?', [role, loginUserId]);  // no need to destructure
-        return res.json(results); // Should correctly return the results array
+        return res.json(results); 
     } catch (error) {
-        console.error('Database query error', error);
+        
         return res.status(500).send('A database error occurred.');
     }
-    // } else {
-    //     res.status(401).send('Please login to view this page!');
-    // }
+ 
 });
 
 
@@ -196,7 +201,6 @@ const AddDistrict = asyncHandler(async (req, res) => {
 });
 
 const GetDistrictDetails = asyncHandler(async (req, res) => {
-
     try {
         const results = await queryDatabase('SELECT * FROM district');
         return res.json(results);
@@ -204,7 +208,6 @@ const GetDistrictDetails = asyncHandler(async (req, res) => {
         console.error('Database query error', error);
         return res.status(500).send('A database error occurred.');
     }
-
 });
 
 const UpdateDistrictDetail = asyncHandler(async (req, res) => {
@@ -267,7 +270,7 @@ const logoutuser = async (req, res) => {
 }
 
 
-export { loginUser, submitDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, }
+export { loginUser, DistrictDetails,submitDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, }
 
 
 

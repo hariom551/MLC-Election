@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
+import Select from 'react-select';
 import { validateUserForms } from '../../Validation/userFormValidatation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,6 +24,7 @@ function UserForm() {
     email: '',
     address: '',
     permission: '',
+    DId:''
   };
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
@@ -33,8 +35,41 @@ function UserForm() {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const loginUserId = user.userid;
+  const DId = user.DId;
 
   const token = localStorage.getItem('token');
+
+  const [district, setDistrict] = useState([]);
+  useEffect(() => {
+
+    const fetchDistrictOptions = async () => {
+      try {
+        const response = await fetch('/api/v1/users/DistrictDetails', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch District options');
+        }
+        const data = await response.json();
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          throw new Error('Empty or invalid District options data');
+        }
+     
+        const options = data.map(District => ({ value: District.Id, label: District.EDistrict}));
+        setDistrict(options);
+     
+      } catch (error) {
+        toast.error('Error fetching Tehsil options:', error);
+      }
+    };
+
+    fetchDistrictOptions();
+  }, []);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,7 +106,7 @@ function UserForm() {
     try {
       
 
-      let result = await fetch("http://localhost:3000/api/v1/users/submitdetails", {
+      let result = await fetch("/api/v1/users/submitdetails", {
         method: 'POST',
         body: JSON.stringify(requestBody),     
         headers: {
@@ -94,7 +129,7 @@ function UserForm() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/v1/users/hariom', {
+        const response = await fetch('/api/v1/users/hariom', {
           method: 'POST',
           body: JSON.stringify({ role: content, loginUserId }),
           headers: {
@@ -323,6 +358,20 @@ function UserForm() {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
+                />
+              </Form.Group>
+            </div>
+
+            <div className="col-md-3 mb-3">
+              <Form.Group>
+                <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>
+                <Select
+                  id="DistrictSelect"
+                  name="DId"
+                  value={district.find(option => option.value === formData.DId)}
+                  onChange={option => setFormData(prevFormData => ({ ...prevFormData, DId: option.value }))}
+                  options={district}
+                  placeholder="Select District"
                 />
               </Form.Group>
             </div>

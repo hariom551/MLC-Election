@@ -28,7 +28,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
 const getUserFromDatabase = async (userId) => {
     try {
-        const results = await queryDatabase('SELECT userid, name, mobile1, permissionaccess, email, role FROM usersadminformsdata WHERE userid = ?', [userId]);
+        const results = await queryDatabase('SELECT userid, name, mobile1, permissionaccess, email, role FROM userlogin WHERE userid = ?', [userId]);
         if (results.length > 0) {
             return results[0];
         } else {
