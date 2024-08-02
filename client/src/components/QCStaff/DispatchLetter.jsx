@@ -12,11 +12,15 @@ function DispatchLetter() {
     const [votersDetails, setVotersDetails] = useState([]);
     const [formData, setFormData] = useState({ WBId: undefined });
     const [WBOptions, setWBOptions] = useState([]);
+    const [letters, setLetters] = useState([]);
+    const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+    // const DId = user ? user.DId : '';
+    const DId = 1;
 
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch('/api/v1/admin/wardBlockDetails', {
+                const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -37,11 +41,43 @@ function DispatchLetter() {
         fetchWBOptions();
     }, []);
 
+
+    useEffect(()=>{
+
+        const fetchletters = async()=>{
+          try{
+            const response = await fetch('/api/v1/qualityStaff/prevletter',{
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                },
+      
+            });
+            if(!response.ok) throw new Error ('Failed to fetch previous letter');
+      
+            const data =await response.json();
+           
+            console.log("the received data:",data[0].content)
+            if(!data|| data.length===0) throw new Error("empty  or invalid data")
+            
+              console.log("the received data:",data)
+      
+              setLetters(data[0].content);
+      
+          }catch (error) {
+            console.error('Error fetching letters:', error);
+          }
+          
+        }
+        fetchletters()
+        },[])
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const result = await fetch("/api/v1/subAdmin/voterList", {
+            const result = await fetch(`/api/v1/subAdmin/voterList`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }
@@ -164,10 +200,9 @@ function DispatchLetter() {
                 <p>${voter.HNo + " " + voter.HAreaVill},</p>
                 <p>प्रिय ${voter.HFName + " " + voter.HLName},</p>
                 <p>नमस्कार!</p>
-                <p>आशा है कि आप सकुशल और स्वस्थ होंगे। रक्षा बंधन के पावन अवसर पर आपको और आपके परिवार को मेरी ओर से ढेर सारी शुभकामनाएं।</p>
-                <p>रक्षा बंधन का यह पर्व हमारे भाई-बहन के प्यार और समर्पण का प्रतीक है। यह वह दिन है जब बहनें अपने भाइयों की कलाई पर राखी बांधकर उनकी लंबी उम्र और सुख-समृद्धि की कामना करती हैं, और भाई भी अपनी बहनों की रक्षा का संकल्प लेते हैं। इस पवित्र बंधन का यह त्योहार हमारे परिवार और समाज को एकजुट करता है और आपसी प्रेम और विश्वास को मजबूत करता है।</p>
-                <p>इस विशेष दिन पर, मैं आपको याद करते हुए अपने दिल की गहराइयों से यह संदेश भेज रहा हूँ। आप हमेशा खुश रहें, स्वस्थ रहें, और जीवन में सफलता की ऊंचाइयों को छुएं। हमारी बचपन की यादें, हंसी-मजाक और साथ बिताए वो पल हमेशा मेरे दिल में संजोए रहेंगे।</p>
-                <p>भगवान से प्रार्थना है कि आपकी सभी इच्छाएं पूरी हों और आप हमेशा जीवन में आगे बढ़ते रहें। राखी के इस त्योहार पर आपकी खुशियों की कामना करते हुए, मैं आपके लिए ढेर सारा प्यार और शुभकामनाएं भेज रहा हूँ।</p>
+
+                ${letters}
+             
                 <p>आपका स्नेही,</p>
                 <p>अरुण पाठक</p>
                 <p>स्नातक चैत्र, कानपूर</p>

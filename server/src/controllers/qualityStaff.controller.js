@@ -153,4 +153,41 @@ const voterDetailById = asyncHandler(async (req, res)=>{
 
 
 
-export { wardwiseVoterContact, sendSMS, DeleteVoter, voterDetailById }; 
+const updateletter=asyncHandler(async(req,res)=>{
+    const { content } = req.body;
+    if (!content) {
+        return res.status(400).json({ error: "Content is required" });
+    }
+
+    try {
+        // Insert the content into the letter table
+        await queryDatabase(
+            'INSERT INTO letter (content) VALUES (?)',
+            [content]
+        );
+
+        return res.status(201).json(
+            new ApiResponse(200, null, "Content saved successfully")
+        );
+    } catch (error) {
+        console.error('Error saving content:', error.message);
+        return res.status(error.statusCode || 500).json(
+            new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error")
+        );
+    }
+})
+
+const prevletter = asyncHandler(async (req, res) => {
+    console.log("abcgh")
+    try {
+        const results = await queryDatabase('SELECT * FROM letter ORDER BY id DESC LIMIT 1');
+        return res.json(results); // Correctly return the results array
+    } catch (error) {
+        console.error('Database query error', error);
+        return res.status(500).send('A database error occurred.');
+    }
+});
+
+
+
+export { wardwiseVoterContact, sendSMS, DeleteVoter, voterDetailById , updateletter,prevletter}; 

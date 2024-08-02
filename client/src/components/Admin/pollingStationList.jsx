@@ -80,7 +80,7 @@ function PollingStationList() {
       if (result.ok) {
         toast.success("PollingStationList Added Successfully.");
         setTimeout(() => {
-          window.location.reload();
+          // window.location.reload();
         }, 1000);
       } else {
         toast.error("Error in Adding PollingStationList:", result.statusText);

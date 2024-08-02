@@ -92,14 +92,16 @@ const UpdateCasteDetail = asyncHandler(async (req, res) => {
 });
 
 const AddTehsil = asyncHandler(async (req, res) => {
+    const {DId}= req.params;
+    console.log(DId);
     const { EName, HName } = req.body;
     if (!EName || !HName) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'INSERT INTO tehsillist (EName, HName) VALUES (?, ?)',
-            [EName, HName]
+            'INSERT INTO tehsillist (EName, HName, Did) VALUES (?, ?,?)',
+            [EName, HName, DId]
         );
 
         const addedTehsil = {
@@ -117,7 +119,8 @@ const AddTehsil = asyncHandler(async (req, res) => {
 
 const TehsilDetails = asyncHandler(async (req, res) => {
     try {
-        const results = await queryDatabase('SELECT * FROM tehsillist');
+        const {DId} = req.params;
+        const results = await queryDatabase(`SELECT * FROM tehsillist WHERE Did =?`,[DId]);
         return res.json(results); // Should correctly return the results array
     } catch (error) {
         console.error('Database query error', error);
@@ -198,9 +201,9 @@ const AddCouncil = asyncHandler(async (req, res) => {
 });
 
 const CouncilDetails = asyncHandler(async (req, res) => {
-
+    const {DId}= req.params;
     try {
-        const results = await queryDatabase('SELECT council.*, tehsillist.EName FROM tehsillist RIGHT JOIN council ON council.TehId = tehsillist.Id');
+        const results = await queryDatabase(`SELECT council.*, tehsillist.EName FROM tehsillist RIGHT JOIN council ON council.TehId = tehsillist.Id WHERE tehsillist.Did=?`,[DId]);
 
         return res.json(results); // Should correctly return the results array
     } catch (error) {
@@ -282,9 +285,9 @@ const AddVidhanSabha = asyncHandler(async (req, res) => {
 });
 
 const VidhanSabhaDetails = asyncHandler(async (req, res) => {
-
+    const {DId}= req.params;
     try {
-        const results = await queryDatabase('SELECT vidhansabha.*, council.ECouncil, tehsillist.EName, tehsillist.Id as TehId FROM vidhansabha INNER JOIN council ON vidhansabha.counId = council.id INNER JOIN tehsillist ON tehsillist.id = council.TehId;');
+        const results = await queryDatabase(`SELECT vidhansabha.*, council.ECouncil, tehsillist.EName, tehsillist.Id as TehId FROM vidhansabha INNER JOIN council ON vidhansabha.counId = council.id INNER JOIN tehsillist ON tehsillist.id = council.TehId WHERE tehsillist.Did= ?`,[DId]);
 
         return res.json(results); // Should correctly return the results array
     } catch (error) {
@@ -366,11 +369,21 @@ const AddWardBlock = asyncHandler(async (req, res) => {
 });
 
 const WardBlockDetails = asyncHandler(async (req, res) => {
-
+    const {DId}= req.params;
     try {
-        const results = await queryDatabase('SELECT WB.Id, WB.VSId, WB.WardNo, WB.EWardBlock, WB.HWardBlock, vidhansabha.EVidhanSabha FROM wardblock AS WB INNER JOIN vidhansabha ON vidhansabha.Id = WB.VSId ORDER BY WB.WardNo ');
+        const results = await queryDatabase(`
+            SELECT WB.Id, WB.VSId, WB.WardNo, WB.EWardBlock, WB.HWardBlock, vidhansabha.EVidhanSabha 
+            FROM wardblock AS WB
+             INNER JOIN vidhansabha 
+             ON vidhansabha.Id = WB.VSId 
+             JOIN council AS C
+             ON vidhansabha.counId= C.Id
+             JOIN tehsillist AS T
+             ON T.Id = C.TehId
+              WHERE T.Did=?
+             ORDER BY WB.WardNo`, [DId]);
 
-        return res.json(results); // Should correctly return the results array
+        return res.json(results);
     } catch (error) {
         console.error('Database query error', error);
         return res.status(500).send('A database error occurred.');
@@ -449,9 +462,20 @@ const AddChakBlock = asyncHandler(async (req, res) => {
 });
 
 const ChakBlockDetails = asyncHandler(async (req, res) => {
-
+    const {DId}= req.params;
     try {
-        const results = await queryDatabase('SELECT chakblockpanch.*, wardblock.EWardBlock FROM chakblockpanch INNER JOIN wardblock ON wardblock.Id = chakblockpanch.WBId');
+        const results = await queryDatabase(`
+            SELECT chakblockpanch.*, wardblock.EWardBlock 
+            FROM chakblockpanch 
+            INNER JOIN wardblock 
+            ON wardblock.Id = chakblockpanch.WBId
+            JOIN vidhansabha AS V
+            ON wardblock.VSID= V.Id
+            JOIN council AS C
+            ON C.Id= V.counId
+            JOIN tehsillist AS T
+            ON T.Id= C.TehId
+            WHERE T.Did=?`,[DId]);
 
         return res.json(results);
     } catch (error) {
@@ -504,10 +528,8 @@ const DeleteChakBlockDetail = asyncHandler(async (req, res) => {
 });
 
 const AddAreaVill = asyncHandler(async (req, res) => {
+    
     const { EAreaVill, HAreaVill, HnoRange, CBPId } = req.body;
-
-
-
     if (!EAreaVill || !HAreaVill || !CBPId )
         throw new ApiError(400, 'Plaese Enter All the Details')
 
@@ -531,11 +553,28 @@ const AddAreaVill = asyncHandler(async (req, res) => {
 });
 
 const AreaVillDetails = asyncHandler(async (req, res) => {
-
+    const {DId}= req.params;
     try {
-        const results = await queryDatabase('SELECT areavill.*, chakblockpanch.ECBPanch, wardblock.EWardBlock, wardblock.Id as WBId FROM areavill INNER JOIN chakblockpanch ON areavill.CBPId = chakblockpanch.id INNER JOIN wardblock ON wardblock.id = chakblockpanch.WBID;');
+        const results = await queryDatabase(`
+            SELECT areavill.*, chakblockpanch.ECBPanch, wardblock.EWardBlock, wardblock.Id as WBId 
+            FROM areavill 
+            INNER JOIN chakblockpanch 
+            ON areavill.CBPId = chakblockpanch.id 
+            INNER JOIN wardblock 
+            ON wardblock.id = chakblockpanch.WBID
+            
+            JOIN vidhansabha AS V
+            ON wardblock.VSID= V.Id
+            JOIN council AS C
+            ON C.Id= V.counId
+            JOIN tehsillist AS T
+            ON T.Id= C.TehId
+            WHERE T.Did=?`,[DId]);
 
-        return res.json(results); // Should correctly return the results array
+            
+            
+
+        return res.json(results); 
     } catch (error) {
         console.error('Database query error', error);
         return res.status(500).send('A database error occurred.');

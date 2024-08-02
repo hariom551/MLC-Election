@@ -28,18 +28,23 @@ function ChakBlock() {
 
   });
 
+  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const DId = user ? user.DId : '';
+
+
   const [WBOptions, setWBOptions] = useState([]);
   useEffect(() => {
 
     const fetchWBOptions = async () => {
       try {
-        const response = await fetch('/api/v1/admin/wardBlockDetails', {
+        const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }
         });
-   
+
+        
         if (!response.ok) {
           throw new Error('Failed to fetch wardblock options');
         }
@@ -62,7 +67,7 @@ function ChakBlock() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/chakBlockDetails', {
+        const response = await fetch(`/api/v1/admin/chakBlockDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -97,7 +102,7 @@ function ChakBlock() {
     e.preventDefault();
 
     try {
-      const result = await fetch("/api/v1/admin/addChakBlock", {
+      const result = await fetch(`/api/v1/admin/addChakBlock/${DId}`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {

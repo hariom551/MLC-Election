@@ -30,10 +30,13 @@ function VidhanSabha() {
   const [tehsilOptions, setTehsilOptions] = useState([]);
   const [councilOptions, setCouncilOptions] = useState([]);
 
+  const user = JSON.parse(localStorage.getItem("user")); 
+  const DId = user ? user.DId : '';
+
   useEffect(() => {
     const fetchTehsilOptions = async () => {
       try {
-        const response = await fetch('/api/v1/admin/tehsilDetails', {
+        const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -60,7 +63,7 @@ function VidhanSabha() {
   const fetchCouncilOptions = async (tehId) => {
     console.log(tehId);
     try {
-      const response = await fetch(`/api/v1/admin/councilDetails`, {
+      const response = await fetch(`/api/v1/admin/councilDetails/${DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -91,7 +94,7 @@ function VidhanSabha() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/vidhanSabhaDetails', {
+        const response = await fetch(`/api/v1/admin/vidhanSabhaDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

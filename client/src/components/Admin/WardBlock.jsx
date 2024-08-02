@@ -24,11 +24,13 @@ function WardBlock() {
   });
 
   const [vsOptions, setVSOptions] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const DId = user ? user.DId : '';
 
   useEffect(() => {
     const fetchVSOptions = async () => {
       try {
-        const response = await fetch('/api/v1/admin/vidhanSabhaDetails', {
+        const response = await fetch(`/api/v1/admin/vidhanSabhaDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -57,7 +59,7 @@ function WardBlock() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/wardBlockDetails', {
+        const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

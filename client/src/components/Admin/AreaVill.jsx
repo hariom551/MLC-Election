@@ -31,15 +31,19 @@ function AreaVill() {
   const [wbOptions, setWBOptions] = useState([]);
   const [cbOptions, setCBOptions] = useState([]);
 
+  const user = JSON.parse(localStorage.getItem("user")); 
+  const DId = user ? user.DId : '';
+
   useEffect(() => {
     const fetchWBOptions = async () => {
       try {
-        const response = await fetch('/api/v1/admin/wardBlockDetails', {
+        const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }
         });
+
         if (!response.ok) {
           throw new Error('Failed to fetch Ward block options');
         }
@@ -47,7 +51,7 @@ function AreaVill() {
         if (!data || !Array.isArray(data) || data.length === 0) {
           throw new Error('Empty or invalid Ward block options data');
         }
-        // Map data to an array of { value, label } objects
+        
         const options = data.map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }));
         setWBOptions(options);
       } catch (error) {
@@ -60,7 +64,7 @@ function AreaVill() {
 
   const fetchCBOptions = async (wbId) => {
     try {
-      const response = await fetch(`/api/v1/admin/chakBlockDetails`, {
+      const response = await fetch(`/api/v1/admin/chakBlockDetails/${DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -88,7 +92,7 @@ function AreaVill() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/AreaVillDetails', {
+        const response = await fetch(`/api/v1/admin/AreaVillDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

@@ -31,6 +31,7 @@ import Cookies from 'js-cookie';
 import Voters from './components/QCStaff/Voters.jsx';
 import DispatchLetter from './components/QCStaff/DispatchLetter.jsx';
 import SendSMSForm from './components/QCStaff/SendSMSForm.jsx';
+import UpdateLetter from './components/QCStaff/UpdateLetter.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -99,6 +100,7 @@ const getRoutesForRole = (role) => {
           <Route path="/Telecaller" element={<SearchChakBlock />} />
           <Route path="/QcForm" element={<SendSMSForm />} />
           <Route path="/editVoter" element={<AddVoter />} />
+          <Route path="/updateletter" element={<UpdateLetter />} />
         </>
       );
 

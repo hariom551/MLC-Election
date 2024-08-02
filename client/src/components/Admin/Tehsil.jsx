@@ -21,47 +21,55 @@ function Tehsil() {
     HName: '',
     
   });
-
+  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const DId = user ? user.DId : '';
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/tehsilDetails', {
+        const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }
         });
+  
         if (!response.ok) {
           throw new Error('Failed to fetch Tehsil details');
         }
+  
         const data = await response.json();
+  
         if (!data || !Array.isArray(data) || data.length === 0) {
           throw new Error('Empty or invalid Tehsil details data');
         }
+  
         setTehsilDetails(data);
+  
+        // Ensure content is defined before trying to find Tehsil
         if (content) {
-          const Tehsil = data.find(item =>{  return item.Id == content});
-     
+          const Tehsil = data.find(item => item.Id == content); // Use == for loose equality
+  
           if (Tehsil) {
             setFormData(Tehsil);
-           
           } else {
             toast.error(`Tehsil with ID ${content} not found`);
           }
         }
       } catch (error) {
-        toast.error('Error fetching Tehsil data:', error);
+        toast.error(`Error fetching Tehsil data: ${error.message}`); // Fixed error message
       }
     };
   
     fetchData();
-  }, [content]);
+  }, [DId, content]); // Add DId as a dependency to refetch if it changes
+  
   
   
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("/api/v1/admin/addTehsil", {
+      const result = await fetch(`/api/v1/admin/addTehsil/${DId}`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -72,9 +80,11 @@ function Tehsil() {
       if (result.ok) {
       
         toast.success("Tehsil Added Successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+       setFormData({
+        
+        EName: '',
+        HName: '',
+       })
       } else {
         toast.error("Error in Adding Tehsil:", result.statusText);
       }
@@ -155,7 +165,8 @@ function Tehsil() {
     {
       accessorKey: 'Id',
       header: 'S.No',
-      size: 10,
+      size: 3,
+      Cell: ({ row }) => row.index + 1,
     },
     {
       accessorKey: 'Action',

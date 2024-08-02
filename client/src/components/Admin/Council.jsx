@@ -27,12 +27,17 @@ function Council() {
 
   });
 
+
   const [tehsilOptions, setTehsilOptions] = useState([]);
+
+  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const DId = user ? user.DId : '';
+
   useEffect(() => {
 
     const fetchTehsilOptions = async () => {
       try {
-        const response = await fetch('/api/v1/admin/tehsilDetails', {
+        const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -55,12 +60,12 @@ function Council() {
     };
 
     fetchTehsilOptions();
-  }, []);
+  }, [DId]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/councilDetails', {
+        const response = await fetch(`/api/v1/admin/councilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -108,9 +113,16 @@ function Council() {
         // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
         toast.success("Council Added Successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 2000);
+        setFormData({
+          Id: '',
+          ECouncil: '',
+          HCouncil: '',
+          EName: '',
+          TehId: ''
+        });
       } else {
         toast.error("Error in Adding Council:", result.statusText);
       }
@@ -185,7 +197,8 @@ function Council() {
     {
       accessorKey: 'Id',
       header: 'S.No',
-      size: 10,
+      size: 5,
+      Cell: ({ row }) => row.index + 1,
     },
     {
       accessorKey: 'Action',

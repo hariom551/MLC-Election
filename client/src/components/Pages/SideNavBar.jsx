@@ -264,6 +264,7 @@ function SideNavBar({ show }) {
                         <ul><li><Link to="/Telecaller" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Tellecaller</Link></li></ul>
                         <ul><li><Link to="/QcForm" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Form qc</Link></li></ul>
                         <ul><li><Link to="/SearchChakBlock" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Search Chak Block</Link></li></ul>
+                        <ul><li><Link to="/updateletter" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Update Letter</Link></li></ul>
                       
                        
                         {/* <div className="dropdown">
