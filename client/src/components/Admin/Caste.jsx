@@ -28,7 +28,7 @@ function Caste() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/casteDetails', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/casteDetails`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ function Caste() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("/api/v1/admin/addCaste", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addCaste`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -108,7 +108,7 @@ function Caste() {
     console.log(requestBody);
 
     try {
-      const result = await fetch("/api/v1/admin/updateCasteDetail", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCasteDetail`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {

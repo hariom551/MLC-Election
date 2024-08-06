@@ -76,7 +76,7 @@ function UpdateIncomingForm() {
 
     const fetchSuggestedMobiles = async (input) => {
         try {
-            const response = await fetch('/api/v1/formsAdmin/searchVMobNo', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/searchVMobNo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -127,7 +127,7 @@ function UpdateIncomingForm() {
 
     const fetchCareOfSuggestedMobiles = async (input, index) => {
         try {
-            const response = await fetch('/api/v1/formsAdmin/searchVMobNo', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/searchVMobNo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

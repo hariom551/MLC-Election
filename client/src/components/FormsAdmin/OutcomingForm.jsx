@@ -47,7 +47,7 @@ function OutgoingForms() {
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
-            const response = await fetch('/api/v1/formsAdmin/searchVMobNo', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/searchVMobNo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -71,7 +71,7 @@ function OutgoingForms() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/api/v1/FormsAdmin/outFormDetails', {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/FormsAdmin/outFormDetails`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -112,7 +112,7 @@ function OutgoingForms() {
         }
     
         try {
-            const result = await fetch("/api/v1/FormsAdmin/addOutForm", {
+            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/FormsAdmin/addOutForm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

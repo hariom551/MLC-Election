@@ -20,7 +20,7 @@ function DispatchLetter() {
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -46,7 +46,7 @@ function DispatchLetter() {
 
         const fetchletters = async()=>{
           try{
-            const response = await fetch('/api/v1/qualityStaff/prevletter',{
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/prevletter`,{
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ function DispatchLetter() {
         e.preventDefault();
 
         try {
-            const result = await fetch(`/api/v1/subAdmin/voterList/${DId}`, {
+            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subAdmin/voterList/${DId}`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }
@@ -160,7 +160,7 @@ function DispatchLetter() {
                 Cell: ({ cell }) => {
                     const image = cell.getValue();
                     if (!image) return 'N/A';
-                    const imageUrl = `http://localhost:3000/public/photo/${image}`;
+                    const imageUrl = `${import.meta.env.VITE_API_URL}/public/photo/${image}`;
                     return <img src={imageUrl} alt="voter" style={{ width: '50px', height: '50px' }} />;
                 },
             },
@@ -171,7 +171,7 @@ function DispatchLetter() {
                 Cell: ({ cell }) => {
                     const degreeUrl = cell.getValue();
                     if (!degreeUrl) return 'N/A';
-                    const imageUrl = `http://localhost:3000/public/Degree/${degreeUrl}`;
+                    const imageUrl = `${import.meta.env.VITE_API_URL}/public/Degree/${degreeUrl}`;
                     return <img src={imageUrl} alt="degree" style={{ width: '50px', height: '50px' }} />;
                 },
             },
@@ -182,7 +182,7 @@ function DispatchLetter() {
                 Cell: ({ cell }) => {
                     const idProofUrl = cell.getValue();
                     if (!idProofUrl) return 'N/A';
-                    const imageUrl = `http://localhost:3000/public/IdProof/${idProofUrl}`;
+                    const imageUrl = `${import.meta.env.VITE_API_URL}/public/IdProof/${idProofUrl}`;
                     return <img src={imageUrl} alt="id proof" style={{ width: '50px', height: '50px' }} />;
                 },
             },

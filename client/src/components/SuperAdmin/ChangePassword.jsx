@@ -27,7 +27,7 @@ function ChangePassword() {
     }
 
     try {
-      let result = await fetch("http://localhost:3000/api/v1/users/changePassword", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/changePassword`, {
         method: 'POST',
         body: JSON.stringify({ userId, password, confirmPassword }),
         headers: {

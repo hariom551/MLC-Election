@@ -47,7 +47,7 @@ const UpdateLetter = () => {
         return;
       }
       else{
-      const response = await fetch(`/api/v1/qualityStaff/updateletter`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/updateletter`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

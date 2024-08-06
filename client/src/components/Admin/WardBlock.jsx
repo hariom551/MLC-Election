@@ -30,7 +30,7 @@ function WardBlock() {
   useEffect(() => {
     const fetchVSOptions = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/vidhanSabhaDetails/${DId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -59,7 +59,7 @@ function WardBlock() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -92,7 +92,7 @@ function WardBlock() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch('/api/v1/admin/addWardBlock', {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addWardBlock`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -116,7 +116,7 @@ function WardBlock() {
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch('/api/v1/admin/updateWardBlockDetails', {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateWardBlockDetails`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -147,7 +147,7 @@ function WardBlock() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch('/api/v1/Admin/deleteWardBlockDetail', {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteWardBlockDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {

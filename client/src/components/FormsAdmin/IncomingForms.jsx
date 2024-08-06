@@ -58,7 +58,7 @@ function IncomingForms() {
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
-            const response = await fetch('/api/v1/formsAdmin/searchVMobNo', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/searchVMobNo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -79,7 +79,7 @@ function IncomingForms() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/api/v1/formsAdmin/incomFormDetails', {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/incomFormDetails`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ function IncomingForms() {
 
 
         try {
-            const result = await fetch("/api/v1/formsAdmin/AddIncomForm", {
+            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/AddIncomForm`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {
@@ -204,7 +204,7 @@ function IncomingForms() {
     const handleEdit = async (e) => {
         e.preventDefault();
         try {
-            const result = await fetch("/api/v1/formsAdmin/UpdateIncomForm", {
+            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/UpdateIncomForm`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {

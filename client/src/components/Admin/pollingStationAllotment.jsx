@@ -38,7 +38,7 @@ function PollingStationAllotment() {
   useEffect(() => {
     const fetchWBOptions = async () => {
       try {
-        const response = await fetch('/api/v1/admin/wardBlockDetails', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ function PollingStationAllotment() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/pSADetails', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSADetails`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -89,7 +89,7 @@ function PollingStationAllotment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("/api/v1/admin/addPSA", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addPSA`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -121,7 +121,7 @@ function PollingStationAllotment() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch("/api/v1/admin/deletePSListDetail", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/deletePSListDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {
@@ -223,7 +223,7 @@ function PollingStationAllotment() {
 
   const loadPSNoOptions = async (inputValue) => {
     try {
-      const response = await fetch("/api/v1/admin/searchPSNo", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/searchPSNo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -27,7 +27,7 @@ function Tehsil() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -69,7 +69,7 @@ function Tehsil() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch(`/api/v1/admin/addTehsil/${DId}`, {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addTehsil/${DId}`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -109,7 +109,7 @@ function Tehsil() {
     // console.log(requestBody);
 
     try {
-      const result = await fetch("/api/v1/admin/updateTehsilDetail", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateTehsilDetail`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {
@@ -139,7 +139,7 @@ function Tehsil() {
 
   const handleDelete = async (Id) =>{
     try {
-      let result = await fetch("/api/v1/Admin/deleteTehsilDetail", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteTehsilDetail`, {
         method: 'POST',
         body: JSON.stringify({Id}),
         headers: {

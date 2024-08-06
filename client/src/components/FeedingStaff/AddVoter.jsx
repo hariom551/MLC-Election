@@ -107,7 +107,7 @@ function AddVoter() {
         const fetchData = async () => {
             if (!content) return;
             try {
-                const response = await fetch('/api/v1/qualitystaff/voterDetailById', {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualitystaff/voterDetailById`, {
                     method: 'POST',
                     body: JSON.stringify({ content }),
                     headers: {
@@ -189,7 +189,7 @@ function AddVoter() {
                 }
             });
 
-            const response = await fetch('/api/v1/feedingStaff/addVoter', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/addVoter`, {
                 method: 'POST',
                 body: formData,
             });
@@ -335,7 +335,7 @@ function AddVoter() {
                 }
             });
 
-            const response = await fetch(`/api/v1/qualityStaff/UpdateVoter/${content}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/UpdateVoter/${content}`, {
                 method: 'PUT',
                 body: formData,
             });

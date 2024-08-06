@@ -32,7 +32,7 @@ function SearchChakBlock() {
 
     const fetchCBOptions = async () => {
         try {
-            const response = await fetch(`/api/v1/feedingstaff/ChakNoBlock`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingstaff/ChakNoBlock`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ function SearchChakBlock() {
 
     const fetchAreaVillOptions = async (input) => {
         try {
-            const response = await fetch('/api/v1/feedingStaff/searchAreaVill', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ function SearchChakBlock() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("/api/v1/feedingstaff/getPerseemanDetails", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingstaff/getPerseemanDetails`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {

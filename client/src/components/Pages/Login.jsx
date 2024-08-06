@@ -32,7 +32,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const result = await fetch("/api/v1/users/login", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/login`, {
         method: 'post',
         body: JSON.stringify({ userid: userId, password }),
         headers: {

@@ -14,7 +14,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
 
     const fetchSurnameOptions = async (input, setter) => {
         try {
-            const response = await fetch('/api/v1/feedingStaff/searchSurname', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchSurname`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
 
     const fetchCasteOptions = async (surname) => {
         try {
-            const response = await fetch('/api/v1/feedingStaff/searchCaste', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchCaste`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

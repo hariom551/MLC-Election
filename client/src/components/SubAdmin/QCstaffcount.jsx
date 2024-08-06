@@ -25,7 +25,7 @@ const QCstaffcount = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('api/v1/subadmin/qcstaffcount', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}api/v1/subadmin/qcstaffcount`, {
         method: 'POST',
         body: JSON.stringify({startDate,endDate}),
         headers: { 'Content-Type': 'application/json' },

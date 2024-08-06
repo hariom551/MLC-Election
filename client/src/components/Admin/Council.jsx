@@ -37,7 +37,7 @@ function Council() {
 
     const fetchTehsilOptions = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ function Council() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/councilDetails/${DId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -100,7 +100,7 @@ function Council() {
     e.preventDefault();
     console.log(formData);
     try {
-      const result = await fetch("/api/v1/admin/addCouncil", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addCouncil`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -135,7 +135,7 @@ function Council() {
     e.preventDefault();
 
     try {
-      const result = await fetch("/api/v1/admin/updateCouncilDetail", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCouncilDetail`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -170,7 +170,7 @@ function Council() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch("/api/v1/Admin/deleteCouncilDetail", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteCouncilDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {

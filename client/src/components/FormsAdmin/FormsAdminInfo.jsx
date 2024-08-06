@@ -8,7 +8,7 @@ const FormsAdminInfo = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/api/v1/formsAdmin/formsAdminInfo', {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/formsAdminInfo`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

@@ -41,7 +41,7 @@ function EditDistrictDetails() {
     };
 
     try {
-      let result = await fetch("http://localhost:3000/api/v1/users/updateDistrictDetail", {
+      let result = await fetch(`/api/v1/users/updateDistrictDetail`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {
@@ -67,7 +67,7 @@ function EditDistrictDetails() {
         if (!content) return; 
 
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/users/getDistrictDetails`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/getDistrictDetails`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

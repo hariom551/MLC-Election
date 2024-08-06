@@ -30,7 +30,7 @@ const DaywiseReport = () => {
   useEffect(() => {
     const fetchUsername = async () => {
       try {
-        const response = await fetch('/api/v1/subadmin/staffname', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subadmin/staffname`, {
           method: 'POST',
           body: JSON.stringify({userId}),
           headers: { 'Content-Type': 'application/json' },
@@ -40,10 +40,10 @@ const DaywiseReport = () => {
           setName(data[0].name);
           console.log(data[0].role)
           if(data[0].role==="Feeding Staff")
-         {   setApi (`/api/v1/subadmin/daywisereport`)
+         {   setApi (`${import.meta.env.VITE_API_URL}/api/v1/subadmin/daywisereport`)
          }
           else
-         {setApi(`/api/v1/subadmin/QCdaywisereport`)
+         {setApi(`${import.meta.env.VITE_API_URL}/api/v1/subadmin/QCdaywisereport`)
          }
         } else {
           console.log('No name found');

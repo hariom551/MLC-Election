@@ -26,7 +26,7 @@ const SendSMSForm = () => {
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -53,7 +53,7 @@ const SendSMSForm = () => {
 
     const handleApply = async (e) => {
         try {
-            const response = await fetch('/api/v1/qualityStaff/wardwiseVoterContact', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/wardwiseVoterContact`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ const SendSMSForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('/api/v1/qualityStaff/sendSMS', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/sendSMS`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

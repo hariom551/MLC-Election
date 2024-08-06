@@ -72,7 +72,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
 
   const fetchAreaVillOptions = async (input) => {
     try {
-      const response = await fetch(`/api/v1/feedingStaff/searchAreaVill/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill/${DId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
   const fetchAllAreaDetails = async (EAreaVill, HnoRange) => {
     try {
 
-      const response = await fetch(`/api/v1/feedingStaff/allAreaDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/allAreaDetails/${DId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

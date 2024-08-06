@@ -34,7 +34,7 @@ function PollingStationList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/v1/admin/pSListDetails', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSListDetails`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -69,7 +69,7 @@ function PollingStationList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("/api/v1/admin/addPSList", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addPSList`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -93,7 +93,7 @@ function PollingStationList() {
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("/api/v1/admin/updatePSListDetail", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updatePSListDetail`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -124,7 +124,7 @@ function PollingStationList() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch("/api/v1/Admin/deletePSListDetail", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deletePSListDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {

@@ -33,7 +33,7 @@ function SideNavBar({ show }) {
 
     const handleLogout = async () => {
         try {
-            const response = await axios.delete('/api/v1/users/logoutuser')
+            const response = await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/users/logoutuser`)
             if (response.data.success) {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");

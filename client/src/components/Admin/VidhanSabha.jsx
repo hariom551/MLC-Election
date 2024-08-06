@@ -63,7 +63,7 @@ function VidhanSabha() {
   const fetchCouncilOptions = async (tehId) => {
     console.log(tehId);
     try {
-      const response = await fetch(`/api/v1/admin/councilDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -94,7 +94,7 @@ function VidhanSabha() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/vidhanSabhaDetails/${DId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -130,7 +130,7 @@ function VidhanSabha() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch("/api/v1/admin/addVidhanSabha", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addVidhanSabha`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -169,7 +169,7 @@ function VidhanSabha() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch("/api/v1/Admin/deleteVidhanSabhaDetail", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteVidhanSabhaDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {
@@ -197,7 +197,7 @@ function VidhanSabha() {
 
 
     try {
-      const result = await fetch("/api/v1/admin/updateVidhanSabhaDetail", {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateVidhanSabhaDetail`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {

@@ -28,7 +28,7 @@ function District() {
     };
 
     try {
-      let result = await fetch("http://localhost:3000/api/v1/users/addDistrict", {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/addDistrict`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {
@@ -52,7 +52,7 @@ function District() {
 
   const handleDelete = async (DistCode) =>{
     try {
-      let result = await fetch("http://localhost:3000/api/v1/users/deleteDistrictDetail", {
+      let result = await fetch(`/api/v1/users/deleteDistrictDetail`, {
         method: 'POST',
         body: JSON.stringify({DistCode}),
         headers: {
@@ -76,7 +76,7 @@ function District() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/v1/users/getDistrictDetails', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/getDistrictDetails`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
