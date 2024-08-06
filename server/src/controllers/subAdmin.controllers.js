@@ -4,18 +4,10 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 
-// SELECT U.name, U.mobile1, COUNT(U.userid) AS user_count
-// FROM voterlist
-// INNER JOIN usersadminformsdata AS U ON voterlist.SBy = U.userid
-// WHERE voterlist.SDate > '2017-07-01' 
-// GROUP BY U.userid, U.name, U.mobile1;
-
-
 
 const voterList = asyncHandler(async (req, res) => {
-
     const { WBId } = req.body;
-
+    const { DId } = req.params;
     if (!WBId) {
         return res.status(400).json({ error: 'WBId parameter is required' });
     }
@@ -29,10 +21,9 @@ const voterList = asyncHandler(async (req, res) => {
             FROM voterlist 
             LEFT JOIN caste ON CasteId = caste.ID 
             LEFT JOIN AreaVill ON AreaId= AreaVill.Id
-            WHERE WBId = ?`, 
-            [WBId]
+            WHERE WBId = ? AND DId=?`,
+            [WBId, DId]
         );
-
         return res.status(201).json(
             new ApiResponse(200, results, " details fetched successfully")
         )
@@ -59,7 +50,7 @@ const NoMobvoterList = asyncHandler(async (req, res) => {
             FROM voterlist 
             LEFT JOIN caste ON CasteId = caste.ID 
             LEFT JOIN AreaVill ON AreaId= AreaVill.Id
-            WHERE WBId = ? AND MNo = ?`, 
+            WHERE WBId = ? AND MNo = ?`,
             [WBId, ISNULL]
         );
 
@@ -71,4 +62,93 @@ const NoMobvoterList = asyncHandler(async (req, res) => {
 });
 
 
-export {voterList}
+const FeedingStaff = asyncHandler(async (req, res) => {
+    const { startDate, endDate } = req.body;
+
+    try {
+        const query = `
+        SELECT U.name, U.mobile1, U.userid,COUNT(U.userid) AS user_count
+        FROM voterlist
+        LEFT JOIN userlogin AS U ON voterlist.SBy = U.userid
+        WHERE voterlist.SDate BETWEEN '${startDate}' AND '${endDate}'
+       GROUP BY U.userid, U.name, U.mobile1;
+      `;
+        const results = await queryDatabase(query, [startDate, endDate]);
+
+        return res.json(results);
+    } catch (error) {
+
+        return res.status(500).json({ error: "A database error occurred." });
+    }
+});
+
+
+const DayWiseReport = asyncHandler(async (req, res) => {
+    const { startDate, endDate, userId } = req.body;
+    console.log(startDate, endDate, userId);
+    try {
+        const query = `SELECT DATE_FORMAT(SDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
+                       FROM voterlist 
+                       WHERE SBy = ? 
+                         AND SDate BETWEEN ? AND ? 
+                       GROUP BY SBy, SDate;`;
+        const results = await queryDatabase(query, [userId, startDate, endDate]);
+        console.log(results);
+        return res.json(results);
+    } catch (error) {
+        console.error("Database error:", error);
+        return res.status(500).json({ error: "A database error occurred." });
+    }
+});
+
+const staffname = asyncHandler(async (req, res) => {
+    const { userId } = req.body;
+    try {
+        const query = `SELECT name,role FROM userlogin WHERE userId = ?`;
+        const results = await queryDatabase(query, [userId]);
+        return res.json(results);
+    } catch (error) {
+        console.error("Database error:", error);
+        return res.status(500).json({ error: "A database error occurred." });
+    }
+});
+
+const qcstaffcount = asyncHandler(async (req, res) => {
+    const { startDate, endDate } = req.body;
+
+    try {
+        const query = `
+        SELECT U.name, U.mobile1, U.userid,COUNT(U.userid) AS user_count
+        FROM voterlist
+        LEFT JOIN userlogin AS U ON voterlist.MBy = U.userid
+        WHERE voterlist.MDate BETWEEN '${startDate}' AND '${endDate}'
+       GROUP BY U.userid, U.name, U.mobile1;
+      `;
+        const results = await queryDatabase(query, [startDate, endDate]);
+        return res.json(results);
+    } catch (error) {
+
+        return res.status(500).json({ error: "A database error occurred." });
+    }
+});
+
+const QCDayWiseReport = asyncHandler(async (req, res) => {
+    const { startDate, endDate, userId } = req.body;
+    console.log(startDate, endDate, userId);
+    try {
+        const query = `SELECT DATE_FORMAT(SDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
+                       FROM voterlist 
+                       WHERE MBy = ? 
+                         AND MDate BETWEEN ? AND ? 
+                       GROUP BY MBy, MDate;`;
+        const results = await queryDatabase(query, [userId, startDate, endDate]);
+        console.log(results);
+        return res.json(results);
+    } catch (error) {
+        console.error("Database error:", error);
+        return res.status(500).json({ error: "A database error occurred." });
+    }
+});
+
+
+export { voterList, FeedingStaff, DayWiseReport, staffname, qcstaffcount, QCDayWiseReport, };

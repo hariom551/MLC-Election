@@ -13,7 +13,14 @@ import {
 } from 'material-react-table';
 
 function UserForm() {
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const loginUserId = user.userid;
+  const DId = user.DId;
+  const userrole = user.role;
+  
   const [userData, setUserData] = useState([]);
+
   const initialFormData = {
     userId: '',
     password: '',
@@ -24,8 +31,9 @@ function UserForm() {
     email: '',
     address: '',
     permission: '',
-    DId:''
+    DId: DId? DId: ''
   };
+
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
 
@@ -33,9 +41,7 @@ function UserForm() {
   const searchParams = new URLSearchParams(location.search);
   const content = searchParams.get('content');
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const loginUserId = user.userid;
-  const DId = user.DId;
+ 
 
   const token = localStorage.getItem('token');
 
@@ -57,10 +63,10 @@ function UserForm() {
         if (!data || !Array.isArray(data) || data.length === 0) {
           throw new Error('Empty or invalid District options data');
         }
-     
-        const options = data.map(District => ({ value: District.Id, label: District.EDistrict}));
+
+        const options = data.map(District => ({ value: District.Id, label: District.EDistrict }));
         setDistrict(options);
-     
+
       } catch (error) {
         toast.error('Error fetching Tehsil options:', error);
       }
@@ -104,20 +110,20 @@ function UserForm() {
     };
 
     try {
-      
+
 
       let result = await fetch("/api/v1/users/submitdetails", {
         method: 'POST',
-        body: JSON.stringify(requestBody),     
+        body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         }
       });
 
       if (result.ok) {
         toast.success('Form submitted successfully.');
-        setFormData(initialFormData); 
+        setFormData(initialFormData);
       } else {
         toast.error("Error submitting form: " + result.statusText);
       }
@@ -134,7 +140,7 @@ function UserForm() {
           body: JSON.stringify({ role: content, loginUserId }),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${token}`
           }
         });
         if (!response.ok) {
@@ -244,10 +250,10 @@ function UserForm() {
                   name="userId"
                   value={formData.userId}
                   onChange={handleChange}
-                 
-                  
+
+
                 />
-                  {errors.userId && <div className="text-danger">{errors.userId}</div>}
+                {errors.userId && <div className="text-danger">{errors.userId}</div>}
               </Form.Group>
             </div>
 
@@ -261,7 +267,7 @@ function UserForm() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-               
+
                 />
                 {errors.password && <div className="text-danger">{errors.password}</div>}
               </Form.Group>
@@ -277,7 +283,7 @@ function UserForm() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-               
+
                 />
                 {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
               </Form.Group>
@@ -298,7 +304,7 @@ function UserForm() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-               
+
                 />
                 {errors.name && <div className="text-danger">{errors.name}</div>}
               </Form.Group>
@@ -314,7 +320,7 @@ function UserForm() {
                   name="mobile1"
                   value={formData.mobile1}
                   onChange={handleChange}
-                
+
                 />
                 {errors.mobile1 && <div className="text-danger">{errors.mobile1}</div>}
               </Form.Group>
@@ -362,20 +368,21 @@ function UserForm() {
               </Form.Group>
             </div>
 
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>
-                <Select
-                  id="DistrictSelect"
-                  name="DId"
-                  value={district.find(option => option.value === formData.DId)}
-                  onChange={option => setFormData(prevFormData => ({ ...prevFormData, DId: option.value }))}
-                  options={district}
-                  placeholder="Select District"
-                />
-              </Form.Group>
-            </div>
-
+            {userrole == "Super Admin" &&
+              <div className="col-md-3 mb-3">
+                <Form.Group>
+                  <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>
+                  <Select
+                    id="DistrictSelect"
+                    name="DId"
+                    value={district.find(option => option.value === formData.DId)}
+                    onChange={option => setFormData(prevFormData => ({ ...prevFormData, DId: option.value }))}
+                    options={district}
+                    placeholder="Select District"
+                  />
+                </Form.Group>
+              </div>
+            }
             <div className="col-md-3 mb-3">
               <Form.Group>
                 <Form.Label>Permission:</Form.Label>

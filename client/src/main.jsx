@@ -32,6 +32,9 @@ import Voters from './components/QCStaff/Voters.jsx';
 import DispatchLetter from './components/QCStaff/DispatchLetter.jsx';
 import SendSMSForm from './components/QCStaff/SendSMSForm.jsx';
 import UpdateLetter from './components/QCStaff/UpdateLetter.jsx';
+import DaywiseReport from './components/SubAdmin/DayWiseReport.jsx';
+import QCstaffcount from './components/SubAdmin/QCstaffcount.jsx';
+import FeedingStaffCount from './components/SubAdmin/FeedingStaffCount.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -79,6 +82,9 @@ const getRoutesForRole = (role) => {
           <Route path="/userform" element={<UserForm />} />
           <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/voterList" element={<VoterList />} />
+          <Route path="/feedingstaffcount" element={<FeedingStaffCount />} />
+          <Route path="/qcstaffcount" element={<QCstaffcount/>} />
+          <Route  path ="/daywisereport" element={<DaywiseReport/>} />
         </>
       );
     case 'Feeding Staff':
@@ -101,6 +107,7 @@ const getRoutesForRole = (role) => {
           <Route path="/QcForm" element={<SendSMSForm />} />
           <Route path="/editVoter" element={<AddVoter />} />
           <Route path="/updateletter" element={<UpdateLetter />} />
+
         </>
       );
 

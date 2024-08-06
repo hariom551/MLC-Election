@@ -13,10 +13,13 @@ function VoterList() {
     const [formData, setFormData] = useState({ WBId: undefined });
     const [WBOptions, setWBOptions] = useState([]);
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    const DId = user ? user.DId : '';
+    const userRole= user.role;
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch('/api/v1/admin/wardBlockDetails', {
+                const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -39,19 +42,19 @@ function VoterList() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
-            const response = await fetch("/api/v1/subAdmin/voterList", {
+            const response = await fetch(`/api/v1/subAdmin/voterList/${DId}`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }
             });
-    
+
             if (response.ok) {
                 const result = await response.json();
                 const data = result.data;
                 if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid voter list data');
-    
+
                 setVotersDetails(data);
                 toast.success("Voter list fetched successfully.");
             } else {
@@ -63,31 +66,31 @@ function VoterList() {
             toast.error(`Error in fetching: ${error.message}`);
         }
     };
-    
-    const handleDelete = async (Id) =>{
+
+    const handleDelete = async (Id) => {
         try {
-          let result = await fetch("/api/v1/qualityStaff/DeleteVoter", {
-            method: 'POST',
-            body: JSON.stringify({Id}),
-            headers: {
-              'Content-Type': 'application/json'
+            let result = await fetch(`/api/v1/qualityStaff/DeleteVoter`, {
+                method: 'POST',
+                body: JSON.stringify({ Id }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(result);
+
+            if (result.ok) {
+                setVotersDetails(prevVoters => prevVoters.filter(voter => voter.Id !== Id));
+                toast.success("Voter delete successfully.");
+
+            } else {
+                toast.error("Error in deleting voter:", result.statusText);
             }
-          });
-    
-          if (result.ok) {
-            setVotersDetails(prevVoters => prevVoters.filter(voter => voter.Id !== Id));
-            toast.success("Voter delete successfully.");
-          
-          } else {
-            toast.error("Error in deleting voter:", result.statusText);
-          }
         } catch (error) {
-          toast.error("Error in  deleting voter:", error.message);
+            toast.error("Error in  deleting voter:", error.message);
         }
     };
 
-    const user = JSON.parse(localStorage.getItem('user'));
-    const userRole = user ? user.role : '';
+   
 
     const columns = useMemo(() => {
         const baseColumns = [
@@ -98,31 +101,35 @@ function VoterList() {
                 Cell: ({ row }) => row.index + 1,
             },
             { accessorKey: 'Id', header: 'Id', size: 10 },
-            { accessorKey: 'EFName', header: 'Name (English)', size: 20,
-                Cell : ({cell}) =>{
-                    const {EFName, ELName }= cell.row.original;
+            {
+                accessorKey: 'EFName', header: 'Name (English)', size: 20,
+                Cell: ({ cell }) => {
+                    const { EFName, ELName } = cell.row.original;
                     return `${EFName} ${ELName}`
                 },
-             },
-            { accessorKey: 'HFName', header: 'Name (Hindi)', size: 20,
-                Cell : ({cell}) =>{
-                    const {HFName, HLName }= cell.row.original;
+            },
+            {
+                accessorKey: 'HFName', header: 'Name (Hindi)', size: 20,
+                Cell: ({ cell }) => {
+                    const { HFName, HLName } = cell.row.original;
                     return `${HFName} ${HLName}`
                 },
-             },
+            },
             { accessorKey: 'RType', header: 'Relation', size: 10 },
-            { accessorKey: 'ERFName', header: 'Relative Name (English)', size: 20,
-                Cell : ({cell}) =>{
-                    const {ERFName, ERLName }= cell.row.original;
+            {
+                accessorKey: 'ERFName', header: 'Relative Name (English)', size: 20,
+                Cell: ({ cell }) => {
+                    const { ERFName, ERLName } = cell.row.original;
                     return `${ERFName} ${ERLName}`
                 },
-             },
-            { accessorKey: 'HRFName', header: 'Relative Name (Hindi)', size: 20,
-                Cell : ({cell}) =>{
-                    const {HRFName, HRLName }= cell.row.original;
+            },
+            {
+                accessorKey: 'HRFName', header: 'Relative Name (Hindi)', size: 20,
+                Cell: ({ cell }) => {
+                    const { HRFName, HRLName } = cell.row.original;
                     return `${HRFName} ${HRLName}`
                 },
-             },
+            },
             {
                 accessorKey: 'EAreaVillHNo',
                 header: 'Address',
@@ -194,15 +201,15 @@ function VoterList() {
                     header: 'Delete',
                     size: 10,
                     Cell: ({ row }) => (
-                        <Button variant="danger"  onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-      
-                        Delete
-                      
-                    </Button>
-                       
+                        <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
+
+                            Delete
+
+                        </Button>
+
                     ),
-                }          
-            
+                }
+
             );
         }
 

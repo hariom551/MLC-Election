@@ -20,10 +20,13 @@ const SendSMSForm = () => {
     });
     const [csvData, setCsvData] = useState(null);
 
+    const user = JSON.parse(localStorage.getItem("user")); 
+    const DId = user ? user.DId : '';
+
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch('/api/v1/admin/wardBlockDetails', {
+                const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -64,10 +67,8 @@ const SendSMSForm = () => {
             
             const responseData = await response.json();
     
-            // Access the data property from the response
             const data = responseData.data;
     
-            // Check if data exists and is an array with at least one item
             if (!Array.isArray(data) || data.length === 0) {
                 throw new Error('No voter details found');
             }

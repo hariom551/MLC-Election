@@ -85,10 +85,11 @@ const DeleteVoter = asyncHandler(async (req, res) => {
     if (!Id) {
         return res.status(400).json({ error: "Id is required" });
     }
+   
     try {
         await queryDatabase(
             `INSERT INTO dvoterlist(
-                Id, RegNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
+                Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
                 CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
                 Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
                 DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
@@ -97,7 +98,7 @@ const DeleteVoter = asyncHandler(async (req, res) => {
                 GPId, SBy, SDate, MBy, MDate
             )
             SELECT 
-                Id, RegNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
+                Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
                 CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
                 Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
                 DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
@@ -105,15 +106,16 @@ const DeleteVoter = asyncHandler(async (req, res) => {
                 FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
                 GPId, SBy, SDate, MBy, MDate
             FROM voterlist 
-            WHERE Id = ?`, 
+            WHERE Id  = ?`, 
             [Id]
         );
-    
+        
+        
         await queryDatabase(
             'DELETE FROM voterlist WHERE Id = ?', [Id]
         );
 
-        return res.status(201).json(
+        return res.status(200).json(
             new ApiResponse(200, "voter Deleted successfully")
         )
     } catch (error) {

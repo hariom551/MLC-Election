@@ -205,7 +205,7 @@ function SideNavBar({ show }) {
 
                             <div className={`dropdown-content ${dropdownStates.Staff ? 'show' : ''}`} id="Staff-dropdown-content">
                                 <ul><li><Link to={{ pathname: "/userForm", search: "?content=Feeding Staff" }}>Feeding Staff</Link></li></ul>
-                                <ul><li><Link to={{ pathname: "/userForm", search: "?content=Quality Staff" }}>Quality Staff</Link></li></ul>
+                                <ul><li><Link to={{ pathname: "/userForm", search: "?content=QC Staff" }}>Quality Staff</Link></li></ul>
                                 {/* <ul><li><Link to={{ pathname: "/userForm", search: "?content=App Feeding Staff" }}>App Feeding Staff</Link></li></ul> */}
                             </div>
                         </div>
@@ -216,8 +216,8 @@ function SideNavBar({ show }) {
                                 <FaUserGroup className='text-xl' /> Form<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>
                             </button>
                             <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
-                                <ul><li><Link to="/staffEntry">Staff Entry</Link></li></ul>
-                                <ul><li><Link to="/staffSearchCount">Staff Search Count</Link></li></ul>
+                                <ul><li><Link to="/feedingstaffcount">Feeding Count</Link></li></ul>
+                                <ul><li><Link to="/qcstaffcount">QC Count</Link></li></ul>
                             </div>
                         </div>
 
@@ -226,9 +226,9 @@ function SideNavBar({ show }) {
                                 <FaUserGroup className='text-xl' /> Voter List <span className="dropdown-symbol">{dropdownStates.VoterL ? '-' : '+'}</span>
                             </button>
                             <div className={`dropdown-content ${dropdownStates.VoterL ? 'show' : ''}`} id="caste-dropdown-content">
-                                <ul><li><a href="/VoterList">Voter List</a></li></ul>
-                                <ul><li><a href="/ReferenceVoterList">Reference Voter List</a></li></ul>
-                                <ul><li><a href="/ApprovedVoterList">Approved Voter List</a></li></ul>
+                                <ul><li><Link to="/VoterList">Voter List</Link></li></ul>
+                                <ul><li><Link to="/ReferenceVoterList">Reference Voter List</Link></li></ul>
+                                {/* <ul><li><a href="/ApprovedVoterList">Approved Voter List</a></li></ul> */}
                             </div>
                         </div>
 
@@ -256,6 +256,7 @@ function SideNavBar({ show }) {
                     </div>
                 )}
 
+
                 {role === 'QC Staff' && (
                     <div className="feedingStaff-link">
                         <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
@@ -265,8 +266,8 @@ function SideNavBar({ show }) {
                         <ul><li><Link to="/QcForm" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Form qc</Link></li></ul>
                         <ul><li><Link to="/SearchChakBlock" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Search Chak Block</Link></li></ul>
                         <ul><li><Link to="/updateletter" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Update Letter</Link></li></ul>
-                      
-                       
+
+
                         {/* <div className="dropdown">
                             <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Form')}>
                                 <FaUserGroup className='text-xl' />Form<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>

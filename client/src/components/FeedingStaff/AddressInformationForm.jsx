@@ -13,6 +13,9 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
   const [WBOption, setWBOption] = useState([]);
   const [CBOption, setCBOption] = useState([]);
 
+  const user = JSON.parse(localStorage.getItem("user")); 
+  const DId = user ? user.DId : '';
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setAddressDetail((prevDetails) => ({
@@ -56,25 +59,20 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
         );
         setCBOption(uniqueCBFiltered);
       }
-    } else if (name == 'ChkBlkId') {
-      const selectedCB = CBOption.find((CB) => CB.ChkBlkId === parseInt(value));
-      console.log(selectedCB);
-      setAddressDetail((prevDetails) => ({
-        ...prevDetails,
-        AreaId: selectedCB.Id,
-        TehId: selectedCB.TehId,
-        counId: selectedCB.counId,
-        VSId: selectedCB.VSId,
-        WBId: selectedCB.WBId,
-        ChkBlkId: selectedCB.ChkBlkId,
-      }));
+    } else if (name === 'ChkBlkId') {
+      const selectedCB = CBOption.find((CB) => CB.ChkBlkId == parseInt(value));
+      if (selectedCB) {
+        updateAddressDetailWithChakBlock(selectedCB);
+      
+     
+      } 
     }
+    
   };
-
 
   const fetchAreaVillOptions = async (input) => {
     try {
-      const response = await fetch('/api/v1/feedingStaff/searchAreaVill', {
+      const response = await fetch(`/api/v1/feedingStaff/searchAreaVill/${DId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +94,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
   const fetchAllAreaDetails = async (EAreaVill, HnoRange) => {
     try {
 
-      const response = await fetch('/api/v1/feedingStaff/allAreaDetails', {
+      const response = await fetch(`/api/v1/feedingStaff/allAreaDetails/${DId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -192,10 +190,23 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
         ...prevDetails,
         ChkBlkId: singleCB.ChkBlkId,
       }));
-
+      updateAddressDetailWithChakBlock(singleCB);
     }
-  }, [CBOption, AreaFullDetails, setAddressDetail]);
-
+  }, [CBOption, setAddressDetail]);
+  
+  const updateAddressDetailWithChakBlock = (selectedCB) => {
+    setAddressDetail((prevDetails) => ({
+      ...prevDetails,
+      AreaId: selectedCB.Id || '',
+      TehId: selectedCB.TehId,
+      counId: selectedCB.counId,
+      VSId: selectedCB.VSId,
+      WBId: selectedCB.WBId,
+      ChkBlkId: selectedCB.ChkBlkId,
+    }));
+    console.log(addressDetail);
+  };
+  
   useEffect(() => {
     if (addressDetail.EAreaVill) {
       fetchAllAreaDetails(addressDetail.EAreaVill, addressDetail.HnoRange);

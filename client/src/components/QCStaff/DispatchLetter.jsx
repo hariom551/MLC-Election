@@ -14,8 +14,8 @@ function DispatchLetter() {
     const [WBOptions, setWBOptions] = useState([]);
     const [letters, setLetters] = useState([]);
     const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
-    // const DId = user ? user.DId : '';
-    const DId = 1;
+    const DId = user ? user.DId : '';
+
 
     useEffect(() => {
         const fetchWBOptions = async () => {
@@ -77,7 +77,7 @@ function DispatchLetter() {
         e.preventDefault();
 
         try {
-            const result = await fetch(`/api/v1/subAdmin/voterList`, {
+            const result = await fetch(`/api/v1/subAdmin/voterList/${DId}`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }

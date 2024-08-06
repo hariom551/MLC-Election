@@ -16,6 +16,10 @@ function AddVoter() {
     const searchParams = new URLSearchParams(location.search);
     const content = searchParams.get('content');
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    const DId = user ? user.DId : '';
+    const userRole = user ? user.role : '';
+
     const [referenceDetails, setReferenceDetails] = useState({
         PacketNo: '',
         IncRefId: '',
@@ -55,6 +59,7 @@ function AddVoter() {
     });
 
     const [addressDetail, setAddressDetail] = useState({
+        DId: DId,
         AreaId: '',
         EAreaVill: '',
         TehId: '',
@@ -96,8 +101,7 @@ function AddVoter() {
         voterDocs: {},
     });
 
-    const user = JSON.parse(localStorage.getItem('user'));
-    const userRole = user ? user.role : '';
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -117,17 +121,17 @@ function AddVoter() {
                 if (!result.success || result.statusCode !== 200 || !Array.isArray(result.data) || result.data.length === 0) {
                     throw new Error(result.message || "Empty or invalid data");
                 }
-                setReferenceDetails(prevState=>({...prevState, PacketNo: result.data[0][0].PacketNo}))
+                setReferenceDetails(prevState => ({ ...prevState, PacketNo: result.data[0][0].PacketNo }))
                 setVoterDetails(prevState => ({ ...prevState, ...result.data[1][0] }));
-                setAddressDetail(prevState=>({...prevState, ...result.data[2][0]}));
-                setExtraDetails(prevState=>({...prevState,...result.data[3][0]}));
+                setAddressDetail(prevState => ({ ...prevState, ...result.data[2][0] }));
+                setExtraDetails(prevState => ({ ...prevState, ...result.data[3][0] }));
             } catch (error) {
                 toast.error('Error in fetching voter data: ' + error.message);
             }
         };
         fetchData();
     }, [content]);
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -192,85 +196,85 @@ function AddVoter() {
 
             const data = await response.json();
             if (!response.ok) {
-                
+
                 if (data.message === "Duplicate voter entry found") {
                     toast.error('Duplicate entry found. Please check the voter details.');
                 } else {
                     throw new Error(data.message || 'Failed to create voter');
                 }
-            }else{
+            } else {
 
-            
-            toast.success('Voter created successfully!');
-            // Reset forms after successful submission
-            // setReferenceDetails({
-            //     PacketNo: '',
-            //     IncRefId: '',
-            //     VMob1: '',
-            //     VMob2: '',
-            //     VEName: '',
-            //     VHName: '',
-            //     VEAddress: '',
-            //     VHAddress: '',
-            //     COList: [
-            //         { VMob1: '', VEName: '', VHName: '' }
-            //     ],
-            // });
-            // setVoterDetails({
-            //     EFName: '',
-            //     HFName: '',
-            //     ELName: '',
-            //     HLName: '',
-            //     RType: '',
-            //     ERFName: '',
-            //     HRFName: '',
-            //     ERLName: '',
-            //     HRLName: '',
-            //     CasteId: '',
-            //     ECaste: '',
-            //     Qualification: '',
-            //     Occupation: Occupation ? '' : 'NA',
-            //     Age: '',
-            //     DOB: '',
-            //     Sex: '',
-            //     MNo: '',
-            //     MNo2: '',
-            //     AadharNo: '',
-            //     VIdNo: '',
-            //     GCYear: '',
-            // });
-            // setAddressDetail({
-            //     AreaId: '',
-            //     EAreaVill: '',
-            //     TehId: '',
-            //     EName: '',
-            //     CounId: '',
-            //     ECouncil: '',
-            //     VSId: '',
-            //     EVidhanSabha: '',
-            //     WBId: '',
-            //     EWardBlock: '',
-            //     ChkBlkId: '',
-            //     ECBPanch: '',
-            //     HNo: '',
-            //     Landmark: '',
-            // });
-            // setVoterDocs({
-            //     Image: '',
-            //     IdProof: '',
-            //     Degree: '',
 
-            // });
-            // setErrors({
-            //     referenceDetails: {},
-            //     voterDetails: {},
-            //     addressDetail: {},
-            //     voterDocs: {},
-            // });
+                toast.success('Voter created successfully!');
+                // Reset forms after successful submission
+                // setReferenceDetails({
+                //     PacketNo: '',
+                //     IncRefId: '',
+                //     VMob1: '',
+                //     VMob2: '',
+                //     VEName: '',
+                //     VHName: '',
+                //     VEAddress: '',
+                //     VHAddress: '',
+                //     COList: [
+                //         { VMob1: '', VEName: '', VHName: '' }
+                //     ],
+                // });
+                // setVoterDetails({
+                //     EFName: '',
+                //     HFName: '',
+                //     ELName: '',
+                //     HLName: '',
+                //     RType: '',
+                //     ERFName: '',
+                //     HRFName: '',
+                //     ERLName: '',
+                //     HRLName: '',
+                //     CasteId: '',
+                //     ECaste: '',
+                //     Qualification: '',
+                //     Occupation: Occupation ? '' : 'NA',
+                //     Age: '',
+                //     DOB: '',
+                //     Sex: '',
+                //     MNo: '',
+                //     MNo2: '',
+                //     AadharNo: '',
+                //     VIdNo: '',
+                //     GCYear: '',
+                // });
+                // setAddressDetail({
+                //     AreaId: '',
+                //     EAreaVill: '',
+                //     TehId: '',
+                //     EName: '',
+                //     CounId: '',
+                //     ECouncil: '',
+                //     VSId: '',
+                //     EVidhanSabha: '',
+                //     WBId: '',
+                //     EWardBlock: '',
+                //     ChkBlkId: '',
+                //     ECBPanch: '',
+                //     HNo: '',
+                //     Landmark: '',
+                // });
+                // setVoterDocs({
+                //     Image: '',
+                //     IdProof: '',
+                //     Degree: '',
+
+                // });
+                // setErrors({
+                //     referenceDetails: {},
+                //     voterDetails: {},
+                //     addressDetail: {},
+                //     voterDocs: {},
+                // });
             }
 
         } catch (error) {
-           
+
             toast.error('Error creating voter: ' + (error.message || 'An unknown error occurred.'));
         }
     };
@@ -322,7 +326,7 @@ function AddVoter() {
             }));
             formData.append('voterDetails', JSON.stringify(voterDetails));
             formData.append('addressDetail', JSON.stringify(addressDetail));
-            formData.append('extraDetails',JSON.stringify(extraDetails));
+            formData.append('extraDetails', JSON.stringify(extraDetails));
 
 
             Object.keys(voterDocs).forEach(key => {
@@ -332,90 +336,87 @@ function AddVoter() {
             });
 
             const response = await fetch(`/api/v1/qualityStaff/UpdateVoter/${content}`, {
-                            method: 'PUT',
-                            body: formData,
-                        });
+                method: 'PUT',
+                body: formData,
+            });
 
             const data = await response.json();
             if (!response.ok) {
-                    throw new Error(data.message || 'Failed to create voter');
-            }else{
-            toast.success('Voter Updated successfully!');
-            // Reset forms after successful submission
-            // setReferenceDetails({
-            //     PacketNo: '',
-            //     IncRefId: '',
-            //     VMob1: '',
-            //     VMob2: '',
-            //     VEName: '',
-            //     VHName: '',
-            //     VEAddress: '',
-            //     VHAddress: '',
-            //     COList: [
-            //         { VMob1: '', VEName: '', VHName: '' }
-            //     ],
-            // });
-            // setVoterDetails({
-            //     EFName: '',
-            //     HFName: '',
-            //     ELName: '',
-            //     HLName: '',
-            //     RType: '',
-            //     ERFName: '',
-            //     HRFName: '',
-            //     ERLName: '',
-            //     HRLName: '',
-            //     CasteId: '',
-            //     ECaste: '',
-            //     Qualification: '',
-            //     Occupation: Occupation ? '' : 'NA',
-            //     Age: '',
-            //     DOB: '',
-            //     Sex: '',
-            //     MNo: '',
-            //     MNo2: '',
-            //     AadharNo: '',
-            //     VIdNo: '',
-            //     GCYear: '',
-            // });
-            // setAddressDetail({
-            //     AreaId: '',
-            //     EAreaVill: '',
-            //     TehId: '',
-            //     EName: '',
-            //     CounId: '',
-            //     ECouncil: '',
-            //     VSId: '',
-            //     EVidhanSabha: '',
-            //     WBId: '',
-            //     EWardBlock: '',
-            //     ChkBlkId: '',
-            //     ECBPanch: '',
-            //     HNo: '',
-            //     Landmark: '',
-            // });
-            // setVoterDocs({
-            //     Image: '',
-            //     IdProof: '',
-            //     Degree: '',
+                throw new Error(data.message || 'Failed to create voter');
+            } else {
+                toast.success('Voter Updated successfully!');
+                // Reset forms after successful submission
+                // setReferenceDetails({
+                //     PacketNo: '',
+                //     IncRefId: '',
+                //     VMob1: '',
+                //     VMob2: '',
+                //     VEName: '',
+                //     VHName: '',
+                //     VEAddress: '',
+                //     VHAddress: '',
+                //     COList: [
+                //         { VMob1: '', VEName: '', VHName: '' }
+                //     ],
+                // });
+                // setVoterDetails({
+                //     EFName: '',
+                //     HFName: '',
+                //     ELName: '',
+                //     HLName: '',
+                //     RType: '',
+                //     ERFName: '',
+                //     HRFName: '',
+                //     ERLName: '',
+                //     HRLName: '',
+                //     CasteId: '',
+                //     ECaste: '',
+                //     Qualification: '',
+                //     Occupation: Occupation ? '' : 'NA',
+                //     Age: '',
+                //     DOB: '',
+                //     Sex: '',
+                //     MNo: '',
+                //     MNo2: '',
+                //     AadharNo: '',
+                //     VIdNo: '',
+                //     GCYear: '',
+                // });
+                // setAddressDetail({
+                //     AreaId: '',
+                //     EAreaVill: '',
+                //     TehId: '',
+                //     EName: '',
+                //     CounId: '',
+                //     ECouncil: '',
+                //     VSId: '',
+                //     EVidhanSabha: '',
+                //     WBId: '',
+                //     EWardBlock: '',
+                //     ChkBlkId: '',
+                //     ECBPanch: '',
+                //     HNo: '',
+                //     Landmark: '',
+                // });
+                // setVoterDocs({
+                //     Image: '',
+                //     IdProof: '',
+                //     Degree: '',
 
-            // });
-            // setErrors({
-            //     referenceDetails: {},
-            //     voterDetails: {},
-            //     addressDetail: {},
-            //     voterDocs: {},
-            // });
+                // });
+                // setErrors({
+                //     referenceDetails: {},
+                //     voterDetails: {},
+                //     addressDetail: {},
+                //     voterDocs: {},
+                // });
             }
 
         } catch (error) {
-            
+
             toast.error('Error creating voter: ' + (error.message || 'An unknown error occurred.'));
         }
     };
-
-
-
 
     return (
         <main className="bg-gray-100">

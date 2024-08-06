@@ -411,7 +411,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                                 value={voterDetails.DOB}
                                 onChange={handleChange}
                                 className="outline-none border w-full px-2"
-                                placeholder="DOB"
+                            
 
 
                             />

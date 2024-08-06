@@ -15,7 +15,7 @@ const searchSurname = asyncHandler(async (req, res) => {
         const results = await queryDatabase(`SELECT ESurname, HSurname FROM surname WHERE ESurname LIKE ?`, [`%${query}%`]);
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -31,7 +31,7 @@ const searchCaste = asyncHandler(async (req, res) => {
         const results = await queryDatabase(`SELECT ECaste, caste.Id as CasteId FROM caste jOIN surname ON caste.Id = surname.casteId WHERE ESurname =?`, [surname]);
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -39,26 +39,41 @@ const searchCaste = asyncHandler(async (req, res) => {
 const searchAreaVill = asyncHandler(async (req, res) => {
     const { query } = req.body;
 
+    const { DId } = req.params;
     if (!query) {
         return res.status(400).json({ error: 'Query parameter is required' });
     }
 
     try {
         const results = await queryDatabase(
-            `SELECT DISTINCT EAreaVill, HnoRange FROM areavill WHERE EAreaVill LIKE ? 
-            ORDER BY EAreaVill`,
-            [`%${query}%`]
+            `SELECT DISTINCT EAreaVill, HnoRange FROM areavill 
+            INNER JOIN chakblockpanch 
+            ON areavill.CBPId = chakblockpanch.id 
+            INNER JOIN wardblock 
+            ON wardblock.id = chakblockpanch.WBID
+            
+            JOIN vidhansabha AS V
+            ON wardblock.VSID= V.Id
+            JOIN council AS C
+            ON C.Id= V.counId
+            JOIN tehsillist AS T
+            ON T.Id= C.TehId
+            WHERE T.Did=? AND EAreaVill LIKE ? ORDER BY EAreaVill  `, [DId, `%${query}%`]
+
+
+
         );
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+
         return res.status(500).send('A database error occurred.');
     }
 });
 
 const allAreaDetails = asyncHandler(async (req, res) => {
     const { EAreaVill, HnoRange } = req.body;
-    console.log(EAreaVill, HnoRange);
+    const { DId } = req.params;
+
     if (!EAreaVill) {
         return res.status(400).json({ error: 'EAreaVill parameter is required' });
     }
@@ -78,20 +93,20 @@ const allAreaDetails = asyncHandler(async (req, res) => {
         LEFT JOIN vidhansabha AS V ON V.ID = W.VSId 
         LEFT JOIN council AS cc ON cc.Id = V.counId 
         LEFT JOIN tehsillist AS T ON T.ID = cc.TehId 
-        WHERE A.EAreaVill = ?
+        WHERE A.EAreaVill = ? AND DId=?
     `;
-    
-    // If HnoRange is provided, add it to the query
-    if (HnoRange === null) {
-        query += ` AND A.HnoRange IS NULL`;
-    } else {
-        query += ` AND A.HnoRange = ?`;
-    }
-    
-    // Execute the query with the appropriate parameters
-    const parameters = HnoRange === null ? [EAreaVill] : [EAreaVill, HnoRange];
-    const results = await queryDatabase(query, parameters);
-    
+
+        // If HnoRange is provided, add it to the query
+        if (HnoRange === null) {
+            query += ` AND A.HnoRange IS NULL`;
+        } else {
+            query += ` AND A.HnoRange = ?`;
+        }
+
+        // Execute the query with the appropriate parameters
+        const parameters = HnoRange === null ? [EAreaVill, DId] : [EAreaVill, DId, HnoRange];
+        const results = await queryDatabase(query, parameters);
+
 
         // const groupedResults = results.reduce((acc, curr) => {
         //     if (!acc[curr.EAreaVill]) {
@@ -146,7 +161,7 @@ const allAreaDetails = asyncHandler(async (req, res) => {
 
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -167,13 +182,13 @@ const SearchPacketNo = asyncHandler(async (req, res) => {
 
         // res.status(200).json(new ApiResponse(200, incomingForms, "Fetched all incoming forms successfully"));
     } catch (error) {
-        console.error('Error in fetching :', error);
+
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
 
 const ReferenceDetails = asyncHandler(async (req, res) => {
-    const {PKT}= req.body;
+    const { PKT } = req.body;
 
     if (!PKT) {
         return res.status(400).json({ error: 'PKT parameter is required' });
@@ -189,15 +204,14 @@ const ReferenceDetails = asyncHandler(async (req, res) => {
         LEFT JOIN volunteer AS v2 ON i.COId1 = v2.Id
         LEFT JOIN volunteer AS v3 ON i.COId2 = v3.Id
         LEFT JOIN volunteer AS v4 ON i.COId3 = v4.Id
-        WHERE i.PacketNo= ?`,[PKT]);
+        WHERE i.PacketNo= ?`, [PKT]);
         return res.json(ReferenceDetails);
         // res.status(200).json(new ApiResponse(200, incomingForms, "Fetched all incoming forms successfully"));
     } catch (error) {
-        console.error('Error in fetching incoming forms:', error);
+
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
-
 
 
 const AddVoter = [
@@ -210,7 +224,7 @@ const AddVoter = [
             req.idNo = IdNo; // Set generated IdNo for the voter
             next();
         } catch (error) {
-            console.error('Error:', error.message);
+
             return res.status(500).json(new ApiResponse(500, null, 'Database query error'));
         }
     }),
@@ -220,7 +234,7 @@ const AddVoter = [
             if (!req.body.referenceDetails || !req.body.voterDetails || !req.body.addressDetail) {
                 return res.status(400).json(new ApiResponse(400, null, 'Missing required fields in the request body'));
             }
-            
+
 
             let referenceDetails, voterDetails, addressDetail;
             try {
@@ -232,9 +246,9 @@ const AddVoter = [
             }
 
             const duplicateCheckQuery = `SELECT * FROM voterlist WHERE EFName = ? AND ELName =? AND ERFName = ? AND ERLName = ?`;
-            const duplicateCheckValues = [voterDetails.EFName, voterDetails.ELName, voterDetails.ERFName, voterDetails.ERLName ];
+            const duplicateCheckValues = [voterDetails.EFName, voterDetails.ELName, voterDetails.ERFName, voterDetails.ERLName];
             const duplicateResult = await queryDatabase(duplicateCheckQuery, duplicateCheckValues);
-            // console.log(duplicateResult);
+
             if (duplicateResult.length > 0) {
                 return res.status(400).json(new ApiResponse(400, null, 'Duplicate voter entry found'));
             }
@@ -252,27 +266,27 @@ const AddVoter = [
             }
 
             const query = `INSERT INTO voterlist (
-                Id, PacketNo, EFName, HFName,
+                Id, PacketNo, IncFormId, EFName, HFName,
                 ELName, HLName, RType, ERFName, HRFName, 
                 ERLName, HRLName, CasteId, Qualification, Occupation, 
                 Age, DOB, Sex, MNo, MNo2,
-                AadharNo, VIdNo, GCYear, AreaId, TehId, 
+                AadharNo, VIdNo, GCYear, DId, AreaId, TehId, 
                 CounId, VSId, WBId, ChkBlkId, HNo,
                 Landmark, Image, IdProof, Degree)
                 VALUES (?, ?, ?, ?, 
+                ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?)`;
 
             const values = [
-                req.idNo, referenceDetails.PacketNo, voterDetails.EFName, voterDetails.HFName,
+                req.idNo, referenceDetails.PacketNo, referenceDetails.IncRefId, voterDetails.EFName, voterDetails.HFName,
                 voterDetails.ELName, voterDetails.HLName, voterDetails.RType, voterDetails.ERFName, voterDetails.HRFName,
                 voterDetails.ERLName, voterDetails.HRLName, voterDetails.CasteId, voterDetails.Qualification, voterDetails.Occupation,
                 voterDetails.Age, voterDetails.DOB, voterDetails.Sex, voterDetails.MNo, voterDetails.MNo2,
-                voterDetails.AadharNo, voterDetails.VIdNo, voterDetails.GCYear, addressDetail.AreaId, addressDetail.TehId,
+                voterDetails.AadharNo, voterDetails.VIdNo, voterDetails.GCYear, addressDetail.DId, addressDetail.AreaId, addressDetail.TehId,
                 addressDetail.counId, addressDetail.VSId, addressDetail.WBId, addressDetail.ChkBlkId, addressDetail.HNo,
                 addressDetail.Landmark, voterDocs.Image, voterDocs.IdProof, voterDocs.Degree
             ];
@@ -280,7 +294,7 @@ const AddVoter = [
             await queryDatabase(query, values);
             return res.status(201).json(new ApiResponse(201, null, "Voter added successfully"));
         } catch (error) {
-            console.error('Database insert error:', error);
+
             return res.status(500).json(new ApiResponse(500, null, 'Database insert error'));
         }
     })
@@ -289,18 +303,18 @@ const AddVoter = [
 const UpdateVoter = [
     asyncHandler(async (req, res, next) => {
         try {
-            const { idNo } = req.params; 
+            const { idNo } = req.params;
 
             const currentVoterResult = await queryDatabase(`SELECT * FROM voterlist WHERE Id = ?`, [idNo]);
             if (currentVoterResult.length === 0) {
                 return res.status(404).json(new ApiResponse(404, null, 'Voter not found'));
             }
 
-            req.currentVoter = currentVoterResult[0]; 
+            req.currentVoter = currentVoterResult[0];
             req.idNo = idNo;
             next();
         } catch (error) {
-            console.error('Error fetching voter:', error.message);
+
             return res.status(500).json(new ApiResponse(500, null, 'Database query error'));
         }
     }),
@@ -369,12 +383,11 @@ const UpdateVoter = [
             await queryDatabase(query, values);
             return res.status(200).json(new ApiResponse(200, null, "Voter updated successfully"));
         } catch (error) {
-            console.error('Database update error:', error);
+
             return res.status(500).json(new ApiResponse(500, null, 'Database update error'));
         }
     })
 ];
-
 
 const getPerseemanDetails = asyncHandler(async (req, res) => {
     const { ChakNo, ECBPanch, EAreaVill } = req.body;
@@ -410,7 +423,7 @@ const getPerseemanDetails = asyncHandler(async (req, res) => {
 
         res.json(results);
     } catch (error) {
-        console.error('Database query error:', error);
+
         res.status(500).send('A database error occurred.');
     }
 });

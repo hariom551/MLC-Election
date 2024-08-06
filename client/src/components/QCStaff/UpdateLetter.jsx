@@ -8,7 +8,7 @@ const UpdateLetter = () => {
   const [editorHtml, setEditorHtml] = useState('');
   const quillRef = useRef(null);
 
-
+    
   useEffect(() => {
     if (window.google && window.google.elements) {
       window.google.elements.transliteration.load({

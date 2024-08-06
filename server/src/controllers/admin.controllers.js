@@ -39,7 +39,7 @@ const AddCaste = asyncHandler(async (req, res) => {
             new ApiResponse(200, addedCaste, "caste details submitted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+        
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -49,7 +49,7 @@ const casteDetails = asyncHandler(async (req, res) => {
         const results = await queryDatabase('SELECT surname.Id, caste.ECaste, caste.HCaste, surname.ESurname, surname.HSurname FROM caste RIGHT JOIN surname ON surname.casteId= caste.Id');
         return res.json(results); // Should correctly return the results array
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -86,14 +86,13 @@ const UpdateCasteDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedCaste, "Caste details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
 
 const AddTehsil = asyncHandler(async (req, res) => {
     const {DId}= req.params;
-    console.log(DId);
     const { EName, HName } = req.body;
     if (!EName || !HName) {
         throw new ApiError(400, "Please enter all details!")
@@ -112,7 +111,7 @@ const AddTehsil = asyncHandler(async (req, res) => {
             new ApiResponse(200, addedTehsil, "Tehsil details submitted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -123,7 +122,7 @@ const TehsilDetails = asyncHandler(async (req, res) => {
         const results = await queryDatabase(`SELECT * FROM tehsillist WHERE Did =?`,[DId]);
         return res.json(results); // Should correctly return the results array
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -147,7 +146,7 @@ const UpdateTehsilDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedCaste, "Tehsil details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -195,7 +194,7 @@ const AddCouncil = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -207,7 +206,7 @@ const CouncilDetails = asyncHandler(async (req, res) => {
 
         return res.json(results); // Should correctly return the results array
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -231,7 +230,7 @@ const UpdateCouncilDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedCouncil, "Council details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -252,7 +251,7 @@ const DeleteCouncilDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, "council details Deleted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -279,7 +278,7 @@ const AddVidhanSabha = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -291,7 +290,7 @@ const VidhanSabhaDetails = asyncHandler(async (req, res) => {
 
         return res.json(results); // Should correctly return the results array
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -317,7 +316,7 @@ const UpdateVidhanSabhaDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedVS, "VidhanSabha details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -337,7 +336,7 @@ const DeleteVidhanSabhaDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, "VidhanSabha details Deleted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -363,7 +362,7 @@ const AddWardBlock = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -385,7 +384,7 @@ const WardBlockDetails = asyncHandler(async (req, res) => {
 
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -410,7 +409,7 @@ const UpdateWardBlockDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedCouncil, "wardblock details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -430,7 +429,7 @@ const DeleteWardBlockDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, "council details Deleted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -456,7 +455,7 @@ const AddChakBlock = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -479,13 +478,13 @@ const ChakBlockDetails = asyncHandler(async (req, res) => {
 
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
 
 const UpdateChakBlockDetail = asyncHandler(async (req, res) => {
-    console.log(" hariom ", req.body);
+
     const { Id, WBId, ChakNo, ECBPanch, HCBPanch } = req.body;
     if (!Id, !WBId || !ChakNo || !ECBPanch || !HCBPanch) {
         throw new ApiError(400, "Please enter all details!")
@@ -504,7 +503,7 @@ const UpdateChakBlockDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedCouncil, "wardblock details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -522,7 +521,7 @@ const DeleteChakBlockDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, "council details Deleted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -547,7 +546,7 @@ const AddAreaVill = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -576,7 +575,7 @@ const AreaVillDetails = asyncHandler(async (req, res) => {
 
         return res.json(results); 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -602,14 +601,14 @@ const UpdateAreaVillDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedVS, "VidhanSabha details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
 
 const DeleteAreaVillDetail = asyncHandler(async (req, res) => {
     const { Id } = req.body;
-    console.log(req.body)
+    
     try {
         await queryDatabase(
             'DELETE FROM areavill WHERE Id= ?',
@@ -621,14 +620,14 @@ const DeleteAreaVillDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, "areavill details Deleted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
 
 const AddPSList = asyncHandler(async (req, res) => {
     const { ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo } = req.body;
-    console.log(req.body);
+   
 
 
     if (!ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo)
@@ -648,7 +647,7 @@ const AddPSList = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -659,7 +658,7 @@ const PSListDetails = asyncHandler(async (req, res) => {
         const results = await queryDatabase('SELECT * FROM pollingstation')
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(500).send('A database error occurred.');
     }
 });
@@ -685,7 +684,7 @@ const UpdatePSListDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, updatedPSList, "PSList details Updated successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -703,7 +702,7 @@ const DeletePSListDetail = asyncHandler(async (req, res) => {
             new ApiResponse(200, "areavill details Deleted successfully")
         );
     } catch (error) {
-        console.error('Database query error', error);
+         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -711,7 +710,7 @@ const DeletePSListDetail = asyncHandler(async (req, res) => {
 
 const SearchPSNo = asyncHandler(async (req, res) => {
     const { query } = req.body;
-    // console.log("Received query:", req.body);
+    
     if (!query) {
         return res.status(400).json({ error: 'Query parameter is required', query });
     }
@@ -720,17 +719,12 @@ const SearchPSNo = asyncHandler(async (req, res) => {
             'SELECT PSNo, ESPName, RoomNo FROM pollingstation WHERE PSNo LIKE ?',
             [`%${query}%`]
         );
-        
-       
         return res.json(results);
     } catch (error) {
-        console.error('Database query error:', error);
+     
         return res.status(500).json({ error: 'A database error occurred.' });
     }
 });
-
-
-
 
 export {
     AddCaste, casteDetails, UpdateCasteDetail,
