@@ -33,6 +33,7 @@ function AreaVill() {
 
   const user = JSON.parse(localStorage.getItem("user")); 
   const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
 
   useEffect(() => {
     const fetchWBOptions = async () => {
@@ -111,6 +112,7 @@ function AreaVill() {
           const AreaVill = data.find(item => item.Id == content);
           if (AreaVill) {
             setFormData({
+              Id:AreaVill.Id,
               WBID: AreaVill.WBId,
               EAreaVill: AreaVill.EAreaVill,
               HAreaVill: AreaVill.HAreaVill,
@@ -134,35 +136,23 @@ function AreaVill() {
     fetchData();
   }, [content]);
 
-  // Effect to ensure formData is set correctly once wbOptions are available
-  // useEffect(() => {
-  //   if (formData.WBID && wbOptions.length > 0) {
-  //     const selectedWB = wbOptions.find(option => option.value === formData.WBID);
-  //     if (selectedWB) {
-  //       setFormData(prevFormData => ({
-  //         ...prevFormData,
-  //         WBID: selectedWB.value
-  //       }));
-  //     }
-  //   }
-  // }, [wbOptions, formData.WBID]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addAreaVill`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,
+          loginUserId,}),
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
       if (result.ok) {
-        window.location.reload();
-        console.log("AreaVill Added Successfully.");
+        window.location.href = '/AreaVill';
+        toast.success("AreaVill Added Successfully.");
       } else {
-        console.error("Error in Adding AreaVill:", result.statusText);
+        toast.error("Error in Adding AreaVill:", result.statusText);
       }
     } catch (error) {
       console.error("Error in Adding AreaVill:", error.message);
@@ -206,11 +196,11 @@ function AreaVill() {
 
   const handleEdit = async (e) => {
     e.preventDefault();
-
+    console.log(formData.Id)
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateAreaVillDetail`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -219,7 +209,7 @@ function AreaVill() {
 
 
       if (result.ok) {
-        window.location.href = '/AreaVill';
+        // window.location.href = '/AreaVill';
 
         toast.success("AreaVill Updated successfully.");
       } else {
@@ -327,7 +317,7 @@ function AreaVill() {
 
             <div className="col-md-3 mb-3">
               <Form.Group >
-                <Form.Label>Hno Range<sup className='text-red-600'>*</sup></Form.Label>
+                <Form.Label>Hno Range</Form.Label>
                 <Form.Control type="text" placeholder="Hno Range" id="HnoRange" name="HnoRange" value={formData.HnoRange} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HnoRange: e.target.value }))} />
               </Form.Group>
             </div>

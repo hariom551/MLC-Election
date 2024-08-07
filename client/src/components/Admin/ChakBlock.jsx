@@ -28,9 +28,9 @@ function ChakBlock() {
 
   });
 
-  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const user = JSON.parse(localStorage.getItem("user")); 
   const DId = user ? user.DId : '';
-
+  const loginUserId = user.userid;
 
   const [WBOptions, setWBOptions] = useState([]);
   useEffect(() => {
@@ -102,9 +102,9 @@ function ChakBlock() {
     e.preventDefault();
 
     try {
-      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addChakBlock/${DId}`, {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addChakBlock`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -113,9 +113,7 @@ function ChakBlock() {
       if (result.ok) {
        
         toast.success("ChakBlock Added Successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        window.location.href = '/ChakBlock';
       } else {
         toast.error("Error in Adding ChakBlock:", result.statusText);
       }
@@ -132,7 +130,7 @@ function ChakBlock() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updatechakBlockDetail`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -140,9 +138,7 @@ function ChakBlock() {
 
       if (result.ok) {
         toast.success("ChakBlock Updated successfully.");
-        setTimeout(() => {
-          window.location.href = '/ChakBlock';
-        }, 2000);
+        window.location.href = '/ChakBlock';
       } else {
         toast.error("Error in Updating ChakBlock:", result.statusText);
       }
@@ -177,9 +173,7 @@ function ChakBlock() {
       if (result.ok) {
       
         toast.success("ChakBlock Added Successfully successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        window.location.href = '/ChakBlock';
       } else {
         toast.error("Error in Adding ChakBlock:", result.statusText);
       }

@@ -32,6 +32,7 @@ function VidhanSabha() {
 
   const user = JSON.parse(localStorage.getItem("user")); 
   const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
 
   useEffect(() => {
     const fetchTehsilOptions = async () => {
@@ -132,7 +133,7 @@ function VidhanSabha() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addVidhanSabha`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -193,19 +194,14 @@ function VidhanSabha() {
 
   const handleEdit = async (e) => {
     e.preventDefault();
-
-
-
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateVidhanSabhaDetail`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
       });
-
-
       if (result.ok) {
         toast.success("VidhanSabha Updated successfully.");
         setTimeout(() => {
@@ -218,8 +214,6 @@ function VidhanSabha() {
       toast.error("Error in updating :", error.message);
     }
   };
-
-
 
 
   const columns = useMemo(() => [

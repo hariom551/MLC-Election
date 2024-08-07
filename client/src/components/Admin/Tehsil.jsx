@@ -21,8 +21,9 @@ function Tehsil() {
     HName: '',
     
   });
-  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const user = JSON.parse(localStorage.getItem("user")); 
   const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
   
   useEffect(() => {
     const fetchData = async () => {
@@ -71,7 +72,7 @@ function Tehsil() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addTehsil/${DId}`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -105,6 +106,7 @@ function Tehsil() {
       Id,
       EName,
       HName,
+      loginUserId
     };
     // console.log(requestBody);
 

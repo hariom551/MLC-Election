@@ -60,14 +60,15 @@ function Caste() {
     fetchData();
   }, [content]);
 
-
+  const user = JSON.parse(localStorage.getItem("user")); 
+  const loginUserId = user.userid;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addCaste`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -103,9 +104,11 @@ function Caste() {
       ESurname,
       HSurname,
       ECaste,
-      HCaste
+      HCaste,
+      loginUserId
+
     };
-    console.log(requestBody);
+   
 
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCasteDetail`, {

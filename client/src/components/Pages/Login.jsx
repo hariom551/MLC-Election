@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import backgroundImage from './LoginImage.jpg';
+
 function Login() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [value, setValue] = useState('')
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,64 +31,47 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); // Clear any previous errors
 
     try {
-      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/login`, {
-        method: 'post',
+      const response = await fetch(`/api/v1/users/login`, {
+        method: 'POST',
         body: JSON.stringify({ userid: userId, password }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      const data = await result.json();
-   
-      if (result.status === 200) {
+      const data = await response.json();
+
+      if (response.ok) {
         const { user, token } = data.data;
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('token', token);
-        window.location.href = '/home';
-
+        navigate('/home'); // Use navigate to redirect
       } else {
-        setValue(data.message, {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        setError(data.message); // Set the error message
       }
     } catch (error) {
       console.error('Login request failed:', error);
-      setValue('Invalid user credentials.', {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      setError('Invalid user credentials.'); // Set the error message
     }
   };
 
   return (
     <>
-      <div className='100vh  h-full' >
-
-        <div style={{ backgroundImage: `url(${backgroundImage})`, backgroundPosition: 'center', backgroundSize: '100% 100%', width: "100%", height: '100vh' }}>
+      <div className='100vh h-full'>
+        <div style={{ backgroundImage: `url(${backgroundImage})`, backgroundPosition: 'center', backgroundSize: 'cover', width: "100%", height: '100vh' }}>
           <header className="flex justify-between items-center px-6 py-8">
-            <span className="text-lg">Login Page</span><br />
+            <span className="text-lg">Login Page</span>
             <div className="text-right text-white">
               <span className="text-lg">{date}</span><br />
               <span className="text-lg">{time}</span>
             </div>
           </header>
 
-          <div className="flex justify-center items-center  font-serief mt-[10vw]">
+          <div className="flex justify-center items-center font-serif mt-[10vw]">
             <Form onSubmit={handleSubmit} className="loginbox max-w-3xl mt-2 mx-auto p-4 rounded-lg shadow-md">
-              <Form.Group className="mb-3 pt-4" >
+              <Form.Group className="mb-3 pt-4">
                 <Form.Label className='text-white'>User Id:</Form.Label>
                 <Form.Control
                   type="text"
@@ -101,7 +85,7 @@ function Login() {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3" >
+              <Form.Group className="mb-3">
                 <Form.Label className='text-white'>Password</Form.Label>
                 <Form.Control
                   type="password"
@@ -118,7 +102,7 @@ function Login() {
                 <Button variant="primary" type="submit" className="py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800">
                   Login
                 </Button>
-                <p className='text-red-600'>{value}</p>
+                {error && <p className='text-red-600'>{error}</p>} {/* Display error message */}
               </div>
             </Form>
           </div>

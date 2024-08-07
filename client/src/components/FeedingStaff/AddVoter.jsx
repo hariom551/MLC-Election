@@ -19,6 +19,7 @@ function AddVoter() {
     const user = JSON.parse(localStorage.getItem("user"));
     const DId = user ? user.DId : '';
     const userRole = user ? user.role : '';
+    const loginUserId =user ? user.userid: '';
 
     const [referenceDetails, setReferenceDetails] = useState({
         PacketNo: '',
@@ -181,6 +182,8 @@ function AddVoter() {
             }));
             formData.append('voterDetails', JSON.stringify(voterDetails));
             formData.append('addressDetail', JSON.stringify(addressDetail));
+            formData.append('loginIdDetails',JSON.stringify({ loginId: loginUserId}));
+
 
 
             Object.keys(voterDocs).forEach(key => {
@@ -327,7 +330,7 @@ function AddVoter() {
             formData.append('voterDetails', JSON.stringify(voterDetails));
             formData.append('addressDetail', JSON.stringify(addressDetail));
             formData.append('extraDetails', JSON.stringify(extraDetails));
-
+            formData.append('loginIdDetails',JSON.stringify({ loginId: loginUserId}));
 
             Object.keys(voterDocs).forEach(key => {
                 if (voterDocs[key].file) {

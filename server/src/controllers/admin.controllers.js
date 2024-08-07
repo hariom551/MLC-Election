@@ -5,14 +5,17 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 
 
+const currentDate = new Date();
+const SDate = currentDate.toISOString(); 
+const MDate = currentDate.toISOString(); 
+
 const AddCaste = asyncHandler(async (req, res) => {
-    const { ESurname, HSurname, ECaste, HCaste } = req.body;
+    const { ESurname, HSurname, ECaste, HCaste, loginUserId } = req.body;
     if (!ESurname || !HSurname || !ECaste || !HCaste) {
         throw new ApiError(400, "Please enter all details!")
     }
 
     try {
-
         const existCaste = await queryDatabase('SELECT Id FROM caste WHERE ECaste = ?',[ECaste]);
         let CasteId; 
         if (existCaste.length>0) {
@@ -20,15 +23,15 @@ const AddCaste = asyncHandler(async (req, res) => {
         }
         else{
             const result= await queryDatabase(
-                'INSERT INTO caste (ECaste, HCaste) VALUES (?, ?)',
-                [ECaste, HCaste]
+                'INSERT INTO caste (ECaste, HCaste, SBy, MBy, SDate, MDate) VALUES (?, ?, ?, ?, ?, ?)',
+                [ECaste, HCaste, loginUserId, loginUserId, SDate, MDate]
             );
             CasteId = result.insertId;
         }
       
         await queryDatabase(
-            'INSERT INTO surname (ESurname, HSurname, CasteId ) VALUES (?, ?, ?)',
-            [ESurname, HSurname, CasteId]
+            'INSERT INTO surname (ESurname, HSurname, CasteId , SBy, MBy, SDate, MDate) VALUES (?, ?, ?,?,?,?, ?)',
+            [ESurname, HSurname, CasteId, loginUserId, loginUserId, SDate, MDate]
         );
 
         const addedCaste = {
@@ -55,10 +58,11 @@ const casteDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateCasteDetail = asyncHandler(async (req, res) => {
-    const { ID, ESurname, HSurname, ECaste, HCaste } = req.body;
+    const { ID, ESurname, HSurname, ECaste, HCaste, loginUserId } = req.body;
     if (!ID || !ESurname || !HSurname || !ECaste || !HCaste) {
         throw new ApiError(400, "Please enter all details!")
     }
+    console.log(loginUserId)
     try {  
         const existCaste = await queryDatabase('SELECT Id FROM caste WHERE ECaste = ?',[ECaste]);
         let CasteId; 
@@ -67,15 +71,15 @@ const UpdateCasteDetail = asyncHandler(async (req, res) => {
         }
         else{
             const result= await queryDatabase(
-                'INSERT INTO caste (ECaste, HCaste) VALUES (?, ?)',
-                [ECaste, HCaste]
+                'INSERT INTO caste (ECaste, HCaste, SBy, MBy,MDate,SDate) VALUES (?, ?, ?,?,?,?)',
+                [ECaste, HCaste, loginUserId, loginUserId,MDate,SDate]
             );
             CasteId = result.insertId;
         }
 
         await queryDatabase(
-            'UPDATE surname SET ESurname= ?, HSurname= ?, casteId= ? WHERE ID= ?',
-            [ESurname, HSurname, CasteId, ID]
+            'UPDATE surname SET ESurname= ?, HSurname= ?, casteId= ?, MBy=?,MDate=? WHERE ID= ?',
+            [ESurname, HSurname, CasteId,loginUserId,MDate, ID ]
         );
 
         const updatedCaste = {
@@ -93,14 +97,14 @@ const UpdateCasteDetail = asyncHandler(async (req, res) => {
 
 const AddTehsil = asyncHandler(async (req, res) => {
     const {DId}= req.params;
-    const { EName, HName } = req.body;
+    const { EName, HName, loginUserId} = req.body;
     if (!EName || !HName) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'INSERT INTO tehsillist (EName, HName, Did) VALUES (?, ?,?)',
-            [EName, HName, DId]
+            'INSERT INTO tehsillist (EName, HName, Did, SBy, MBy,SDate,MDate) VALUES (?, ?,?,?,?,?,?)',
+            [EName, HName, DId, loginUserId, loginUserId,SDate,MDate]
         );
 
         const addedTehsil = {
@@ -128,14 +132,14 @@ const TehsilDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateTehsilDetail = asyncHandler(async (req, res) => {
-    const { Id, EName, HName } = req.body;
+    const { Id, EName, HName, loginUserId } = req.body;
     if (!Id || !EName || !HName) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE Tehsillist SET EName= ?, HName= ? WHERE Id= ?',
-            [EName, HName, Id]
+            'UPDATE Tehsillist SET EName= ?, HName= ?, MBy=?,MDate=? WHERE Id= ?',
+            [EName, HName, loginUserId,MDate, Id]
         );
 
         const updatedCaste = {
@@ -174,7 +178,7 @@ const DeleteTehsilDetail = asyncHandler(async (req, res) => {
 });
 
 const AddCouncil = asyncHandler(async (req, res) => {
-    const { ECouncil, HCouncil, TehId } = req.body;
+    const { ECouncil, HCouncil, TehId, loginUserId } = req.body;
 
     if (!ECouncil || !HCouncil || !TehId)
         throw new ApiError(400, 'Plaese Enter All the Details')
@@ -182,8 +186,8 @@ const AddCouncil = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO council (TehId, ECouncil, HCouncil) VALUES (?, ?, ?)',
-            [TehId, ECouncil, HCouncil]
+            'INSERT INTO council (TehId, ECouncil, HCouncil, SBy, MBy,SDate,MDate) VALUES (?, ?, ?,?,?,?,?)',
+            [TehId, ECouncil, HCouncil,loginUserId, loginUserId,SDate,MDate]
         );
 
         const AddedCouncil = {
@@ -212,14 +216,14 @@ const CouncilDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateCouncilDetail = asyncHandler(async (req, res) => {
-    const { Id, TehId, ECouncil, HCouncil } = req.body;
+    const { Id, TehId, ECouncil, HCouncil, loginUserId } = req.body;
     if (!Id, !TehId || !ECouncil || !HCouncil) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE council SET ECouncil= ?, HCouncil= ?, TehId= ? WHERE Id= ?',
-            [ECouncil, HCouncil, TehId, Id]
+            'UPDATE council SET ECouncil= ?, HCouncil= ?, TehId= ?, MBy=?,MDate=? WHERE Id= ?',
+            [ECouncil, HCouncil, TehId, loginUserId, MDate,Id]
         );
 
         const updatedCouncil = {
@@ -238,15 +242,11 @@ const UpdateCouncilDetail = asyncHandler(async (req, res) => {
 
 const DeleteCouncilDetail = asyncHandler(async (req, res) => {
     const { Id } = req.body;
-
-
     try {
         await queryDatabase(
             'DELETE FROM council WHERE Id= ?',
             [Id]
         );
-
-
         return res.status(201).json(
             new ApiResponse(200, "council details Deleted successfully")
         );
@@ -257,7 +257,7 @@ const DeleteCouncilDetail = asyncHandler(async (req, res) => {
 });
 
 const AddVidhanSabha = asyncHandler(async (req, res) => {
-    const { EVidhanSabha, HVidhanSabha, VSNo, counId } = req.body;
+    const { EVidhanSabha, HVidhanSabha, VSNo, counId, loginUserId } = req.body;
 
 
 
@@ -267,8 +267,8 @@ const AddVidhanSabha = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO vidhansabha (counId, EVidhanSabha, HVidhanSabha, VSNo) VALUES (?, ?, ?,?)',
-            [counId, EVidhanSabha, HVidhanSabha, VSNo]
+            'INSERT INTO vidhansabha (counId, EVidhanSabha, HVidhanSabha, VSNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?, ?, ?,?,?)',
+            [counId, EVidhanSabha, HVidhanSabha, VSNo, loginUserId, loginUserId,SDate,MDate]
         );
         const AddedCouncil = {
             counId, EVidhanSabha, HVidhanSabha, VSNo
@@ -297,15 +297,15 @@ const VidhanSabhaDetails = asyncHandler(async (req, res) => {
 
 const UpdateVidhanSabhaDetail = asyncHandler(async (req, res) => {
     // counId, EVidhanSabha, HVidhanSabha, VSNo
-    const { Id, counId, EVidhanSabha, HVidhanSabha, VSNo } = req.body;
+    const { Id, counId, EVidhanSabha, HVidhanSabha, VSNo, loginUserId } = req.body;
 
     if (!Id, !counId || !EVidhanSabha || !HVidhanSabha || !VSNo) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE vidhansabha SET EVidhanSabha= ?, HVidhanSabha= ?, VSNo =?, counId =? WHERE Id= ?',
-            [EVidhanSabha, HVidhanSabha, VSNo, counId, Id]
+            'UPDATE vidhansabha SET EVidhanSabha= ?, HVidhanSabha= ?, VSNo =?, counId =?, MBy=?, MDate =? WHERE Id= ?',
+            [EVidhanSabha, HVidhanSabha, VSNo, counId, loginUserId, MDate, Id]
         );
 
         const updatedVS = {
@@ -342,7 +342,7 @@ const DeleteVidhanSabhaDetail = asyncHandler(async (req, res) => {
 });
 
 const AddWardBlock = asyncHandler(async (req, res) => {
-    const { EWardBlock, HWardBlock, WardNo, VSId } = req.body;
+    const { EWardBlock, HWardBlock, WardNo, VSId, loginUserId } = req.body;
 
     if (!EWardBlock || !HWardBlock || !WardNo || !VSId)
         throw new ApiError(400, 'Plaese Enter All the Details')
@@ -350,8 +350,8 @@ const AddWardBlock = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO wardblock (VSId, EWardBlock, HWardBlock, WardNo) VALUES (?, ?, ?, ?)',
-            [VSId, EWardBlock, HWardBlock, WardNo]
+            'INSERT INTO wardblock (VSId, EWardBlock, HWardBlock, WardNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?, ?, ?,?,?)',
+            [VSId, EWardBlock, HWardBlock, WardNo, loginUserId, loginUserId,SDate,MDate]
         );
 
         const AddedCouncil = {
@@ -362,7 +362,6 @@ const AddWardBlock = asyncHandler(async (req, res) => {
         );
 
     } catch (error) {
-         
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -379,7 +378,7 @@ const WardBlockDetails = asyncHandler(async (req, res) => {
              ON vidhansabha.counId= C.Id
              JOIN tehsillist AS T
              ON T.Id = C.TehId
-              WHERE T.Did=?
+             WHERE T.Did=?
              ORDER BY WB.WardNo`, [DId]);
 
         return res.json(results);
@@ -391,14 +390,14 @@ const WardBlockDetails = asyncHandler(async (req, res) => {
 
 const UpdateWardBlockDetail = asyncHandler(async (req, res) => {
 
-    const { Id, VSId, WardNo, EWardBlock, HWardBlock } = req.body;
+    const { Id, VSId, WardNo, EWardBlock, HWardBlock, loginUserId } = req.body;
     if (!Id, !VSId || !EWardBlock || !WardNo || !HWardBlock) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE wardblock SET EWardBlock= ?, HWardBlock= ?, VSId= ?, WardNo=? WHERE Id= ?',
-            [EWardBlock, HWardBlock, VSId, WardNo, Id]
+            'UPDATE wardblock SET EWardBlock= ?, HWardBlock= ?, VSId= ?, WardNo=?, MBy=?,Mdate=? WHERE Id= ?',
+            [EWardBlock, HWardBlock, VSId, WardNo, loginUserId,MDate, Id]
         );
 
         const updatedCouncil = {
@@ -435,7 +434,8 @@ const DeleteWardBlockDetail = asyncHandler(async (req, res) => {
 });
 
 const AddChakBlock = asyncHandler(async (req, res) => {
-    const { ECBPanch, HCBPanch, ChakNo, WBId } = req.body;
+    console.log("first");
+    const { ECBPanch, HCBPanch, ChakNo, WBId, loginUserId } = req.body;
 
     if (!ECBPanch || !HCBPanch || !ChakNo || !WBId)
         throw new ApiError(400, 'Plaese Enter All the Details')
@@ -443,8 +443,8 @@ const AddChakBlock = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO chakblockpanch (WBId, ECBPanch, HCBPanch, ChakNo) VALUES (?, ?, ?, ?)',
-            [WBId, ECBPanch, HCBPanch, ChakNo]
+            'INSERT INTO chakblockpanch (WBId, ECBPanch, HCBPanch, ChakNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?, ?,?,?, ?)',
+            [WBId, ECBPanch, HCBPanch, ChakNo, loginUserId, loginUserId,SDate,MDate]
         );
 
         const AddedCouncil = {
@@ -485,14 +485,14 @@ const ChakBlockDetails = asyncHandler(async (req, res) => {
 
 const UpdateChakBlockDetail = asyncHandler(async (req, res) => {
 
-    const { Id, WBId, ChakNo, ECBPanch, HCBPanch } = req.body;
+    const { Id, WBId, ChakNo, ECBPanch, HCBPanch, loginUserId } = req.body;
     if (!Id, !WBId || !ChakNo || !ECBPanch || !HCBPanch) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE chakblockpanch SET ECBPanch= ?, HCBPanch= ?, WBId= ?, ChakNo=? WHERE Id= ?',
-            [ECBPanch, HCBPanch, WBId, ChakNo, Id]
+            'UPDATE chakblockpanch SET ECBPanch= ?, HCBPanch= ?, WBId= ?, ChakNo=?, MBy=?,MDate=? WHERE Id= ?',
+            [ECBPanch, HCBPanch, WBId, ChakNo,loginUserId, Id,MDate]
         );
 
         const updatedCouncil = {
@@ -528,15 +528,16 @@ const DeleteChakBlockDetail = asyncHandler(async (req, res) => {
 
 const AddAreaVill = asyncHandler(async (req, res) => {
     
-    const { EAreaVill, HAreaVill, HnoRange, CBPId } = req.body;
+    const { EAreaVill, HAreaVill, HnoRange, CBPId, loginUserId } = req.body;
+   
     if (!EAreaVill || !HAreaVill || !CBPId )
         throw new ApiError(400, 'Plaese Enter All the Details')
 
 
     try {
         await queryDatabase(
-            'INSERT INTO areavill (CBPId, EAreaVill, HAreaVill, HnoRange) VALUES (?, ?, ?,?)',
-            [CBPId, EAreaVill, HAreaVill, HnoRange]
+            'INSERT INTO areavill (CBPId, EAreaVill, HAreaVill, HnoRange, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?,?, ?,?,?)',
+            [CBPId, EAreaVill, HAreaVill, HnoRange, loginUserId, loginUserId,SDate,MDate]
         );
         const AddedCouncil = {
             CBPId, EAreaVill, HAreaVill, HnoRange
@@ -582,16 +583,18 @@ const AreaVillDetails = asyncHandler(async (req, res) => {
 
 const UpdateAreaVillDetail = asyncHandler(async (req, res) => {
     // counId, EVidhanSabha, HVidhanSabha, VSNo
-    const { Id, CBPId, EAreaVill, HAreaVill, HnoRange } = req.body;
-
-    if (!Id, !CBPId || !EAreaVill || !HAreaVill || !HnoRange) {
+    const { Id, CBPId, EAreaVill, HAreaVill, HnoRange, loginUserId } = req.body;
+    console.log(req.body);
+    if (!Id, !CBPId || !EAreaVill || !HAreaVill ) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
-        await queryDatabase(
-            'UPDATE areavill SET EAreaVill= ?, HAreaVill= ?, HnoRange =?, CBPId =? WHERE Id= ?',
-            [EAreaVill, HAreaVill, HnoRange, CBPId, Id]
+        const ans= await queryDatabase(
+            'UPDATE areavill SET EAreaVill= ?, HAreaVill= ?, HnoRange =?, CBPId =?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
+            [EAreaVill, HAreaVill, HnoRange, CBPId, loginUserId,SDate,MDate,Id]
         );
+        
+        console.log(ans);
 
         const updatedVS = {
             EAreaVill, HAreaVill, HnoRange, CBPId, Id
@@ -626,7 +629,7 @@ const DeleteAreaVillDetail = asyncHandler(async (req, res) => {
 });
 
 const AddPSList = asyncHandler(async (req, res) => {
-    const { ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo } = req.body;
+    const { ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId } = req.body;
    
 
 
@@ -636,8 +639,8 @@ const AddPSList = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO pollingstation (ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo) VALUES (?, ?, ?,?, ?,?)',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo]
+            'INSERT INTO pollingstation (ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?,?, ?,?,?,?,?,?)',
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, loginUserId,SDate,MDate]
         );
         const AddedPSList = {
             HSPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo
@@ -665,15 +668,15 @@ const PSListDetails = asyncHandler(async (req, res) => {
 
 const UpdatePSListDetail = asyncHandler(async (req, res) => {
 
-    const { Id, ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo } = req.body;
+    const { Id, ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId } = req.body;
 
     if (!Id, !ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE pollingstation SET ESPArea= ?, HSPArea= ?, PSNo =?, ESPName =?, HSPName=?, RoomNo=? WHERE Id= ?',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, Id]
+            'UPDATE pollingstation SET ESPArea= ?, HSPArea= ?, PSNo =?, ESPName =?, HSPName=?, RoomNo=?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId,SDate,MDate, Id]
         );
 
         const updatedPSList = {

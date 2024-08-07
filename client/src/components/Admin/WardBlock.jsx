@@ -26,6 +26,7 @@ function WardBlock() {
   const [vsOptions, setVSOptions] = useState([]);
   const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
   const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
 
   useEffect(() => {
     const fetchVSOptions = async () => {
@@ -94,7 +95,7 @@ function WardBlock() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addWardBlock`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -118,7 +119,7 @@ function WardBlock() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateWardBlockDetails`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }

@@ -4,6 +4,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadFiles } from "../middleware/multer.middleware.js";
 import { queryDatabase } from "../utils/queryDatabase.js";
 
+const currentDate = new Date();
+const SDate = currentDate.toISOString(); 
+const MDate = currentDate.toISOString(); 
 
 const searchSurname = asyncHandler(async (req, res) => {
     const { query } = req.body;
@@ -236,11 +239,12 @@ const AddVoter = [
             }
 
 
-            let referenceDetails, voterDetails, addressDetail;
+            let referenceDetails, voterDetails, addressDetail,loginIdDetails;
             try {
                 referenceDetails = JSON.parse(req.body.referenceDetails);
                 voterDetails = JSON.parse(req.body.voterDetails);
                 addressDetail = JSON.parse(req.body.addressDetail);
+                loginIdDetails=JSON.parse(req.body.loginIdDetails);
             } catch (e) {
                 return res.status(400).json(new ApiResponse(400, null, 'Invalid JSON data in the request body'));
             }
@@ -272,14 +276,16 @@ const AddVoter = [
                 Age, DOB, Sex, MNo, MNo2,
                 AadharNo, VIdNo, GCYear, DId, AreaId, TehId, 
                 CounId, VSId, WBId, ChkBlkId, HNo,
-                Landmark, Image, IdProof, Degree)
+                Landmark, Image, IdProof, Degree,
+                StaffId, SBy, MBy, SDate, MDate)
                 VALUES (?, ?, ?, ?, 
                 ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
-                ?, ?, ?, ?)`;
+                ?, ?, ?, ?,
+                ?,?,?,?,?)`;
 
             const values = [
                 req.idNo, referenceDetails.PacketNo, referenceDetails.IncRefId, voterDetails.EFName, voterDetails.HFName,
@@ -288,7 +294,8 @@ const AddVoter = [
                 voterDetails.Age, voterDetails.DOB, voterDetails.Sex, voterDetails.MNo, voterDetails.MNo2,
                 voterDetails.AadharNo, voterDetails.VIdNo, voterDetails.GCYear, addressDetail.DId, addressDetail.AreaId, addressDetail.TehId,
                 addressDetail.counId, addressDetail.VSId, addressDetail.WBId, addressDetail.ChkBlkId, addressDetail.HNo,
-                addressDetail.Landmark, voterDocs.Image, voterDocs.IdProof, voterDocs.Degree
+                addressDetail.Landmark, voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
+                loginIdDetails.loginId, loginIdDetails.loginId, loginIdDetails.loginId, SDate, MDate
             ];
 
             await queryDatabase(query, values);
@@ -328,11 +335,13 @@ const UpdateVoter = [
             }
 
             // Parse incoming JSON data
-            let parsedReferenceDetails, parsedVoterDetails, parsedAddressDetail;
+            let parsedReferenceDetails, parsedVoterDetails, parsedAddressDetail,loginIdDetails ;
             try {
                 parsedReferenceDetails = JSON.parse(referenceDetails);
                 parsedVoterDetails = JSON.parse(voterDetails);
                 parsedAddressDetail = JSON.parse(addressDetail);
+                loginIdDetails=JSON.parse(req.body.loginIdDetails);
+
             } catch (e) {
                 return res.status(400).json(new ApiResponse(400, null, 'Invalid JSON data in the request body'));
             }
@@ -362,7 +371,8 @@ const UpdateVoter = [
                 DOB = ?, Sex = ?, MNo = ?, MNo2 = ?, AadharNo = ?, 
                 VIdNo = ?, GCYear = ?, AreaId = ?, TehId = ?, 
                 CounId = ?, VSId = ?, WBId = ?, ChkBlkId = ?, 
-                HNo = ?, Landmark = ?, Image = ?, IdProof = ?, Degree = ?
+                HNo = ?, Landmark = ?, Image = ?, IdProof = ?, Degree = ?,
+                QCStaff=? ,MBy =?,Mdate=?
                 WHERE Id = ?`;
 
             const values = [
@@ -377,6 +387,7 @@ const UpdateVoter = [
                 parsedAddressDetail.VSId, parsedAddressDetail.WBId, parsedAddressDetail.ChkBlkId,
                 parsedAddressDetail.HNo, parsedAddressDetail.Landmark,
                 voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
+                loginIdDetails.loginId, loginIdDetails.loginId,MDate,
                 req.params.idNo // The ID to update
             ];
 

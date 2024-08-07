@@ -32,7 +32,7 @@ function Council() {
 
   const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
   const DId = user ? user.DId : '';
-
+  const loginUserId = user.userid;
   useEffect(() => {
 
     const fetchTehsilOptions = async () => {
@@ -102,7 +102,7 @@ function Council() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addCouncil`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -113,9 +113,7 @@ function Council() {
         // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
         toast.success("Council Added Successfully.");
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 2000);
+      
         setFormData({
           Id: '',
           ECouncil: '',
@@ -137,7 +135,7 @@ function Council() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCouncilDetail`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData,loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -145,9 +143,7 @@ function Council() {
 
       if (result.ok) {
         toast.success("Council Updated successfully.");
-        setTimeout(() => {
-          window.location.href = '/Council';
-        }, 1000);
+        window.location.href = '/Council';
       } else {
         toast.error("Error in Updating Council:", result.statusText);
       }

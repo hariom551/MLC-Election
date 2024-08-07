@@ -22,7 +22,6 @@ export const validateVoterDetails = (name, value) => {
 
         case 'EFName':
         case 'ERFName':
-        case 'ERLName':
         case 'ELName':
             if (!value) {
                 error = 'This field is required';
@@ -33,8 +32,7 @@ export const validateVoterDetails = (name, value) => {
 
         case 'HFName':
         case 'HRFName':
-        case 'HRLName':
-        case 'HLName':
+       
             if (!value) {
                 error = 'Name (Hindi) is required';
             }
