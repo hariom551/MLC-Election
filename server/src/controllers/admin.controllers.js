@@ -561,7 +561,6 @@ const AreaVillDetails = asyncHandler(async (req, res) => {
             ON areavill.CBPId = chakblockpanch.id 
             INNER JOIN wardblock 
             ON wardblock.id = chakblockpanch.WBID
-            
             JOIN vidhansabha AS V
             ON wardblock.VSID= V.Id
             JOIN council AS C
@@ -569,9 +568,6 @@ const AreaVillDetails = asyncHandler(async (req, res) => {
             JOIN tehsillist AS T
             ON T.Id= C.TehId
             WHERE T.Did=?`,[DId]);
-
-            
-            
 
         return res.json(results); 
     } catch (error) {
@@ -581,7 +577,6 @@ const AreaVillDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateAreaVillDetail = asyncHandler(async (req, res) => {
-    // counId, EVidhanSabha, HVidhanSabha, VSNo
     const { Id, CBPId, EAreaVill, HAreaVill, HnoRange, loginUserId } = req.body;
     console.log(req.body);
     if (!Id, !CBPId || !EAreaVill || !HAreaVill ) {
@@ -592,9 +587,7 @@ const UpdateAreaVillDetail = asyncHandler(async (req, res) => {
             'UPDATE areavill SET EAreaVill= ?, HAreaVill= ?, HnoRange =?, CBPId =?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
             [EAreaVill, HAreaVill, HnoRange, CBPId, loginUserId,SDate,MDate,Id]
         );
-        
-        console.log(ans);
-
+ 
         const updatedVS = {
             EAreaVill, HAreaVill, HnoRange, CBPId, Id
         };
