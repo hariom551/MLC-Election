@@ -35,6 +35,7 @@ import UpdateLetter from './components/QCStaff/UpdateLetter.jsx';
 import DaywiseReport from './components/SubAdmin/DayWiseReport.jsx';
 import QCstaffcount from './components/SubAdmin/QCstaffcount.jsx';
 import FeedingStaffCount from './components/SubAdmin/FeedingStaffCount.jsx';
+import ReferenceVoterList from './components/SubAdmin/ReferenceVoterLIst.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -86,6 +87,7 @@ const getRoutesForRole = (role) => {
           <Route path="/feedingstaffcount" element={<FeedingStaffCount />} />
           <Route path="/qcstaffcount" element={<QCstaffcount/>} />
           <Route  path ="/daywisereport" element={<DaywiseReport/>} />
+          <Route  path ="/ReferenceVoterList" element={<ReferenceVoterList/>} />
         </>
       );
     case 'Feeding Staff':

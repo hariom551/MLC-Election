@@ -151,4 +151,36 @@ const QCDayWiseReport = asyncHandler(async (req, res) => {
 });
 
 
-export { voterList, FeedingStaff, DayWiseReport, staffname, qcstaffcount, QCDayWiseReport, };
+const ReferenceVoterList = asyncHandler(async (req, res) => {
+    const { number } = req.body;
+    try {
+      const query = `
+        SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, 
+              ERLName, HRLName, CasteId, caste.ECaste, Qualification, Occupation, Age, 
+              DATE_FORMAT(DOB, '%d/%m/%Y') as DOB, Sex, MNo, MNo2, AadharNo, VIdNo, GCYear, 
+               AreaVill.EAreaVill ,AreaVill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark, Image, IdProof, Degree 
+              FROM voterlist 
+              LEFT JOIN caste ON CasteId = caste.ID 
+              LEFT JOIN AreaVill ON AreaId= AreaVill.Id
+        JOIN volunteer ON volunteer.Id = voterlist.IncFormId
+        WHERE  volunteer.VMob1 = ?;
+      `;
+      const results = await queryDatabase(query, [number]);
+      return res.json(results);
+    } catch (error) {
+      return res.status(500).json({ error: "A database error occurred." });
+    }
+  });
+
+const TCdisplayData=asyncHandler(async(req,res)=>{
+    
+    try {
+      const query = `SELECT DISTINCT LastCallEmployee FROM telecallerdetail`;
+      const results = await queryDatabase(query);
+      return res.json(results);
+    } catch (error) {
+      return res.status(500).json({ error: "A database error occurred." });
+    }
+  })
+
+export { voterList, FeedingStaff, DayWiseReport, staffname, qcstaffcount, QCDayWiseReport, ReferenceVoterList};

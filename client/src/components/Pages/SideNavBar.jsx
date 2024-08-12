@@ -258,35 +258,65 @@ function SideNavBar({ show }) {
 
 
                 {role === 'QC Staff' && (
-                    <div className="feedingStaff-link">
-                        <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
-                        <ul><li><Link to="/VoterList" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Voter List</Link></li></ul>
-                        <ul><li><Link to="/DispatchLetter" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Dispatch Letter</Link></li></ul>
-                        <ul><li><Link to="/Telecaller" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Tellecaller</Link></li></ul>
-                        <ul><li><Link to="/QcForm" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Form qc</Link></li></ul>
-                        <ul><li><Link to="/SearchChakBlock" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Search Chak Block</Link></li></ul>
-                        <ul><li><Link to="/updateletter" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Update Letter</Link></li></ul>
+                
 
 
-                        {/* <div className="dropdown">
-                            <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Form')}>
-                                <FaUserGroup className='text-xl' />Form<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>
-                            </button>
-                            <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
-                                <ul><li><Link to="/Dispatch Letter">Dispatch Letter</Link></li></ul>
-                                <ul><li><Link to="/Dispatch Letter">Tellecaller</Link></li></ul>
-                                <ul><li><Link to="/Dispatch Letter">Form qc</Link></li></ul>
-                                <ul><li><Link to="/SearchChakBlock">Search Chak Block</Link></li></ul>
-                            </div>
-                        </div> */}
 
-                        <ul><li><Link onClick={handleLogout} className='flex gap-2'><IoLogOutSharp className='text-2xl' />Logout</Link></li></ul>
+                <div className="qualitystaff-link">
+                 <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
+                    <ul><li><Link to="/VoterList" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Voter List</Link></li></ul>
 
+                 <div className="dropdown">
+                    <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Staff')}>
+                        <FaUserGroup className='text-xl' /> Communication<span className="dropdown-symbol">{dropdownStates.Staff ? '-' : '+'}</span>
+                    </button>
+
+                    <div className={`dropdown-content ${dropdownStates.Staff ? 'show' : ''}`} id="Staff-dropdown-content">
+                    {/* <ul><li><Link to="/QcForm" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />SMS</Link></li></ul> */}
+
+                        <ul><li><Link to={{ pathname: "/QcForm", search: "?content=Feeding Staff" }}>SMS</Link></li></ul>
+                        <ul><li><Link to={{ pathname: "/userForm", search: "?content=QC Staff" }}>Whatsapp</Link></li></ul>
+                        {/* <ul><li><Link to={{ pathname: "/userForm", search: "?content=App Feeding Staff" }}>App Feeding Staff</Link></li></ul> */}
                     </div>
-                )}
+                 </div>
+                 <br />
+                    <ul><li><Link to="/SearchChakBlock" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Search Chak Block</Link></li></ul>
+                 <div className="dropdown">
+                    <button className="dropbtn flex items-center gap-2
+                    " onClick={() => toggleDropdown('Form')}>
+                        <FaUserGroup className='text-xl' /> Telecaller<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>
+                    </button>
+                    
+                    <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
+                        <ul><li><Link to="/feedingstaffcount">Add Data</Link></li></ul>
+                        <ul><li><Link to="/qcstaffcount">Display Data</Link></li></ul>
+                    </div>
+                 </div>
+
+                 <div className="dropdown">
+                    <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('VoterL')}>
+                        <FaUserGroup className='text-xl' /> Letter <span className="dropdown-symbol">{dropdownStates.VoterL ? '-' : '+'}</span>
+                    </button>
+                    <div className={`dropdown-content ${dropdownStates.VoterL ? 'show' : ''}`} id="caste-dropdown-content">
+                        <ul><li><Link to="/updateletter">Update Letter</Link></li></ul>
+                        <ul><li><Link to="/DispatchLetter">Dispatch letter </Link></li></ul>
+                    </div>
+                 </div>
+
+                 <ul><li><Link onClick={handleLogout} className='flex gap-2'><IoLogOutSharp className='text-2xl' />Logout</Link></li></ul>
+
+            
 
 
-            </div>
+
+
+                    
+                
+                    </div>
+                  )}
+
+
+                  </div>
 
 
 
