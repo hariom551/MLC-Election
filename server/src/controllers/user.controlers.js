@@ -4,6 +4,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 
+const currentDate = new Date();
+const CDate = currentDate.toISOString(); 
 const generateToken = (payload) => {
     return jwt.sign(
         payload,
@@ -108,13 +110,11 @@ const submitDetails = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Please enter all details!");
     }
 
-    const currentDate = new Date();
-    const SDate = currentDate.toISOString(); 
 
     try {
         await queryDatabase(
-            'INSERT INTO userlogin (userId, password,DId, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [userId, password,DId, name, mobile1, mobile2, email, address, permission, role, loginUserId, SDate]
+            'INSERT INTO userlogin (userId, password,DId, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate, MDate,MBy) VALUES (?,?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [userId, password,DId, name, mobile1, mobile2, email, address, permission, role, loginUserId, CDate, CDate,loginUserId ]
         );
 
         const createdUser = {
@@ -177,15 +177,16 @@ const changePassword = asyncHandler(async (req, res) => {
 });
 
 const AddDistrict = asyncHandler(async (req, res) => {
-    const { DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate } = req.body;
+    const { DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate, loginUserId } = req.body;
     if (!DistCode || !EDistrict || !HDistrict || !ESGraduate || !HSGraduate) {
         throw new ApiError(400, "Please enter all details!")
     }
+    console.log(req.body)
 
     try {
         await queryDatabase(
-            'INSERT INTO district (DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate) VALUES (?, ?, ?, ?, ?)',
-            [DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate]
+            'INSERT INTO district (DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate,SBy, MBy, SDate, MDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate,loginUserId, loginUserId,CDate,CDate]
         );
 
         const createdDistrict = {
@@ -212,15 +213,15 @@ const GetDistrictDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateDistrictDetail = asyncHandler(async (req, res) => {
-    const { Id, EName, HName, } = req.body;
+    const { Id, EName, HName, loginUserId} = req.body;
     if (!Id || !EName || !HName) {
         throw new ApiError(400, "Please enter all details!")
     }
 
     try {
         await queryDatabase(
-            'UPDATE district SET EName= ?, HName= ? WHERE Id = ?',
-            [EName, HName, Id]
+            'UPDATE district SET EName= ?, HName= ?,MDate=?, MBy=? WHERE Id = ?',
+            [EName, HName,CDate,loginUserId, Id]
         );
 
         const updatedTehsil = {

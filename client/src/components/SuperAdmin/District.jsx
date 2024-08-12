@@ -9,6 +9,10 @@ import 'react-toastify/dist/ReactToastify.css';
 function District() {
   const [districtDetails, setDistrictDetails] = useState([]);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -24,7 +28,8 @@ function District() {
       EDistrict,
       HDistrict,
       ESGraduate,
-      HSGraduate
+      HSGraduate,
+      loginUserId
     };
 
     try {

@@ -33,12 +33,16 @@ function PollingStationAllotment() {
     VtsTo: '',
   });
 
+  const user = JSON.parse(localStorage.getItem("user"));
+    const DId = user ? user.DId : '';
+    const loginUserId = user.userid;
+
   const [WBOptions, setWBOptions] = useState([]);
 
   useEffect(() => {
     const fetchWBOptions = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -51,7 +55,7 @@ function PollingStationAllotment() {
         if (!data || !Array.isArray(data) || data.length === 0) {
           throw new Error('Empty or invalid wardblock options data');
         }
-        const options = data.map(wb => ({ value: wb.Id, label: wb.EWardBlock }));
+        const options = data.map(wb => ({ value: wb.Id, label: wb.WardNo + ' - ' +wb.EWardBlock }));
         setWBOptions(options);
       } catch (error) {
         toast.error('Error fetching wardblock options:', error);
@@ -60,6 +64,36 @@ function PollingStationAllotment() {
 
     fetchWBOptions();
   }, []);
+
+  useEffect(() => {
+    const fetchTotalVoters = async () => {
+      if (WBOptions.WBId) {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/getTotalVoters/${WBOptions.WBId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch total voters');
+          }
+          const data = await response.json();
+          if (data && data.totalVoters) {
+            setFormData(prevFormData => ({
+              ...prevFormData,
+              TotalVoters: data.totalVoters.toString()
+            }));
+          }
+        } catch (error) {
+          toast.error('Error fetching total voters:', error);
+        }
+      }
+    };
+
+    fetchTotalVoters();
+  }, [formData.WBId]);
+
 
   useEffect(() => {
     const fetchData = async () => {

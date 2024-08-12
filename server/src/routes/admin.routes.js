@@ -10,6 +10,7 @@ import {
         AddAreaVill, AreaVillDetails, UpdateAreaVillDetail, DeleteAreaVillDetail,
         AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail,
         SearchPSNo,
+        AddPSAlloment,
 
 }
         from "../controllers/admin.controllers.js";
@@ -55,11 +56,12 @@ AdminRouter.route("/deleteAreaVillDetail").post(DeleteAreaVillDetail)
 
 
 AdminRouter.route("/addPSList").post(AddPSList)
-AdminRouter.route("/pSListDetails").get(PSListDetails)
-AdminRouter.route("/updatePSListDetail").post(UpdatePSListDetail)
+AdminRouter.route("/pSListDetails/:DId").get(PSListDetails)
+AdminRouter.route("/updatePSListDetail/:DId").post(UpdatePSListDetail)
 AdminRouter.route("/deletePSListDetail").post(DeletePSListDetail)
 AdminRouter.route("/searchPSNo").post(SearchPSNo)
 
+AdminRouter.route("/getTotalVoters/:WBId").get(AddPSAlloment)
 
 
 export default AdminRouter;

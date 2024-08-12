@@ -5,6 +5,9 @@ import { queryDatabase } from '../utils/queryDatabase.js';
 import fetch from 'node-fetch';
 import uploadFiles from "../middleware/multer.middleware.js";
 
+const currentDate = new Date();
+const CDate = currentDate.toISOString(); 
+
 const wardwiseVoterContact = asyncHandler(async (req, res) => {
     const { WBId } = req.body;
     if (!WBId) {
@@ -156,7 +159,7 @@ const voterDetailById = asyncHandler(async (req, res)=>{
 
 
 const updateletter=asyncHandler(async(req,res)=>{
-    const { content } = req.body;
+    const { content,loginUserId } = req.body;
     if (!content) {
         return res.status(400).json({ error: "Content is required" });
     }
@@ -164,8 +167,8 @@ const updateletter=asyncHandler(async(req,res)=>{
     try {
         // Insert the content into the letter table
         await queryDatabase(
-            'INSERT INTO letter (content) VALUES (?)',
-            [content]
+            'INSERT INTO letter (content,SDate,MDate,SBy,MBy) VALUES (?,?,?,?,?)',
+            [content,CDate,CDate,loginUserId,loginUserId]
         );
 
         return res.status(201).json(
@@ -180,7 +183,7 @@ const updateletter=asyncHandler(async(req,res)=>{
 })
 
 const prevletter = asyncHandler(async (req, res) => {
-    console.log("abcgh")
+   
     try {
         const results = await queryDatabase('SELECT * FROM letter ORDER BY id DESC LIMIT 1');
         return res.json(results); // Correctly return the results array

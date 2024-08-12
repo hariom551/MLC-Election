@@ -29,12 +29,16 @@ function PollingStationList() {
     ESPName: '',
     HSPName: '',
     RoomNo: ''
+
   });
+  const user = JSON.parse(localStorage.getItem("user"));
+  const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSListDetails`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSListDetails/${DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -50,10 +54,18 @@ function PollingStationList() {
         }
         setPSListDetails(data);
         if (content) {
-          const PollingStationList = data.find(item => item.Id == content);
+          const PSD = data.find(item => item.Id == content);
 
-          if (PollingStationList) {
-            setFormData(PollingStationList);
+          if (PSD) {
+            setFormData({
+              ESPArea: PSD.EPSArea,
+              HSPArea: PSD.HPSArea,
+              PSNo: PSD.PSNo,
+              ESPName: PSD.EPSName,
+              HSPName: PSD.HPSName,
+              RoomNo: PSD.RoomNo
+
+            });
           } else {
             toast.error(`PollingStationList with ID ${content} not found`);
           }
@@ -71,7 +83,7 @@ function PollingStationList() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addPSList`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId, DId }),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -93,9 +105,9 @@ function PollingStationList() {
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updatePSListDetail`, {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updatePSListDetail/${DId}`, {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, loginUserId, content }),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -123,6 +135,7 @@ function PollingStationList() {
   };
 
   const handleDelete = async (Id) => {
+    console.log(Id);
     try {
       let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deletePSListDetail`, {
         method: 'POST',
@@ -133,9 +146,9 @@ function PollingStationList() {
       });
 
       if (result.ok) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 500);
         toast.success("PollingStationList deleted successfully.");
       } else {
         toast.error("Error in deleting PollingStationList:", result.statusText);
@@ -154,11 +167,11 @@ function PollingStationList() {
   const handleExport = (rows, format) => {
     const exportData = rows.map((row, index) => ({
       "S.No": index + 1,
-      "PS Area (English)": row.original.ESPArea,
-      "PS Area (Hindi)": row.original.HSPArea,
+      "PS Area (English)": row.original.EPSArea,
+      "PS Area (Hindi)": row.original.HPSArea,
       "PS No.": row.original.PSNo,
-      "PS Name (English)": row.original.ESPName,
-      "PS Name (Hindi)": row.original.HSPName,
+      "PS Name (English)": row.original.EPSName,
+      "PS Name (Hindi)": row.original.HPSName,
       "Room No.": row.original.RoomNo,
     }));
 
@@ -202,12 +215,12 @@ function PollingStationList() {
       ),
     },
     {
-      accessorKey: 'ESPArea',
+      accessorKey: 'EPSArea',
       header: 'PS Area (English)',
       size: 20,
     },
     {
-      accessorKey: 'HSPArea',
+      accessorKey: 'HPSArea',
       header: 'PS Area (Hindi)',
       size: 20,
     },
@@ -217,12 +230,12 @@ function PollingStationList() {
       size: 20,
     },
     {
-      accessorKey: 'ESPName',
+      accessorKey: 'EPSName',
       header: 'PS Name(English)',
       size: 20,
     },
     {
-      accessorKey: 'HSPName',
+      accessorKey: 'HPSName',
       header: 'PS Name (Hindi)',
       size: 20,
     },
@@ -269,7 +282,7 @@ function PollingStationList() {
 
   return (
     <main className="bg-gray-100">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="container py-4 pl-6 text-black">
         <h1 className="text-2xl font-bold mb-4">Add Polling Station</h1>
         <Form onSubmit={content ? handleEdit : handleSubmit} className="PollingStationList-form">

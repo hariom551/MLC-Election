@@ -3,6 +3,10 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from "../utils/queryDatabase.js";
 
+const currentDate = new Date();
+const CDate = currentDate.toISOString(); 
+
+
 const AddOutForm = asyncHandler(async (req, res) => {
     const {
         VMob1,
@@ -16,9 +20,9 @@ const AddOutForm = asyncHandler(async (req, res) => {
         ERemarks,
         CMob1,
         CEName,
-        CHName
+        CHName,
+        loginUserId
     } = req.body;
-
 
     try {
         let volunteer = await queryDatabase(
@@ -28,22 +32,19 @@ const AddOutForm = asyncHandler(async (req, res) => {
 
         let volunteerId;
         if (volunteer.length > 0) {
-            // Update existing volunteer
             volunteerId = volunteer[0].Id;
             await queryDatabase(
-                `UPDATE volunteer SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ? WHERE id = ?`,
-                [VEName, VHName, VEAddress, VHAddress, volunteerId]
+                `UPDATE volunteer SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ?, Mdate=?, MBy=? WHERE id = ?`,
+                [VEName, VHName, VEAddress, VHAddress, CDate, loginUserId, volunteerId]
             );
         } else {
-            // Insert new volunteer
+       
             const result = await queryDatabase(
-                'INSERT INTO volunteer (VMob1, VMob2, VEName, VHName, VEAddress, VHAddress) VALUES (?, ?, ?, ?, ?, ?)',
-                [VMob1, VMob2, VEName, VHName, VEAddress, VHAddress]
+                'INSERT INTO volunteer (VMob1, VMob2, VEName, VHName, VEAddress, VHAddress, SBy, MBy, SDate, MDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [VMob1, VMob2, VEName, VHName, VEAddress, VHAddress,loginUserId,loginUserId,CDate,CDate]
             );
             volunteerId = result.insertId;
         }
-
-
 
         let volunteer2 = await queryDatabase(
             'SELECT Id FROM volunteer WHERE VMob1 = ?',
@@ -54,27 +55,23 @@ const AddOutForm = asyncHandler(async (req, res) => {
         if (volunteer2.length > 0) {
             volunteerId2 = volunteer2[0].Id;
             await queryDatabase(
-                `UPDATE volunteer SET VEName = ?, VHName = ? WHERE id = ?`,
-                [CEName, CHName, volunteerId2]
+                `UPDATE volunteer SET VEName = ?, VHName = ?, Mdate=?, MBy=? WHERE id = ?`,
+                [CEName, CHName,CDate, loginUserId, volunteerId2]
             );
         } else {
           
             const result = await queryDatabase(
-                'INSERT INTO volunteer (VMob1, VEName, VHName) VALUES (?, ?, ?)',
-                [CMob1, CEName, CHName]
+                'INSERT INTO volunteer (VMob1, VEName, VHName, SBy, MBy, SDate, MDate) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [CMob1, CEName, CHName, loginUserId, loginUserId, CDate, CDate]
             );
             volunteerId2 = result.insertId;
         }
 
-        
-
-   
-
         await queryDatabase(
             `INSERT INTO outgoingform (
-                RefId,  ERemark, SendingDate, NoOfForms, COID
-            ) VALUES (?, ?, ?, ?, ?)`,
-            [volunteerId, ERemarks, SendingDate, NoOfForms,volunteerId2 ]
+                RefId,  ERemark, SendingDate, NoOfForms, COID, SBy, MBy, SDate, MDate
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [volunteerId, ERemarks, SendingDate, NoOfForms,volunteerId2,loginUserId,loginUserId,CDate,CDate ]
         );
 
         res.status(201).json(
@@ -114,58 +111,73 @@ const AddIncomForm = asyncHandler(async (req, res) => {
         VHName,
         VEAddress,
         VHAddress,
-        NFormsKN,
-        NFormsKd, 
-        NFormsU,
+        NoOfFormsKN,
+        NoOfFormsKD, 
+        NoOfFormsU,
         PacketNo,
         ReceivedDate,
         ERemarks,
-        COList
+        COList,
+        loginUserId
     } = req.body;
-
+    
+  
     try {
-        let volunteer = await queryDatabase(
-            'SELECT Id FROM volunteer WHERE VMob1 = ?',
-            [VMob1]
-        );
+        const volunteerQuery = 'SELECT Id FROM volunteer WHERE VMob1 = ?';
+        const volunteer = await queryDatabase(volunteerQuery, [VMob1]);
+
+   
 
         let volunteerId;
         if (volunteer.length > 0) {
             volunteerId = volunteer[0].Id;
-            await queryDatabase(
-                `UPDATE volunteer SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ? WHERE Id = ?`,
-                [VEName, VHName, VEAddress, VHAddress, volunteerId]
-            );
+           
+            const updateVolunteerQuery = `
+                UPDATE volunteer 
+                SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ?, MBy = ?, MDate = ?
+                WHERE Id = ?
+            `;
+            await queryDatabase(updateVolunteerQuery, [VEName, VHName, VEAddress, VHAddress, loginUserId, CDate, volunteerId]);
+
         } else {
-            const result = await queryDatabase(
-                'INSERT INTO volunteer (VMob1, VMob2, VEName, VHName, VEAddress, VHAddress) VALUES (?, ?, ?, ?, ?, ?)',
-                [VMob1, VMob2, VEName, VHName, VEAddress, VHAddress]
-            );
+            const insertVolunteerQuery = `
+                INSERT INTO volunteer (VMob1, VMob2, VEName, VHName, VEAddress, VHAddress, SBy, MBy, SDate, MDate) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            const result = await queryDatabase(insertVolunteerQuery, [VMob1, VMob2, VEName, VHName, VEAddress, VHAddress, loginUserId, loginUserId, CDate, CDate]);
+
             volunteerId = result.insertId;
+
         }
 
         let insertedCareOfIds = [];
 
         if (COList && Array.isArray(COList) && COList.length > 0) {
             const careOfQueries = COList.map(async (co) => {
-                let careOfVolunteer = await queryDatabase(
-                    'SELECT Id FROM volunteer WHERE VMob1 = ?',
-                    [co.VMob1]
-                );
+                const careOfVolunteerQuery = 'SELECT Id FROM volunteer WHERE VMob1 = ?';
+                const careOfVolunteer = await queryDatabase(careOfVolunteerQuery, [co.VMob1]);
+
 
                 let careOfId;
                 if (careOfVolunteer.length > 0) {
                     careOfId = careOfVolunteer[0].Id;
-                    await queryDatabase(
-                        `UPDATE volunteer SET VEName = ?, VHName = ? WHERE Id = ?`,
-                        [co.VEName, co.VHName, careOfId]
-                    );
+                    
+                    const updateCareOfQuery = `
+                        UPDATE volunteer 
+                        SET VEName = ?, VHName = ?, MBy = ?, MDate = ?
+                        WHERE Id = ?
+                    `;
+                    await queryDatabase(updateCareOfQuery, [co.VEName, co.VHName, loginUserId, CDate, careOfId]);
+
                 } else {
-                    const careOfResult = await queryDatabase(
-                        'INSERT INTO volunteer (VMob1, VEName, VHName, COId) VALUES (?, ?, ?, ?)',
-                        [co.VMob1, co.VEName, co.VHName, volunteerId]
-                    );
+                    const insertCareOfQuery = `
+                        INSERT INTO volunteer (VMob1, VEName, VHName, COId, SBy, MBy, SDate, MDate) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    `;
+                    const careOfResult = await queryDatabase(insertCareOfQuery, [co.VMob1, co.VEName, co.VHName, volunteerId, loginUserId, loginUserId, CDate, CDate]);
+
                     careOfId = careOfResult.insertId;
+
                 }
                 return careOfId;
             });
@@ -173,28 +185,28 @@ const AddIncomForm = asyncHandler(async (req, res) => {
             insertedCareOfIds = await Promise.all(careOfQueries);
         }
 
-        const careOfValues = insertedCareOfIds.slice(0, 3); 
+        const careOfValues = insertedCareOfIds.slice(0, 3);
 
         while (careOfValues.length < 3) {
             careOfValues.push(null);
         }
 
-        await queryDatabase(
-            `INSERT INTO incomingform (
+        const insertIncomingFormQuery = `
+            INSERT INTO incomingform (
                 RefId, PacketNo, ERemarks, ReceivedDate, NFormsKN, NFormsKd, NFormsU,
-                COID1, COID2, COID3
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [volunteerId, PacketNo, ERemarks, ReceivedDate, NFormsKN, NFormsKd, NFormsU, ...careOfValues]
-        );
+                COID1, COID2, COID3, SBy, MBy, SDate, MDate
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        await queryDatabase(insertIncomingFormQuery, [volunteerId, PacketNo, ERemarks, ReceivedDate, NoOfFormsKN, NoOfFormsKD, NoOfFormsU, ...careOfValues, loginUserId, loginUserId, CDate, CDate]);
 
-        res.status(201).json(
-            new ApiResponse(200, "IF details submitted successfully")
-        );
+
+        res.status(201).json(new ApiResponse(200, "IF details submitted successfully"));
     } catch (error) {
-        console.error('Error in adding incoming forms:', error);
+       
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
+
 
 const UpdateIncomForm = asyncHandler(async (req, res) => {
     const {
@@ -204,13 +216,14 @@ const UpdateIncomForm = asyncHandler(async (req, res) => {
         VHName,
         VEAddress,
         VHAddress,
-        NFormsKN,
-        NFormsKd, 
-        NFormsU,
+        NoOfFormsKN,
+        NoOfFormsKD, 
+        NoOfFormsU,
         PacketNo,
         ReceivedDate,
         ERemarks,
-        COList
+        COList,
+        loginUserId
     } = req.body;
 
     try {
@@ -225,8 +238,8 @@ const UpdateIncomForm = asyncHandler(async (req, res) => {
             // Update existing volunteer
             volunteerId = volunteer[0].Id;
             await queryDatabase(
-                `UPDATE volunteer SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ? WHERE id = ?`,
-                [VEName, VHName, VEAddress, VHAddress, volunteerId]
+                `UPDATE volunteer SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ?, Mdate=?, MBy=? WHERE id = ?`,
+                [VEName, VHName, VEAddress, VHAddress, CDate, loginUserId, volunteerId]
             );
         } 
 
@@ -244,8 +257,8 @@ const UpdateIncomForm = asyncHandler(async (req, res) => {
                     // Update existing care_of volunteer
                     careOfId = careOfVolunteer[0].Id;
                     await queryDatabase(
-                        `UPDATE volunteer SET VEName = ?, VHName = ? WHERE Id = ?`,
-                        [co.VEName, co.VHName, careOfId]
+                        `UPDATE volunteer SET VEName = ?, VHName = ?, Mdate=?, MBy=? WHERE Id = ?`,
+                        [co.VEName, co.VHName,  loginUserId, CDate, careOfId]
                     );
                 }
 
@@ -267,9 +280,11 @@ const UpdateIncomForm = asyncHandler(async (req, res) => {
             `UPDATE incomingform SET
                 RefId= ?, ERemarks= ?, ReceivedDate= ?, 
                 COID1= ?, COID2= ?, COID3= ?,
-                NFormsKN= ?, NFormsKd= ?, NFormsU= ?
+                NFormsKN= ?, NFormsKd= ?, NFormsU= ?, Mdate=?, MBy=?
                 WHERE PacketNo= ?`,
-            [volunteerId, ERemarks, ReceivedDate, ...careOfValues, NFormsKN, NFormsKd, NFormsU, PacketNo]
+            [volunteerId, ERemarks, ReceivedDate, ...careOfValues,   NoOfFormsKN,
+                NoOfFormsKD, 
+                NoOfFormsU, CDate, loginUserId, PacketNo]
         );
 
         res.status(201).json(

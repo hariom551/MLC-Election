@@ -629,18 +629,18 @@ const DeleteAreaVillDetail = asyncHandler(async (req, res) => {
 });
 
 const AddPSList = asyncHandler(async (req, res) => {
-    const { ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId } = req.body;
+    const { ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, DId } = req.body;
    
 
 
-    if (!ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo)
+    if (!ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo ||!DId)
         throw new ApiError(400, 'Plaese Enter All the Details')
 
 
     try {
         await queryDatabase(
-            'INSERT INTO pollingstation (ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?,?, ?,?,?,?,?,?)',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, loginUserId,SDate,MDate]
+            'INSERT INTO pollingstation (EPSArea, HPSArea, PSNo, EPSName, HPSName, RoomNo, SBy, MBy,SDate,MDate, DId) VALUES (?, ?, ?,?, ?, ?,?,?,?,?,?)',
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, loginUserId,SDate,MDate, DId]
         );
         const AddedPSList = {
             HSPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo
@@ -656,9 +656,10 @@ const AddPSList = asyncHandler(async (req, res) => {
 });
 
 const PSListDetails = asyncHandler(async (req, res) => {
-
+const{DId}=req.params;
     try {
-        const results = await queryDatabase('SELECT * FROM pollingstation')
+        const results = await queryDatabase(`SELECT Id, EPSArea, HPSArea, PSNo, EPSName, HPSName, RoomNo FROM pollingstation where DId= ?`,[DId])
+    
         return res.json(results);
     } catch (error) {
          
@@ -668,19 +669,19 @@ const PSListDetails = asyncHandler(async (req, res) => {
 
 const UpdatePSListDetail = asyncHandler(async (req, res) => {
 
-    const { Id, ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId } = req.body;
-
-    if (!Id, !ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo) {
+    const { content, ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId } = req.body;
+    console.log(req.body);
+    if (!content || !ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE pollingstation SET ESPArea= ?, HSPArea= ?, PSNo =?, ESPName =?, HSPName=?, RoomNo=?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId,SDate,MDate, Id]
+            'UPDATE pollingstation SET EPSArea= ?, HPSArea= ?, PSNo =?, EPSName =?, HPSName=?, RoomNo=?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId,SDate,MDate, content]
         );
 
         const updatedPSList = {
-            Id, ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo
+             ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo
         };
 
         return res.status(201).json(
@@ -694,21 +695,46 @@ const UpdatePSListDetail = asyncHandler(async (req, res) => {
 
 const DeletePSListDetail = asyncHandler(async (req, res) => {
     const { Id } = req.body;
+
     try {
         await queryDatabase(
             'DELETE FROM pollingstation WHERE Id= ?',
             [Id]
         );
-
-
         return res.status(201).json(
-            new ApiResponse(200, "areavill details Deleted successfully")
+            new ApiResponse(200, "Ps details Deleted successfully")
         );
     } catch (error) {
          
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
+
+const AddPSAlloment=asyncHandler(async(req,res)=>{
+    const {WBId} = req.body;
+    console.log(req.body)
+
+    if (!WBId )
+        throw new ApiError(400, 'Plaese Enter All the Details')
+
+
+    try {
+        const result=await queryDatabase(
+            // SELECT COUNT(*) AS TotalVoters FROM `voterlist` WHERE WBId = 5;
+            'SELECT COUNT (*) AS TotalVoters FROM voterlist WHERE WBId ?',
+            [WBId]
+        );
+        
+        return res.status(201).json(
+            new ApiResponse(200, result, "PSList details submitted successfully")
+        );
+
+    } catch (error) {
+         
+        return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
+    }
+})
+
 
 
 const SearchPSNo = asyncHandler(async (req, res) => {
@@ -737,8 +763,8 @@ export {
     AddWardBlock, WardBlockDetails, UpdateWardBlockDetail, DeleteWardBlockDetail,
     AddChakBlock, ChakBlockDetails, UpdateChakBlockDetail, DeleteChakBlockDetail,
     AddAreaVill, AreaVillDetails, UpdateAreaVillDetail, DeleteAreaVillDetail,
-    AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail, SearchPSNo
-
+    AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail, SearchPSNo,
+    AddPSAlloment
 }
 
 

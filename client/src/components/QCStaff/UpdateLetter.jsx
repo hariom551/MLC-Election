@@ -7,6 +7,9 @@ import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 const UpdateLetter = () => {
   const [editorHtml, setEditorHtml] = useState('');
   const quillRef = useRef(null);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
 
     
   useEffect(() => {
@@ -52,7 +55,7 @@ const UpdateLetter = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content: editorHtml }),
+        body: JSON.stringify({ content: editorHtml, loginUserId }),
       });
   
       const result = await response.json(); // Get the response data

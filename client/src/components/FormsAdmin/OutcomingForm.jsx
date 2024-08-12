@@ -45,6 +45,10 @@ function OutgoingForms() {
     const [suggestedMobiles, setSuggestedMobiles] = useState([]);
     const [suggestedCareOfMobiles, setSuggestedCareOfMobiles] = useState([]);
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    const DId = user ? user.DId : '';
+    const loginUserId = user.userid;
+
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/searchVMobNo`, {
@@ -95,7 +99,7 @@ function OutgoingForms() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         let formHasErrors = false;
         const newErrors = {};
         for (let key in formData) {
@@ -110,16 +114,16 @@ function OutgoingForms() {
             toast.error("Please fix the validation errors");
             return;
         }
-    
+
         try {
             const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/FormsAdmin/addOutForm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({...formData, loginUserId}),
             });
-    
+
             if (result.ok) {
                 toast.success("OutgoingForms Added Successfully.");
                 // window.location.reload();
@@ -136,8 +140,8 @@ function OutgoingForms() {
             toast.error("Error in Adding OutgoingForms:", error.message);
         }
     };
-    
-    
+
+
     const calculateColumnTotals = (key) => {
         return OFDetails.reduce((sum, row) => sum + (Number(row[key]) || 0), 0);
     };
@@ -204,31 +208,31 @@ function OutgoingForms() {
 
     const handleExport = (rows, format) => {
         const exportData = rows.map((row, index) => ({
-          "S.No": index + 1,
-          "Name": row.original.RName,
-          "Mobile": row.original.RMob1,
-          "Address": row.original.RAddress,
-          "CO1 Name": row.original.C1Name,
-          "CO1 Mobile": row.original.C1Mob,
-          "Sending Date": row.original.SendingDate,
-          "Remarks": row.original.ERemark,
-        
+            "S.No": index + 1,
+            "Name": row.original.RName,
+            "Mobile": row.original.RMob1,
+            "Address": row.original.RAddress,
+            "CO1 Name": row.original.C1Name,
+            "CO1 Mobile": row.original.C1Mob,
+            "Sending Date": row.original.SendingDate,
+            "Remarks": row.original.ERemark,
+
         }));
-    
+
         if (format === 'csv') {
-          const csv = generateCsv(csvConfig)(exportData);
-          download(csvConfig)(csv);
+            const csv = generateCsv(csvConfig)(exportData);
+            download(csvConfig)(csv);
         } else if (format === 'pdf') {
-          const doc = new jsPDF();
-          const tableData = exportData.map(row => Object.values(row));
-          const tableHeaders = ["S.No", "Name", "Mobile", "Address", "CO1 Name", "CO1 Mobile", "Sending Date" , "Remarks"];
-          autoTable(doc, {
-            head: [tableHeaders],
-            body: tableData,
-          });
-          doc.save('OutgoingForm.pdf');
+            const doc = new jsPDF();
+            const tableData = exportData.map(row => Object.values(row));
+            const tableHeaders = ["S.No", "Name", "Mobile", "Address", "CO1 Name", "CO1 Mobile", "Sending Date", "Remarks"];
+            autoTable(doc, {
+                head: [tableHeaders],
+                body: tableData,
+            });
+            doc.save('OutgoingForm.pdf');
         }
-      };
+    };
 
 
     const csvConfig = mkConfig({
@@ -236,7 +240,7 @@ function OutgoingForms() {
         decimalSeparator: '.',
         useKeysAsHeaders: true,
     });
-    
+
     const table = useMaterialReactTable({
         columns,
         data: OFDetails,
@@ -247,7 +251,7 @@ function OutgoingForms() {
         muiTableFooterCellProps: {
             sx: {
                 fontWeight: 'bold',
-                color:'black',
+                color: 'black',
                 fontSize: '15px'
             },
         },
@@ -277,7 +281,7 @@ function OutgoingForms() {
             </Box>
         ),
     });
-    
+
 
     return (
         <main className="bg-gray-100">
@@ -296,7 +300,8 @@ function OutgoingForms() {
                                     id="VMob1"
                                     selected={formData.VMob1 ? [{ VMob1: formData.VMob1 }] : []}
                                     name="VMob1"
-                                    onInputChange={(value) => {fetchSuggestedMobiles(value, setSuggestedMobiles);
+                                    onInputChange={(value) => {
+                                        fetchSuggestedMobiles(value, setSuggestedMobiles);
                                         const error = validateFormsAdmin("VMob1", value);
                                         setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                     }}
@@ -469,11 +474,11 @@ function OutgoingForms() {
 
                 <hr className="my-4" />
                 <h4 className="container mt-3 text-xl font-bold mb-3">OutgoingForms List</h4>
-              
 
-                    <MaterialReactTable table={table} />
-                </div>
-            
+
+                <MaterialReactTable table={table} />
+            </div>
+
         </main>
     );
 }

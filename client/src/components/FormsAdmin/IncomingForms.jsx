@@ -55,6 +55,9 @@ function IncomingForms() {
 
     const [suggestedMobiles, setSuggestedMobiles] = useState([]);
     const [suggestedCareOfMobiles, setSuggestedCareOfMobiles] = useState([]);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const DId = user ? user.DId : '';
+    const loginUserId = user.userid;
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
@@ -162,14 +165,14 @@ function IncomingForms() {
         try {
             const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/AddIncomForm`, {
                 method: 'POST',
-                body: JSON.stringify(formData),
+                body: JSON.stringify({...formData, loginUserId}),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
             if (result.ok) {
-                // window.location.reload();
+                window.location.reload();
                 setFormData({
 
                     VMob1: '',
@@ -206,7 +209,7 @@ function IncomingForms() {
         try {
             const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/UpdateIncomForm`, {
                 method: 'POST',
-                body: JSON.stringify(formData),
+                body: JSON.stringify({...formData, loginUserId}),
                 headers: {
                     'Content-Type': 'application/json'
                 }
