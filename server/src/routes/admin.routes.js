@@ -9,8 +9,8 @@ import {
         AddChakBlock, ChakBlockDetails, UpdateChakBlockDetail, DeleteChakBlockDetail,
         AddAreaVill, AreaVillDetails, UpdateAreaVillDetail, DeleteAreaVillDetail,
         AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail,
-        SearchPSNo,
-        AddPSAlloment,
+        SearchPSNo, WardVotersCount,
+        pSAllotDetails,
 
 }
         from "../controllers/admin.controllers.js";
@@ -59,9 +59,10 @@ AdminRouter.route("/addPSList").post(AddPSList)
 AdminRouter.route("/pSListDetails/:DId").get(PSListDetails)
 AdminRouter.route("/updatePSListDetail/:DId").post(UpdatePSListDetail)
 AdminRouter.route("/deletePSListDetail").post(DeletePSListDetail)
-AdminRouter.route("/searchPSNo").post(SearchPSNo)
 
-AdminRouter.route("/getTotalVoters/:WBId").get(AddPSAlloment)
+AdminRouter.route("/getTotalVoters").post(WardVotersCount)
+AdminRouter.route("/searchPSNo").post(SearchPSNo)
+AdminRouter.route("/pSAllotDetails").get(pSAllotDetails)
 
 
 export default AdminRouter;

@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -710,23 +709,22 @@ const DeletePSListDetail = asyncHandler(async (req, res) => {
     }
 });
 
-const AddPSAlloment=asyncHandler(async(req,res)=>{
+const WardVotersCount=asyncHandler(async(req,res)=>{
     const {WBId} = req.body;
-    console.log(req.body)
+    
 
     if (!WBId )
         throw new ApiError(400, 'Plaese Enter All the Details')
 
-
     try {
         const result=await queryDatabase(
             // SELECT COUNT(*) AS TotalVoters FROM `voterlist` WHERE WBId = 5;
-            'SELECT COUNT (*) AS TotalVoters FROM voterlist WHERE WBId ?',
+            'SELECT COUNT(*) AS TotalVoters FROM voterlist WHERE WBId = ?',
             [WBId]
         );
         
         return res.status(201).json(
-            new ApiResponse(200, result, "PSList details submitted successfully")
+            new ApiResponse(200, result, "voters fetched successfully")
         );
 
     } catch (error) {
@@ -745,7 +743,7 @@ const SearchPSNo = asyncHandler(async (req, res) => {
     }
     try {
         const results = await queryDatabase(
-            'SELECT PSNo, ESPName, RoomNo FROM pollingstation WHERE PSNo LIKE ?',
+            'SELECT PSNo, EPSName, RoomNo FROM pollingstation WHERE PSNo LIKE ? LIMIT 10',
             [`%${query}%`]
         );
         return res.json(results);
@@ -754,6 +752,18 @@ const SearchPSNo = asyncHandler(async (req, res) => {
         return res.status(500).json({ error: 'A database error occurred.' });
     }
 });
+
+const pSAllotDetails = asyncHandler(async (req, res) => {
+    const{DId}=req.params;
+        try {
+            const results = await queryDatabase(`SELECT Id, EPSArea, HPSArea, PSNo, EPSName, HPSName, RoomNo FROM pollingstation where DId= ?`,[DId])
+        
+            return res.json(results);
+        } catch (error) {
+             
+            return res.status(500).send('A database error occurred.');
+        }
+    });
 
 export {
     AddCaste, casteDetails, UpdateCasteDetail,
@@ -764,11 +774,6 @@ export {
     AddChakBlock, ChakBlockDetails, UpdateChakBlockDetail, DeleteChakBlockDetail,
     AddAreaVill, AreaVillDetails, UpdateAreaVillDetail, DeleteAreaVillDetail,
     AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail, SearchPSNo,
-    AddPSAlloment
+    WardVotersCount, pSAllotDetails
 }
 
-
-//   array sort 
-// intro
-// sql - authentication vs authorization
-// filter - 

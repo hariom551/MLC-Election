@@ -136,19 +136,19 @@ const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        
-          <>
-            <Route element={<Layout />}>
-              {getRoutesForRole(userRole)}
-            </Route>
-          </>
-        
-      </Routes>
+      <>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route element={<Layout />}>
+            {getRoutesForRole(userRole)}
+          </Route>
+        </Routes>
+        <ToastContainer />
+      </>
     </Router>
-    <ToastContainer />
-  </React.StrictMode>
+  // </React.StrictMode>
 );
+
+
