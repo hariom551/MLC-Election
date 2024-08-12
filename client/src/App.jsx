@@ -1,9 +1,8 @@
 import { useState } from 'react';
-// import './App.css'; // Import your custom CSS file if needed
 import Header from './components/Header/Header';
 import Navbar from './components/Navbar/Navbar';
-// import Hariom from './components/Hariom/Hariom';
 
+// oops in cpp
 function App() {
   const [count, setCount] = useState(0);
 
@@ -17,4 +16,4 @@ function App() {
   );
 }
 
-export default App;
+// export default App;
