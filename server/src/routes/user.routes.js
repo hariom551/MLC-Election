@@ -1,5 +1,8 @@
 import { Router } from "express"
-import { loginUser, hariom, submitDetails, changePassword,checkRole, AddDistrict, GetDistrictDetails, UpdateDistrictDetail, DeleteDistrictDetail, logoutuser, DistrictDetails } from "../controllers/user.controlers.js"
+import { loginUser, hariom, submitDetails, changePassword,checkRole,
+     AddDistrict, GetDistrictDetails, UpdateDistrictDetail, DeleteDistrictDetail, 
+     logoutuser,
+     DistrictDetails} from "../controllers/user.controlers.js"
 
 import { verifyJWT } from "../middleware/auth.middleware.js"
 const router = Router()

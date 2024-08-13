@@ -121,7 +121,7 @@ function OutgoingForms() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({...formData, loginUserId}),
+                body: JSON.stringify({ ...formData, loginUserId }),
             });
 
             if (result.ok) {
@@ -303,7 +303,7 @@ function OutgoingForms() {
                                     onInputChange={(value) => {
                                         fetchSuggestedMobiles(value, setSuggestedMobiles);
                                         const error = validateFormsAdmin("VMob1", value);
-                                        setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
+                                     
                                     }}
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
@@ -319,6 +319,20 @@ function OutgoingForms() {
                                             }));
                                             const error = validateFormsAdmin("VMob1", choice.VMob1);
                                             setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
+                                        } else {
+                                            const typedValue = formData.VMob1 || ''; 
+                                            setFormData((prevDetails) => ({
+                                                ...prevDetails,
+                                                VMob1: typedValue,
+                                                VMob2: '',
+                                                VEName: '',
+                                                VHName: '',
+                                                VEAddress: '',
+                                                VHAddress: '',
+                                            }));
+                                           
+                                            const error = validateFormsAdmin("VMob1", typedValue);
+                                            setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                         }
                                     }}
                                     options={suggestedMobiles}
@@ -333,6 +347,7 @@ function OutgoingForms() {
                                 {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
                             </Form.Group>
                         </div>
+
                         <div className="col-md-3 mb-3">
                             <Form.Group>
                                 <Form.Label>Name (English) <sup className='text-red-500'>*</sup></Form.Label>

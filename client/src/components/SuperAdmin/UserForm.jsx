@@ -13,12 +13,11 @@ import {
 } from 'material-react-table';
 
 function UserForm() {
-
   const user = JSON.parse(localStorage.getItem("user"));
   const loginUserId = user.userid;
   const DId = user.DId;
   const userrole = user.role;
-  
+
   const [userData, setUserData] = useState([]);
 
   const initialFormData = {
@@ -31,7 +30,7 @@ function UserForm() {
     email: '',
     address: '',
     permission: '',
-    DId: DId? DId: ''
+    DId: DId ? DId : ''
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -41,41 +40,60 @@ function UserForm() {
   const searchParams = new URLSearchParams(location.search);
   const content = searchParams.get('content');
 
- 
-
   const token = localStorage.getItem('token');
 
   const [district, setDistrict] = useState([]);
-  useEffect(() => {
-
-    const fetchDistrictOptions = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/DistrictDetails`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch District options');
+  
+  // Function to fetch district options
+  const fetchDistrictOptions = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/DistrictDetails`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid District options data');
-        }
-
-        const options = data.map(District => ({ value: District.Id, label: District.EDistrict }));
-        setDistrict(options);
-
-      } catch (error) {
-        toast.error('Error fetching Tehsil options:', error);
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch District options');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid District options data');
+      }
 
+      const options = data.map(District => ({ value: District.Id, label: District.EDistrict }));
+      setDistrict(options);
+
+    } catch (error) {
+      toast.error('Error fetching District options:', error);
+    }
+  };
+
+  // Function to fetch user data
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/hariom`, {
+        method: 'POST',
+        body: JSON.stringify({ role: content, loginUserId }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      toast.error('Error fetching user data: ' + error.message);
+    }
+  };
+
+  useEffect(() => {
     fetchDistrictOptions();
-  }, []);
-
-
+    fetchData(); // Fetch user data on component mount
+  }, []); // Run only once
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -110,8 +128,6 @@ function UserForm() {
     };
 
     try {
-
-
       let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/submitdetails`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -124,6 +140,7 @@ function UserForm() {
       if (result.ok) {
         toast.success('Form submitted successfully.');
         setFormData(initialFormData);
+        fetchData(); // Refresh user data after submission
       } else {
         toast.error("Error submitting form: " + result.statusText);
       }
@@ -131,32 +148,6 @@ function UserForm() {
       toast.error("Error submitting form: " + error.message);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/hariom`, {
-          method: 'POST',
-          body: JSON.stringify({ role: content, loginUserId }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
-        const data = await response.json();
-        setUserData(data);
-      } catch (error) {
-        toast.error('Error fetching user data: ' + error.message);
-      }
-    };
-
-    fetchData();
-  }, [content, loginUserId]);
-
-
 
   const columns = useMemo(
     () => [
@@ -250,8 +241,6 @@ function UserForm() {
                   name="userId"
                   value={formData.userId}
                   onChange={handleChange}
-
-
                 />
                 {errors.userId && <div className="text-danger">{errors.userId}</div>}
               </Form.Group>
@@ -267,7 +256,6 @@ function UserForm() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-
                 />
                 {errors.password && <div className="text-danger">{errors.password}</div>}
               </Form.Group>
@@ -283,7 +271,6 @@ function UserForm() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-
                 />
                 {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
               </Form.Group>
@@ -304,7 +291,6 @@ function UserForm() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-
                 />
                 {errors.name && <div className="text-danger">{errors.name}</div>}
               </Form.Group>
@@ -320,7 +306,6 @@ function UserForm() {
                   name="mobile1"
                   value={formData.mobile1}
                   onChange={handleChange}
-
                 />
                 {errors.mobile1 && <div className="text-danger">{errors.mobile1}</div>}
               </Form.Group>
@@ -368,7 +353,7 @@ function UserForm() {
               </Form.Group>
             </div>
 
-            {userrole == "Super Admin" &&
+            {userrole === "Super Admin" &&
               <div className="col-md-3 mb-3">
                 <Form.Group>
                   <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>

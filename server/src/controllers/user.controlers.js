@@ -113,8 +113,8 @@ const submitDetails = asyncHandler(async (req, res) => {
 
     try {
         await queryDatabase(
-            'INSERT INTO userlogin (userId, password,DId, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate, MDate,MBy) VALUES (?,?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [userId, password,DId, name, mobile1, mobile2, email, address, permission, role, loginUserId, CDate, CDate,loginUserId ]
+            'INSERT INTO userlogin (userId, password,DId, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [userId, password,DId, name, mobile1, mobile2, email, address, permission, role, loginUserId, CDate ]
         );
 
         const createdUser = {
@@ -213,23 +213,23 @@ const GetDistrictDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateDistrictDetail = asyncHandler(async (req, res) => {
-    const { Id, EName, HName, loginUserId} = req.body;
-    if (!Id || !EName || !HName) {
+    const {  DistCode, EDistrict, HDistrict, ESGraduate, HSGraduate, loginUserId} = req.body;
+    if (!DistCode || !EDistrict || !HDistrict || !ESGraduate || !HSGraduate) {
         throw new ApiError(400, "Please enter all details!")
     }
 
     try {
         await queryDatabase(
-            'UPDATE district SET EName= ?, HName= ?,MDate=?, MBy=? WHERE Id = ?',
-            [EName, HName,CDate,loginUserId, Id]
+            'UPDATE district SET EDistrict= ?, HDistrict= ?, ESGraduate=?,HSGraduate=?, MDate=?, MBy=? WHERE DistCode = ?',
+            [EDistrict, HDistrict,ESGraduate,HSGraduate,CDate,loginUserId, DistCode]
         );
 
-        const updatedTehsil = {
-            Id, EName, HName
+        const updatedDistrict = {
+            EDistrict, HDistrict,ESGraduate,HSGraduate,CDate,loginUserId, DistCode
         };
 
         return res.status(201).json(
-            new ApiResponse(200, updatedTehsil, "Tehsil details Updated successfully")
+            new ApiResponse(200, updatedDistrict, "District details Updated successfully")
         );
     } catch (error) {
     
@@ -272,7 +272,7 @@ const logoutuser = async (req, res) => {
 }
 
 
-export { loginUser, DistrictDetails,submitDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, }
+export { loginUser, submitDetails, DistrictDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, }
 
 
 

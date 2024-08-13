@@ -25,9 +25,20 @@ const __dirname = path.dirname(__filename);
       cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
   });
+<<<<<<< HEAD
   
 
 const upload = multer({ storage: storage });
+=======
+  // Create the multer instance with the storage configuration
+  const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 2 * 1024 * 1024, // 2MB limit
+    },
+});
+
+>>>>>>> 40dfb023576e2c6c28a66accbb38410a6ce17adf
   
 
 const currentDate = new Date();
@@ -244,8 +255,13 @@ import csvParser from 'csv-parser';
 // import asyncHandler from 'express-async-handler';
 
 const addtelecallerdata = asyncHandler(async (req, res) => {
+    // Check if the file exists
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+    }
+
     const filePath = path.join(__dirname, "./uploads", req.file.filename);
-    const parsedResults = []; // Renamed variable
+    const parsedResults = [];
 
     fs.createReadStream(filePath)
         .pipe(csvParser())
@@ -297,23 +313,29 @@ const addtelecallerdata = asyncHandler(async (req, res) => {
                 row["Price"],
             ]);
 
-            // console.log(`Values array: ${JSON.stringify(values)}`);
+            console.log(`Values array: ${JSON.stringify(values)}`);
 
-            try {
-                const result = await queryDatabase(query, [values]);
-                res.json({
-                    message: "File uploaded and data inserted successfully!",
-                });
-            } catch (err) {
-                console.error("Error inserting data:", err.stack);
-                return res.status(500).json({ message: "Error inserting data" });
-            } finally {
-                // Delete the file regardless of success or failure
+            // Insert data in batches
+            const BATCH_SIZE = 100; // Adjust as needed
+            for (let i = 0; i < values.length; i += BATCH_SIZE) {
+                const batch = values.slice(i, i + BATCH_SIZE);
                 try {
-                    fs.unlinkSync(filePath);
+                    await queryDatabase(query, [batch]);
                 } catch (err) {
-                    console.error("Error deleting file:", err);
+                    console.error("Error inserting batch:", err);
+                    return res.status(500).json({ message: "Error inserting data" });
                 }
+            }
+
+            res.json({
+                message: "File uploaded and data inserted successfully!",
+            });
+
+            // Delete the file after processing
+            try {
+                fs.unlinkSync(filePath);
+            } catch (err) {
+                console.error("Error deleting file:", err);
             }
         })
         .on("error", (err) => {
