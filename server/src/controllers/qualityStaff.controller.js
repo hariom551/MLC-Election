@@ -13,11 +13,11 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
- // Configure storage
+
  const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       const uploadPath = path.join(__dirname, 'uploads');
-      fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the uploads directory exists
+      fs.mkdirSync(uploadPath, { recursive: true }); 
       cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
@@ -25,20 +25,16 @@ const __dirname = path.dirname(__filename);
       cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
   });
-<<<<<<< HEAD
-  
 
-const upload = multer({ storage: storage });
-=======
-  // Create the multer instance with the storage configuration
+  
   const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 2 * 1024 * 1024, // 2MB limit
+        fileSize: 2 * 1024 * 1024, 
     },
 });
 
->>>>>>> 40dfb023576e2c6c28a66accbb38410a6ce17adf
+
   
 
 const currentDate = new Date();

@@ -11,7 +11,6 @@ import {
   useMaterialReactTable,
 } from 'material-react-table';
 
-
 function Council() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -24,77 +23,80 @@ function Council() {
     HCouncil: '',
     EName: '',
     TehId: ''
-
   });
-
 
   const [tehsilOptions, setTehsilOptions] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
-  useEffect(() => {
 
-    const fetchTehsilOptions = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch Tehsil options');
+  const fetchTehsilOptions = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid Tehsil options data');
-        }
-     
-        const options = data.map(tehsil => ({ value: tehsil.Id, label: tehsil.EName }));
-        setTehsilOptions(options);
-     
-      } catch (error) {
-        toast.error('Error fetching Tehsil options:', error);
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch Tehsil options');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid Tehsil options data');
+      }
+      const options = data.map(tehsil => ({ value: tehsil.Id, label: tehsil.EName }));
+      setTehsilOptions(options);
+    } catch (error) {
+      toast.error('Error fetching Tehsil options:', error);
+    }
+  };
 
+  const fetchCouncilDetails = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch Council details');
+      }
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid Council details data');
+      }
+      setCouncilDetails(data);
+      if (content) {
+        const Council = data.find(item => item.Id == content);
+        if (Council) {
+          setFormData(Council);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          toast.error(`Council with ID ${content} not found`);
+        }
+      }
+    } catch (error) {
+      toast.error('Error fetching Council data:', error);
+    }
+  };
+
+  useEffect(() => {
     fetchTehsilOptions();
-  }, [DId]);
+    fetchCouncilDetails();
+  }, [DId, content]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch Council details');
-        }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid Council details data');
-        }
-        setCouncilDetails(data);
-        if (content) {
-          const Council = data.find(item => { return item.Id == content });
-          if (Council) {
-            setFormData(Council);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else {
-            toast.error(`Council with ID ${content} not found`);
-          }
-        }
-      } catch (error) {
-        toast.error('Error fetching Council data:', error);
-      }
-    };
-    fetchData();
-  }, [content]);
-
+  const resetFormData = () => {
+    setFormData({
+      Id: '',
+      ECouncil: '',
+      HCouncil: '',
+      EName: '',
+      TehId: ''
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,25 +104,16 @@ function Council() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addCouncil`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData, loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
       if (result.ok) {
-
-        // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
         toast.success("Council Added Successfully.");
-      
-        setFormData({
-          Id: '',
-          ECouncil: '',
-          HCouncil: '',
-          EName: '',
-          TehId: ''
-        });
+        resetFormData();
+        await fetchCouncilDetails(); // Refresh the table data
       } else {
         toast.error("Error in Adding Council:", result.statusText);
       }
@@ -135,7 +128,7 @@ function Council() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCouncilDetail`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData,loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -143,7 +136,9 @@ function Council() {
 
       if (result.ok) {
         toast.success("Council Updated successfully.");
-        window.location.href = '/Council';
+        resetFormData(); 
+        await fetchCouncilDetails(); 
+        window.location.href='/Council'
       } else {
         toast.error("Error in Updating Council:", result.statusText);
       }
@@ -151,18 +146,6 @@ function Council() {
       toast.error("Error in updating :", error.message);
     }
   };
-
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value
-    }));
-
-  };
-
-
 
   const handleDelete = async (Id) => {
     try {
@@ -175,19 +158,23 @@ function Council() {
       });
 
       if (result.ok) {
-        toast.success("Council Added Successfully successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-
+        toast.success("Council Deleted Successfully.");
+        await fetchCouncilDetails(); // Refresh the table data
       } else {
-        toast.error("Error in Adding Council:", result.statusText);
+        toast.error("Error in Deleting Council:", result.statusText);
       }
     } catch (error) {
-      toast.error("Error in Adding Council:", error.message);
+      toast.error("Error in Deleting Council:", error.message);
     }
   };
 
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value
+    }));
+  };
 
   const columns = useMemo(() => [
     {
@@ -210,9 +197,7 @@ function Council() {
             </Link>
           </Button>
           <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-
             Delete
-
           </Button>
         </>
       ),
@@ -222,8 +207,6 @@ function Council() {
       header: 'Tehsil',
       size: 20,
     },
-
-
     {
       accessorKey: 'ECouncil',
       header: 'Nikaya Name (English)',
@@ -234,7 +217,6 @@ function Council() {
       header: 'Nikāya Name (Hindi)',
       size: 20,
     },
-
   ], []);
 
   const table = useMaterialReactTable({
@@ -249,7 +231,6 @@ function Council() {
         <h1 className="text-2xl font-bold mb-4">Add Council</h1>
         <Form onSubmit={content ? handleEdit : handleSubmit} className="Council-form">
           <Row className="mb-3">
-
             <div className="col-md-3 mb-3">
               <Form.Group>
                 <Form.Label>Select Tehsil<sup className='text-red-600'>*</sup></Form.Label>
@@ -263,7 +244,6 @@ function Council() {
                 />
               </Form.Group>
             </div>
-
 
             <div className="col-md-3 mb-3">
               <Form.Group >
