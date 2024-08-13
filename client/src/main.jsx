@@ -38,6 +38,8 @@ import FeedingStaffCount from './components/SubAdmin/FeedingStaffCount.jsx';
 import ReferenceVoterList from './components/SubAdmin/ReferenceVoterLIst.jsx';
 import TelecallerEmployeeData from './components/QCStaff/DisplayData.jsx';
 import AddTellecallerData from './components/QCStaff/AddTellecallerData.jsx';
+import MISDistrict from './components/Admin/Reports/MISDistrict.jsx';
+import MISPollingStation from './components/Admin/Reports/MISPollingStation.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -76,6 +78,9 @@ const getRoutesForRole = (role) => {
           <Route path="/areaVill" element={<AreaVill />} />
           <Route path="/pollingStationList" element={<PollongStationList />} />
           <Route path="/pollingStationAllotment" element={<PollingStationAllotment />} />
+          <Route path="/MISDistrict" element={<MISDistrict />} />
+          <Route path="/MISPollingStationwise" element={<MISPollingStation />} />
+
         </>
       );
     case 'Sub Admin':
