@@ -768,12 +768,29 @@ const addPSA = asyncHandler(async (req, res) => {
 const pSAllotDetails = asyncHandler(async (req, res) => {
     const{DId}=req.params;
         try {
-            const results = await queryDatabase(`SELECT Id, EPSArea, HPSArea, PSNo, EPSName, HPSName, RoomNo FROM pollingstation where DId= ?`,[DId])
-        
+            const results = await queryDatabase(`SELECT PSA.Id, PSA.VtsFrom, PSA.VtsTo, 
+                PSL.EPSArea, PSL.PSNo, PSL.EPSName, PSL.RoomNo,
+                wb.WardNo,wb.EWardBlock
+                FROM pstationallot AS PSA 
+                JOIN pollingstation AS PSL
+                 ON PSA.PSId= PSL.Id
+                 JOIN wardblock AS wb
+                 ON wb.Id=PSA.WId`)
             return res.json(results);
         } catch (error) {
              
             return res.status(500).send('A database error occurred.');
+        }
+    });
+
+const deletePSA=asyncHandler(async(req,res)=>{
+        const {Id}=req.body;
+        console.log(Id)
+        try{
+            const result=await queryDatabase(`Delete FROM pstationallot where Id=?`,[Id] )
+            return res.json(result);
+        }catch(error){
+            return res.status(500).send('A database error occured.')
         }
     });
 
@@ -786,6 +803,6 @@ export {
     AddChakBlock, ChakBlockDetails, UpdateChakBlockDetail, DeleteChakBlockDetail,
     AddAreaVill, AreaVillDetails, UpdateAreaVillDetail, DeleteAreaVillDetail,
     AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail, SearchPSNo,
-    WardVotersCount, addPSA, pSAllotDetails
+    WardVotersCount, addPSA, pSAllotDetails,deletePSA
 }
 

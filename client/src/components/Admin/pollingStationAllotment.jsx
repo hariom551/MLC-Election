@@ -233,7 +233,7 @@ function PollingStationAllotment() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/deletePSListDetail`, {
+      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/deletePSAllotListDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {
@@ -300,12 +300,12 @@ function PollingStationAllotment() {
       size: 20,
     },
     {
-      accessorKey: 'ESPName',
+      accessorKey: 'EPSName',
       header: 'PS Name',
       size: 20,
     },
     {
-      accessorKey: 'ESPArea',
+      accessorKey: 'EPSArea',
       header: 'PS Area (English)',
       size: 20,
     },
@@ -336,7 +336,7 @@ function PollingStationAllotment() {
   const table = useMaterialReactTable({
     columns,
     data: PSListDetails,
-    enableRowSelection: true,
+    // enableRowSelection: true,
     columnFilterDisplayMode: 'popover',
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',
