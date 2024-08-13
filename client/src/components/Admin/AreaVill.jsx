@@ -209,7 +209,7 @@ function AreaVill() {
 
 
       if (result.ok) {
-        // window.location.href = '/AreaVill';
+        window.location.href = '/AreaVill';
 
         toast.success("AreaVill Updated successfully.");
       } else {

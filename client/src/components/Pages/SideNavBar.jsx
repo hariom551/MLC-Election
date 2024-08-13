@@ -71,7 +71,7 @@ function SideNavBar({ show }) {
                             <div className={`dropdown-content ${dropdownStates.users ? 'show' : ''}`} id="users-dropdown-content">
                                 <ul><li><Link to={{ pathname: "/userForm", search: "?content=Forms Admin" }}>Forms Admin</Link></li></ul>
                                 <ul><li><Link to={{ pathname: "/userForm", search: "?content=Admin" }}>Admin</Link></li></ul>
-                                <ul><li><Link to={{ pathname: "/userForm", search: "?content=Vidhansabha Admin" }}>Vidhansabha Admin</Link></li></ul>
+                                {/* <ul><li><Link to={{ pathname: "/userForm", search: "?content=Vidhansabha Admin" }}>Vidhansabha Admin</Link></li></ul> */}
                             </div>
                         </div>
 

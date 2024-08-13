@@ -476,8 +476,7 @@ function IncomingForms() {
                                     id="VMob1"
                                     selected={formData.VMob1 ? [formData.VMob1] : []}
                                     onInputChange={(inputValue) => {
-                                        const error = validateFormsAdmin("VMob1", inputValue);
-                                        setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
+                                    
                                         setFormData((prevDetails) => ({
                                             ...prevDetails,
                                             VMob1: inputValue,
@@ -496,8 +495,7 @@ function IncomingForms() {
                                                 VEAddress: choice.VEAddress || '',
                                                 VHAddress: choice.VHAddress || '',
                                             }));
-                                            const error = validateFormsAdmin("VMob1", choice.VMob1 || choice);
-                                            setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
+                                        
                                         } else {
                                             setFormData((prevDetails) => ({
                                                 ...prevDetails,
@@ -519,7 +517,7 @@ function IncomingForms() {
                                         </div>
                                     )}
                                 />
-                                {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
+                              
                             </Form.Group>
                         </div>
 

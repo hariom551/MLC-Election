@@ -11,10 +11,8 @@ function EditDistrictDetails() {
     const searchParams = new URLSearchParams(location.search);
     const content = searchParams.get('content');
 
-
-  const [districtDetails, setDistrictDetails] = useState([]);
   const [formData, setFormData] = useState({
-    DistCode: content || '', // Set initial value to content
+    DistCode: content || '', 
     EDistrict: '',
     HDistrict: '',
     ESGraduate: '',
@@ -25,7 +23,7 @@ function EditDistrictDetails() {
   const handleEdit = async (e) => {
     e.preventDefault();
 
-    // Gather form data
+
     const DistCode = document.getElementById("DistCode").value;
     const EDistrict = document.getElementById("EDistrict").value;
     const HDistrict = document.getElementById("HDistrict").value;
@@ -52,9 +50,7 @@ function EditDistrictDetails() {
       if (result.ok) {
      
         toast.success("District Updated successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        window.location.href = '/district';
       } else {
         toast.error("Error in Updating District:", result.statusText);
       }
@@ -78,18 +74,16 @@ function EditDistrictDetails() {
             }
             const data = await response.json();
 
-            // Check if data is an array and has at least one element
             if (Array.isArray(data) && data.length > 0) {
-                const district = data.find(item => item.DistCode === content); // Find district with matching DistCode
+                const district = data.find(item => item.DistCode == content); // Find district with matching DistCode
                 
                 if (district) {
-                    setDistrictDetails(district);
-                    setFormData(district); // Set form data with fetched district details
+                    setFormData(district); 
                 } else {
                     throw new Error(`District with DistCode ${content} not found`);
                 }
             } else {
-                // Handle case where response data is empty or not in expected format
+            
                 throw new Error('Empty or invalid district details data');
             }
 
@@ -134,7 +128,9 @@ function EditDistrictDetails() {
             <div className="col-md-3 mb-3">
               <Form.Group>
                 <Form.Label>Constituencies (English)<sup className='text-red-600'>*</sup> </Form.Label>
-                <Form.Control type="text" placeholder="Constituencies (English)" id="ESGraduate" name="ESGraduate" value={formData.ESGraduate || ''}  onChange={(e) => setFormData({ ...formData, ESGraduate: e.target.value })} required />
+                <Form.Control type="text" placeholder="Constituencies (English)"
+                 id="ESGraduate" name="ESGraduate" 
+                 value={formData.ESGraduate || ''}  onChange={(e) => setFormData({ ...formData, ESGraduate: e.target.value })} required />
               </Form.Group>
             </div>
 

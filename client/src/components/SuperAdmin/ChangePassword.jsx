@@ -37,7 +37,7 @@ function ChangePassword() {
   
       if (result.ok) {
         // Reload the page after successful password change
-        window.location.reload();
+        window.location.href = '/Home';
         console.log("Password changed successfully.");
       } else {
         console.error("Error in changing password:", result.statusText);

@@ -22,9 +22,7 @@ export const validateFormsAdmin = (field, value) => {
             break;
 
         case 'VMob1':
-            if (!value) {
-                return 'Mobile No is required';
-            }
+          
             if (value && !/^[0-9]+$/.test(value)) {
                 error = 'Mobile number must be digits';
             }
