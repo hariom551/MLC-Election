@@ -623,12 +623,8 @@ const DeleteAreaVillDetail = asyncHandler(async (req, res) => {
 const AddPSList = asyncHandler(async (req, res) => {
     const { ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, DId } = req.body;
    
-
-
     if (!ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo ||!DId)
         throw new ApiError(400, 'Plaese Enter All the Details')
-
-
     try {
         await queryDatabase(
             'INSERT INTO pollingstation (EPSArea, HPSArea, PSNo, EPSName, HPSName, RoomNo, SBy, MBy,SDate,MDate, DId) VALUES (?, ?, ?,?, ?, ?,?,?,?,?,?)',
@@ -726,8 +722,6 @@ const WardVotersCount=asyncHandler(async(req,res)=>{
     }
 })
 
-
-
 const SearchPSNo = asyncHandler(async (req, res) => {
     const { query } = req.body;
     
@@ -736,7 +730,7 @@ const SearchPSNo = asyncHandler(async (req, res) => {
     }
     try {
         const results = await queryDatabase(
-            'SELECT PSNo, EPSName, RoomNo FROM pollingstation WHERE PSNo LIKE ? LIMIT 10',
+            'SELECT Id AS PSId, PSNo, EPSName, RoomNo FROM pollingstation WHERE PSNo LIKE ? LIMIT 10',
             [`%${query}%`]
         );
         return res.json(results);
@@ -745,6 +739,31 @@ const SearchPSNo = asyncHandler(async (req, res) => {
         return res.status(500).json({ error: 'A database error occurred.' });
     }
 });
+
+const addPSA = asyncHandler(async (req, res) => {
+    const { PSId, WBId,VtsFrom, VtsTo, loginUserId } = req.body;
+
+    if (!PSId || !WBId || !VtsFrom || !VtsTo || !loginUserId)
+        throw new ApiError(400, 'Plaese Enter All the Details')
+    try {
+        await queryDatabase(
+            'INSERT INTO pstationallot (PSId, WId, VtsFrom, VtsTo, SBy, MBy, SDate, MDate) VALUES (?, ?,?, ?, ?,?,?,?)',
+            [PSId, WBId, VtsFrom, VtsTo, loginUserId, loginUserId, SDate, MDate, ]
+        );
+        const AddedPSList = {
+            PSId, WBId,VtsFrom, VtsTo, loginUserId 
+        }
+        return res.status(201).json(
+            new ApiResponse(200, AddedPSList, "PS Allotted successfully")
+        );
+
+    } catch (error) {
+         
+        return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
+    }
+});
+
+
 
 const pSAllotDetails = asyncHandler(async (req, res) => {
     const{DId}=req.params;
@@ -767,6 +786,6 @@ export {
     AddChakBlock, ChakBlockDetails, UpdateChakBlockDetail, DeleteChakBlockDetail,
     AddAreaVill, AreaVillDetails, UpdateAreaVillDetail, DeleteAreaVillDetail,
     AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail, SearchPSNo,
-    WardVotersCount, pSAllotDetails
+    WardVotersCount, addPSA, pSAllotDetails
 }
 

@@ -21,6 +21,7 @@ function PollingStationAllotment() {
   const [PSListDetails, setPSListDetails] = useState([]);
   const [formData, setFormData] = useState({
     Id: '',
+    PSId: '',
     WBId: '',
     TotalVoters: '0',
     PSNo: '',
@@ -111,35 +112,37 @@ function PollingStationAllotment() {
         },
         body: JSON.stringify({ query: inputValue })
       });
+      
       if (!response.ok) {
         throw new Error('Failed to fetch PS No options');
       }
-
+  
       const data = await response.json();
-
+  
       if (data && data.length > 0) {
         return data.map(ps => ({
           value: ps.PSNo,
           label: ps.PSNo,
           ESPName: ps.EPSName,
           RoomNo: ps.RoomNo,
-
+          PSId: ps.PSId,
           details: {
             ESPName: ps.EPSName,
-            RoomNo: ps.RoomNo
+            RoomNo: ps.RoomNo,
+            PSId: ps.PSId
           }
         }));
       } else {
-        toast.log('No PS No options found.');
+        toast.info('No PS No options found.');
         return [];
       }
-
+  
     } catch (error) {
-      toast.error('Error fetching PS No options:', error);
+      toast.error(`Error fetching PS No options: ${error.message}`);
       return [];
     }
   };
-
+  
   const handlePSNoChange = async (selectedOption) => {
     if (!selectedOption) {
       // Reset related fields if no PS No. is selected
@@ -148,19 +151,22 @@ function PollingStationAllotment() {
         PSNo: '',
         ESPName: '',
         RoomNo: '',
+        PSId: ''
       }));
       return;
     }
-
+  
     const { value: psNo, details } = selectedOption;
-
+  
     setFormData(prevFormData => ({
       ...prevFormData,
       PSNo: psNo,
       ESPName: details.ESPName,
       RoomNo: details.RoomNo,
+      PSId: details.PSId
     }));
   };
+  
 
 
 
@@ -194,9 +200,11 @@ function PollingStationAllotment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const { PSId, WBId,VtsFrom, VtsTo}= formData;
+
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addPSA`, {
         method: 'POST',
-        body: JSON.stringify({...formData, loginUserId}),
+        body: JSON.stringify({PSId, WBId,VtsFrom, VtsTo, loginUserId}),
         headers: {
           'Content-Type': 'application/json'
         }

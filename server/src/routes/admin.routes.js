@@ -11,6 +11,7 @@ import {
         AddPSList, PSListDetails, UpdatePSListDetail, DeletePSListDetail,
         SearchPSNo, WardVotersCount,
         pSAllotDetails,
+        addPSA,
 
 }
         from "../controllers/admin.controllers.js";
@@ -62,6 +63,7 @@ AdminRouter.route("/deletePSListDetail").post(DeletePSListDetail)
 
 AdminRouter.route("/getTotalVoters").post(WardVotersCount)
 AdminRouter.route("/searchPSNo").post(SearchPSNo)
+AdminRouter.route("/addPSA").post(addPSA)
 AdminRouter.route("/pSAllotDetails").get(pSAllotDetails)
 
 
