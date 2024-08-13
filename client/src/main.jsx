@@ -36,6 +36,8 @@ import DaywiseReport from './components/SubAdmin/DayWiseReport.jsx';
 import QCstaffcount from './components/SubAdmin/QCstaffcount.jsx';
 import FeedingStaffCount from './components/SubAdmin/FeedingStaffCount.jsx';
 import ReferenceVoterList from './components/SubAdmin/ReferenceVoterLIst.jsx';
+import TelecallerEmployeeData from './components/QCStaff/DisplayData.jsx';
+import AddTellecallerData from './components/QCStaff/AddTellecallerData.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -110,6 +112,9 @@ const getRoutesForRole = (role) => {
           <Route path="/QcForm" element={<SendSMSForm />} />
           <Route path="/editVoter" element={<AddVoter />} />
           <Route path="/updateletter" element={<UpdateLetter />} />
+          <Route path="/employeeDetails" element={<TelecallerEmployeeData />} />
+          <Route path="/addtelecallerdata" element={<AddTellecallerData />} />
+
 
         </>
       );

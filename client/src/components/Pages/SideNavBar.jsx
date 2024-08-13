@@ -288,8 +288,8 @@ function SideNavBar({ show }) {
                     </button>
                     
                     <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
-                        <ul><li><Link to="/feedingstaffcount">Add Data</Link></li></ul>
-                        <ul><li><Link to="/qcstaffcount">Display Data</Link></li></ul>
+                        <ul><li><Link to="/addtelecallerdata">Add Data</Link></li></ul>
+                        <ul><li><Link to="/employeeDetails">Display Data</Link></li></ul>
                     </div>
                  </div>
 
