@@ -1,24 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import "../App.css";
-import "./DisplayData.css";
-import { query } from "express";
+import React, { useEffect, useMemo, useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 
-const DisplayData = () => {
+const TelecallerEmployeeData = () => {
   const [data, setData] = useState([]);
-  const [employNameOption, setEmployNameOption] = useState([]);
+  const [employNameOption, setEmployNameOption] = useState([]);    //the fetched data is given to setEmployeeNameOption
+  const [distinctAssignTo, setDistinctAssignTo] = useState([]);  //Extract distinct AssignTo values by using mapfunction and given to it 
   const [selectedEmployee, setSelectedEmployee] = useState('');
-
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/users", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/employeeDetails`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
         });
-
+        
         if (!response.ok) {
           throw new Error("Failed to fetch IncomingForms details");
         }
@@ -30,6 +33,10 @@ const DisplayData = () => {
         }
         setEmployNameOption(data);
         console.log(data);
+
+        // Extract distinct AssignTo values
+        const distinctAssignToValues = [...new Set(data.map(item => item.AssignTo))];
+        setDistinctAssignTo(distinctAssignToValues);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -43,141 +50,217 @@ const DisplayData = () => {
     if (selectedEmployee === 'all') {
       setData(employNameOption);
     } else {
-      const selectedData = employNameOption.filter(details => details.sr_no == selectedEmployee);
+      const selectedData = employNameOption.filter(details => details.AssignTo === selectedEmployee);
       setData(selectedData);
     }
     console.log(`Selected employee data:`, data);
   };
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    console.log('Selected file:', file);
+  const columns = useMemo(() => [
+    // Columns definition
+    {
+      accessorKey: 'sr_no',
+      header: 'Sr No',
+      size: 40,
+    },
+    {
+      accessorKey: 'CreatedDate',
+      header: 'Created Date',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastModifiedDate',
+      header: 'Last Modified Date',
+      size: 50,
+    },
+    {
+      accessorKey: 'ImportedBy',
+      header: 'Imported By',
+      size: 50,
+    },
+    {
+      accessorKey: 'LeadNo',
+      header: 'Lead No',
+      size: 50,
+    },
+    {
+      accessorKey: 'FirstName',
+      header: 'First Name',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastName',
+      header: 'Last Name',
+      size: 50,
+    },
+    {
+      accessorKey: 'CountryCode',
+      header: 'Country Code',
+      size: 50,
+    },
+    {
+      accessorKey: 'PhoneNo',
+      header: 'Phone No',
+      size: 50,
+    },
+    {
+      accessorKey: 'AlternateCountryCode',
+      header: 'Alternate Country Code',
+      size: 50,
+    },
+    {
+      accessorKey: 'AlternatePhoneNo',
+      header: 'Alternate Phone Number',
+      size: 50,
+    },
+    {
+      accessorKey: 'NoOfAttempts',
+      header: 'Number Of Attempts',
+      size: 50,
+    },
+    {
+      accessorKey: 'LeadTags',
+      header: 'Lead Tags',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastCallEmployee',
+      header: 'Last Call Employee',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastCallTime',
+      header: 'Last Call Time',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastCallType',
+      header: 'Last Call Type',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastCallDuration',
+      header: 'Last Call Duration',
+      size: 50,
+    },
+    {
+      accessorKey: 'LastCallNote',
+      header: 'Last Call Note',
+      size: 50,
+    },
+    {
+      accessorKey: 'AssignTo',
+      header: 'Assign To',
+      size: 50,
+    },
+    {
+      accessorKey: 'LeadStatus',
+      header: 'Lead Status',
+      size: 50,
+    },
+    {
+      accessorKey: 'Reminder',
+      header: 'Reminder',
+      size: 50,
+    },
+    {
+      accessorKey: 'CompanyName',
+      header: 'Company Name',
+      size: 50,
+    },
+    {
+      accessorKey: 'Email',
+      header: 'Email',
+      size: 50,
+    },
+    {
+      accessorKey: 'Address1',
+      header: 'Address 1',
+      size: 50,
+    },
+    {
+      accessorKey: 'Address2',
+      header: 'Address 2',
+      size: 50,
+    },
+    {
+      accessorKey: 'City',
+      header: 'City',
+      size: 50,
+    },
+    {
+      accessorKey: 'State',
+      header: 'State',
+      size: 50,
+    },
+    {
+      accessorKey: 'Zipcode',
+      header: 'Zipcode',
+      size: 50,
+    },
+    {
+      accessorKey: 'Country',
+      header: 'Country',
+      size: 50,
+    },
+    {
+      accessorKey: 'Description',
+      header: 'Description',
+      size: 50,
+    },
+    {
+      accessorKey: 'Source',
+      header: 'Source',
+      size: 50,
+    },
+    {
+      accessorKey: 'Price',
+      header: 'Price',
+      size: 50,
+    },
+  ], []);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/users`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload file");
-      }
-
-      const result = await response.json();
-      console.log('File upload result:', result);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
-  };
+  const table = useMaterialReactTable({ columns, data });
 
   return (
-    <>
-      <div>
-        <form id="browsecss" onSubmit={handleSubmit}>
-          <label htmlFor="select">Select Name </label>
-<div>
-          <select name="select" id="select" value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)}>
-            <option value="">Select Employee</option>
-            <option value="all">Select All</option>
-            {employNameOption.map((data) => (
-              <option key={data.sr_no} value={data.sr_no}>{()=>{
-                query
-              }}</option>
-            ))}
-          </select>
-          </div>
-          <button type="submit" className="btn btn-success">Submit</button>
+    <main className='bg-gray-100'>
+      <div className='container py-4 pl-6 text-black'>
+        <h1 className='text-2xl font-bold mb-4'>Telecaller Data</h1>
+        <form className='employee-form' onSubmit={handleSubmit}>
+          <Row className="mb-3">
+            <div className='col-md-3 mb-3' style={{ zIndex: 10 }}>
+              <Form.Group>
+                <Form.Label>Select Employee<sup className='text-red-600'>*</sup></Form.Label><br />
+                <select 
+                  name='Emid' 
+                  id='EMselect' 
+                  value={selectedEmployee} // Set the value to selectedEmployee state
+                  onChange={(e) => setSelectedEmployee(e.target.value)} // Update the selectedEmployee state on change
+                  placeholder="Select Employee"
+                >
+                  <option value=''>Select Employee</option>
+                  <option value='all'>Select All</option>
+                  {distinctAssignTo.map((assignTo, index) => (
+                    <option key={index} value={assignTo}>
+                      {assignTo} 
+                    </option>
+                  ))}
+                </select>
+              </Form.Group>
+            </div>
+          </Row>
+          <Button variant="primary" type='submit'>Submit</Button>
         </form>
-      </div>
 
-      <section>
-        <div id="table">
-          <table border="1" cellPadding="5" cellSpacing="0">
-            {data.length > 0 && (
-              <thead>
-                <tr>
-                  <th>Sr No.</th>
-                  <th>CreatedDate</th>
-                  <th>LastModifiedDate</th>
-                  <th>ImportedBy</th>
-                  <th>LeadNo</th>
-                  <th>FirstName</th>
-                  <th>LastName</th>
-                  <th>CountryCode</th>
-                  <th>PhoneNo</th>
-                  <th>AlternateCountryCode</th>
-                  <th>AlternatePhoneNo</th>
-                  <th>NoOfAttempts</th>
-                  <th>LeadTags</th>
-                  <th>LastCallEmployee</th>
-                  <th>LastCallTime</th>
-                  <th>LastCallType</th>
-                  <th>LastCallDuration</th>
-                  <th>LastCallNote</th>
-                  <th>AssignTo</th>
-                  <th>LeadStatus</th>
-                  <th>Reminder</th>
-                  <th>CompanyName</th>
-                  <th>Email</th>
-                  <th>Address1</th>
-                  <th>Address2</th>
-                  <th>City</th>
-                  <th>State</th>
-                  <th>Zipcode</th>
-                  <th>Country</th>
-                  <th>Description</th>
-                  <th>Source</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-            )}
-            <tbody>
-              {data.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.sr_no}</td>
-                  <td>{item.CreatedDate}</td>
-                  <td>{item.LastModifiedDate}</td>
-                  <td>{item.ImportedBy}</td>
-                  <td>{item.LeadNo}</td>
-                  <td>{item.FirstName}</td>
-                  <td>{item.LastName}</td>
-                  <td>{item.CountryCode}</td>
-                  <td>{item.PhoneNo}</td>
-                  <td>{item.AlternateCountryCode}</td>
-                  <td>{item.AlternatePhoneNo}</td>
-                  <td>{item.NoOfAttempts}</td>
-                  <td>{item.LeadTags}</td>
-                  <td>{item.LastCallEmployee}</td>
-                  <td>{item.LastCallTime}</td>
-                  <td>{item.LastCallType}</td>
-                  <td>{item.LastCallDuration}</td>
-                  <td>{item.LastCallNote}</td>
-                  <td>{item.AssignTo}</td>
-                  <td>{item.LeadStatus}</td>
-                  <td>{item.Reminder}</td>
-                  <td>{item.CompanyName}</td>
-                  <td>{item.Email}</td>
-                  <td>{item.Address1}</td>
-                  <td>{item.Address2}</td>
-                  <td>{item.City}</td>
-                  <td>{item.State}</td>
-                  <td>{item.Zipcode}</td>
-                  <td>{item.Country}</td>
-                  <td>{item.Description}</td>
-                  <td>{item.Source}</td>
-                  <td>{item.Price}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <hr className='my-4' />
+        <h4 className='container mt-3 text-xl font-bold mb-3'>Employee Details</h4>
+        <div className="overflow-x-auto" style={{ zIndex: -1 }}>
+          <MaterialReactTable table={table} /> {/* Ensure the table is rendered correctly */}
         </div>
-      </section>
-
-    </>
+      </div>
+      <ToastContainer /> {/* Add ToastContainer for notifications */}
+    </main>
   );
-};
+}
 
-export default DisplayData;
+export default TelecallerEmployeeData;

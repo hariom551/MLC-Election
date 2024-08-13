@@ -4,6 +4,30 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 import fetch from 'node-fetch';
 import uploadFiles from "../middleware/multer.middleware.js";
+import multer from "multer";
+import { fileURLToPath } from "url";
+
+// import upload from '../middleware/upload.js';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+ // Configure storage
+ const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadPath = path.join(__dirname, 'uploads');
+      fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the uploads directory exists
+      cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+  // Create the multer instance with the storage configuration
+  const upload = multer({ storage: storage });
+  
 
 const currentDate = new Date();
 const CDate = currentDate.toISOString(); 
@@ -194,5 +218,112 @@ const prevletter = asyncHandler(async (req, res) => {
 });
 
 
+const DisplayTelecallerData = asyncHandler(async (req, res) => {
+    console.log("first");
+    try {
+        const result = await queryDatabase(`SELECT * FROM telecallerdetail`);
+        
+        // Check if result is not empty
+        if (!result || result.length === 0) {
+            return res.status(404).json({ message: "No data found" });
+        }
+    
+        return res.status(200).json(result); // Ensure response is sent as JSON
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        return res.status(500).json({ error: "A database error occurred" });
+    }
+});
 
-export { wardwiseVoterContact, sendSMS, DeleteVoter, voterDetailById , updateletter,prevletter}; 
+
+  
+import fs from 'fs';
+import path from 'path';
+import csvParser from 'csv-parser';
+// import asyncHandler from 'express-async-handler';
+
+const addtelecallerdata = asyncHandler(async (req, res) => {
+    const filePath = path.join(__dirname, "./uploads", req.file.filename);
+    const parsedResults = []; // Renamed variable
+
+    fs.createReadStream(filePath)
+        .pipe(csvParser())
+        .on("data", (data) => {
+            parsedResults.push(data);
+        })
+        .on("end", async () => {
+            const query = `
+                INSERT IGNORE INTO telecallerdetail (
+                    sr_no, CreatedDate, LastModifiedDate, ImportedBy, LeadNo, FirstName, LastName, 
+                    CountryCode, PhoneNo, AlternateCountryCode, 
+                    AlternatePhoneNo, NoOfAttempts, LeadTags, 
+                    LastCallEmployee, LastCallTime, LastCallType, LastCallDuration, LastCallNote, AssignTo, LeadStatus, Reminder, CompanyName, Email, Address1, Address2, City, State, Zipcode, Country, Description, Source, Price
+                ) VALUES ?
+            `;
+
+            const values = parsedResults.map((row) => [
+                row.sr_no,
+                row["Created Date"],
+                row["Last Modified Date"],
+                row["Imported By"],
+                row["Lead No."],
+                row["First Name"],
+                row["Last Name"],
+                row["Country Code"],
+                row["Phone Number"],
+                row["Alternate Country Code"],
+                row["Alternate Phone Number"],
+                row["No of Attempts"],
+                row["Lead Tags"],
+                row["Last Call - Employee"],
+                row["Last Call - Call time"],
+                row["Last Call - Call Type"],
+                row["Last Call - Call Duration"],
+                row["Last Call - Note"],
+                row["Assign To"],
+                row["Lead Status"],
+                row["Reminder"],
+                row["Company Name"],
+                row["Email"],
+                row["Address 1"],
+                row["Address 2"],
+                row["City"],
+                row["State"],
+                row["Zipcode"],
+                row["Country"],
+                row["Description"],
+                row["Source"],
+                row["Price"],
+            ]);
+
+            // console.log(`Values array: ${JSON.stringify(values)}`);
+
+            try {
+                const result = await queryDatabase(query, [values]);
+                res.json({
+                    message: "File uploaded and data inserted successfully!",
+                });
+            } catch (err) {
+                console.error("Error inserting data:", err.stack);
+                return res.status(500).json({ message: "Error inserting data" });
+            } finally {
+                // Delete the file regardless of success or failure
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error("Error deleting file:", err);
+                }
+            }
+        })
+        .on("error", (err) => {
+            console.error("Error reading CSV file:", err);
+            res.status(500).json({ message: "Error reading CSV file" });
+        });
+});
+
+
+
+
+
+export { wardwiseVoterContact, sendSMS, DeleteVoter, voterDetailById , updateletter,prevletter, 
+    DisplayTelecallerData,addtelecallerdata, upload}; 
