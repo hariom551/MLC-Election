@@ -104,11 +104,14 @@ function SearchChakBlock() {
 
             const data = await response.json();
             if (!Array.isArray(data) || data.length === 0) {
+                setPerseemanDetails([]);
                 throw new Error('Empty or invalid details data');
             }
+            else{
+
 
             setPerseemanDetails(data);
-           
+            }
             // setFormData({
             //     ChakNo: '',
             //     ECBPanch: '',

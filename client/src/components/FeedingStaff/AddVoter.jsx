@@ -210,70 +210,70 @@ function AddVoter() {
 
                 toast.success('Voter created successfully!');
                 // Reset forms after successful submission
-                // setReferenceDetails({
-                //     PacketNo: '',
-                //     IncRefId: '',
-                //     VMob1: '',
-                //     VMob2: '',
-                //     VEName: '',
-                //     VHName: '',
-                //     VEAddress: '',
-                //     VHAddress: '',
-                //     COList: [
-                //         { VMob1: '', VEName: '', VHName: '' }
-                //     ],
-                // });
-                // setVoterDetails({
-                //     EFName: '',
-                //     HFName: '',
-                //     ELName: '',
-                //     HLName: '',
-                //     RType: '',
-                //     ERFName: '',
-                //     HRFName: '',
-                //     ERLName: '',
-                //     HRLName: '',
-                //     CasteId: '',
-                //     ECaste: '',
-                //     Qualification: '',
-                //     Occupation: Occupation ? '' : 'NA',
-                //     Age: '',
-                //     DOB: '',
-                //     Sex: '',
-                //     MNo: '',
-                //     MNo2: '',
-                //     AadharNo: '',
-                //     VIdNo: '',
-                //     GCYear: '',
-                // });
-                // setAddressDetail({
-                //     AreaId: '',
-                //     EAreaVill: '',
-                //     TehId: '',
-                //     EName: '',
-                //     CounId: '',
-                //     ECouncil: '',
-                //     VSId: '',
-                //     EVidhanSabha: '',
-                //     WBId: '',
-                //     EWardBlock: '',
-                //     ChkBlkId: '',
-                //     ECBPanch: '',
-                //     HNo: '',
-                //     Landmark: '',
-                // });
-                // setVoterDocs({
-                //     Image: '',
-                //     IdProof: '',
-                //     Degree: '',
+                setReferenceDetails({
+                    PacketNo: '',
+                    IncRefId: '',
+                    VMob1: '',
+                    VMob2: '',
+                    VEName: '',
+                    VHName: '',
+                    VEAddress: '',
+                    VHAddress: '',
+                    COList: [
+                        { VMob1: '', VEName: '', VHName: '' }
+                    ],
+                });
+                setVoterDetails({
+                    EFName: '',
+                    HFName: '',
+                    ELName: '',
+                    HLName: '',
+                    RType: '',
+                    ERFName: '',
+                    HRFName: '',
+                    ERLName: '',
+                    HRLName: '',
+                    CasteId: '',
+                    ECaste: '',
+                    Qualification: '',
+                    Occupation: Occupation ? '' : 'NA',
+                    Age: '',
+                    DOB: '',
+                    Sex: '',
+                    MNo: '',
+                    MNo2: '',
+                    AadharNo: '',
+                    VIdNo: '',
+                    GCYear: '',
+                });
+                setAddressDetail({
+                    AreaId: '',
+                    EAreaVill: '',
+                    TehId: '',
+                    EName: '',
+                    CounId: '',
+                    ECouncil: '',
+                    VSId: '',
+                    EVidhanSabha: '',
+                    WBId: '',
+                    EWardBlock: '',
+                    ChkBlkId: '',
+                    ECBPanch: '',
+                    HNo: '',
+                    Landmark: '',
+                });
+                setVoterDocs({
+                    Image: '',
+                    IdProof: '',
+                    Degree: '',
 
-                // });
-                // setErrors({
-                //     referenceDetails: {},
-                //     voterDetails: {},
-                //     addressDetail: {},
-                //     voterDocs: {},
-                // });
+                });
+                setErrors({
+                    referenceDetails: {},
+                    voterDetails: {},
+                    addressDetail: {},
+                    voterDocs: {},
+                });
             }
 
         } catch (error) {
@@ -348,71 +348,71 @@ function AddVoter() {
                 throw new Error(data.message || 'Failed to create voter');
             } else {
                 toast.success('Voter Updated successfully!');
-                // Reset forms after successful submission
-                // setReferenceDetails({
-                //     PacketNo: '',
-                //     IncRefId: '',
-                //     VMob1: '',
-                //     VMob2: '',
-                //     VEName: '',
-                //     VHName: '',
-                //     VEAddress: '',
-                //     VHAddress: '',
-                //     COList: [
-                //         { VMob1: '', VEName: '', VHName: '' }
-                //     ],
-                // });
-                // setVoterDetails({
-                //     EFName: '',
-                //     HFName: '',
-                //     ELName: '',
-                //     HLName: '',
-                //     RType: '',
-                //     ERFName: '',
-                //     HRFName: '',
-                //     ERLName: '',
-                //     HRLName: '',
-                //     CasteId: '',
-                //     ECaste: '',
-                //     Qualification: '',
-                //     Occupation: Occupation ? '' : 'NA',
-                //     Age: '',
-                //     DOB: '',
-                //     Sex: '',
-                //     MNo: '',
-                //     MNo2: '',
-                //     AadharNo: '',
-                //     VIdNo: '',
-                //     GCYear: '',
-                // });
-                // setAddressDetail({
-                //     AreaId: '',
-                //     EAreaVill: '',
-                //     TehId: '',
-                //     EName: '',
-                //     CounId: '',
-                //     ECouncil: '',
-                //     VSId: '',
-                //     EVidhanSabha: '',
-                //     WBId: '',
-                //     EWardBlock: '',
-                //     ChkBlkId: '',
-                //     ECBPanch: '',
-                //     HNo: '',
-                //     Landmark: '',
-                // });
-                // setVoterDocs({
-                //     Image: '',
-                //     IdProof: '',
-                //     Degree: '',
+               window.location.href='/VoterList'
+                setReferenceDetails({
+                    PacketNo: '',
+                    IncRefId: '',
+                    VMob1: '',
+                    VMob2: '',
+                    VEName: '',
+                    VHName: '',
+                    VEAddress: '',
+                    VHAddress: '',
+                    COList: [
+                        { VMob1: '', VEName: '', VHName: '' }
+                    ],
+                });
+                setVoterDetails({
+                    EFName: '',
+                    HFName: '',
+                    ELName: '',
+                    HLName: '',
+                    RType: '',
+                    ERFName: '',
+                    HRFName: '',
+                    ERLName: '',
+                    HRLName: '',
+                    CasteId: '',
+                    ECaste: '',
+                    Qualification: '',
+                    Occupation: Occupation ? '' : 'NA',
+                    Age: '',
+                    DOB: '',
+                    Sex: '',
+                    MNo: '',
+                    MNo2: '',
+                    AadharNo: '',
+                    VIdNo: '',
+                    GCYear: '',
+                });
+                setAddressDetail({
+                    AreaId: '',
+                    EAreaVill: '',
+                    TehId: '',
+                    EName: '',
+                    CounId: '',
+                    ECouncil: '',
+                    VSId: '',
+                    EVidhanSabha: '',
+                    WBId: '',
+                    EWardBlock: '',
+                    ChkBlkId: '',
+                    ECBPanch: '',
+                    HNo: '',
+                    Landmark: '',
+                });
+                setVoterDocs({
+                    Image: '',
+                    IdProof: '',
+                    Degree: '',
 
-                // });
-                // setErrors({
-                //     referenceDetails: {},
-                //     voterDetails: {},
-                //     addressDetail: {},
-                //     voterDocs: {},
-                // });
+                });
+                setErrors({
+                    referenceDetails: {},
+                    voterDetails: {},
+                    addressDetail: {},
+                    voterDocs: {},
+                });
             }
 
         } catch (error) {

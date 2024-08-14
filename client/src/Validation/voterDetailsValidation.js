@@ -25,9 +25,10 @@ export const validateVoterDetails = (name, value) => {
         case 'ELName':
             if (!value) {
                 error = 'This field is required';
-            } else if (!/^[a-zA-Z\s]+$/.test(value)) {
-                error = 'Only alphabets are allowed';
             }
+            //  else if (!/^[a-zA-Z\s]+$/.test(value)) {
+            //     error = 'Only alphabets are allowed';
+            // }
             break;
 
         case 'HFName':

@@ -58,6 +58,7 @@ function IncomingForms() {
     const user = JSON.parse(localStorage.getItem("user"));
     const DId = user ? user.DId : '';
     const loginUserId = user.userid;
+    const role = user.role;
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
@@ -165,14 +166,14 @@ function IncomingForms() {
         try {
             const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/AddIncomForm`, {
                 method: 'POST',
-                body: JSON.stringify({...formData, loginUserId}),
+                body: JSON.stringify({ ...formData, loginUserId }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
             if (result.ok) {
-                window.location.reload();
+                // window.location.reload();
                 setFormData({
 
                     VMob1: '',
@@ -209,7 +210,7 @@ function IncomingForms() {
         try {
             const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/UpdateIncomForm`, {
                 method: 'POST',
-                body: JSON.stringify({...formData, loginUserId}),
+                body: JSON.stringify({ ...formData, loginUserId }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -217,9 +218,27 @@ function IncomingForms() {
 
             if (result.ok) {
                 toast.success("incomingForms Updated successfully.");
-                setTimeout(() => {
-                    window.location.href = '/incomingForms';
-                }, 100);
+                setFormData({
+
+                    VMob1: '',
+                    VMob2: '',
+                    VEName: '',
+                    VHName: '',
+                    VEAddress: '',
+                    VHAddress: '',
+                    NoOfFormsKN: 0,
+                    NoOfFormsKD: 0,
+                    NoOfFormsU: 0,
+                    PacketNo: content || '',
+                    ReceivedDate: today,
+                    ERemarks: '',
+                    COList: [{
+                        VMob1: '',
+                        VEName: '',
+                        VHName: '',
+                    }]
+                })
+              
             } else {
                 toast.error("Error in Updating incomingForms:", result.statusText);
             }
@@ -235,22 +254,14 @@ function IncomingForms() {
         setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
     };
 
-
-    const columns = useMemo(() => [
-        {
-            accessor: (index) => index + 1,
-            id: 'serialNumber',
-            Header: 'S.No',
-            size: 5,
-            Cell: ({ cell }) => cell.row.index + 1,
-            Footer: "Total"
-        },
-        {
-            accessorKey: 'Action',
-            header: 'Action',
-            size: 1,
-            Cell: ({ row }) => (
-                <>
+    const columns = useMemo(() => {
+        const baseColumns = [
+            // Action column added at the start if role is Super Admin
+            ...(role === "Super Admin" ? [{
+                accessorKey: 'Action',
+                header: 'Action',
+                size: 1,
+                Cell: ({ row }) => (
                     <Button variant="primary" className="changepassword">
                         <Link
                             to={{ pathname: "/incomingForms", search: `?content=${row.original.PacketNo}` }}
@@ -258,99 +269,105 @@ function IncomingForms() {
                             Edit
                         </Link>
                     </Button>
-
-                </>
-            ),
-        },
-        {
-            accessorKey: 'PacketNo',
-            header: 'PacketNo',
-            size: 5,
-        },
-
-        {
-            accessorKey: 'RName',
-            header: 'Name ',
-            size: 15,
-        },
-        {
-            accessorKey: 'RMob1',
-            header: 'Mobile',
-            size: 10,
-        },
-        {
-            accessorKey: 'RAddress',
-            header: 'Address',
-            size: 20,
-        },
-        {
-            accessorKey: 'NFormsKN',
-            header: 'InForm Kanpur',
-            size: 5,
-            Footer: () => calculateColumnTotals('NFormsKN')
-        },
-        {
-            accessorKey: 'NFormsKd',
-            header: 'InForm Dehat',
-            size: 5,
-            Footer: () => calculateColumnTotals('NFormsKd')
-        },
-        {
-            accessorKey: 'NFormsU',
-            header: 'InForm Unnao',
-            size: 5,
-            Footer: () => calculateColumnTotals('NFormsU')
-        },
-        {
-            accessorKey: 'TotalForms',
-            header: 'Total Forms',
-            size: 4,
-            Footer: () => calculateColumnTotals('TotalForms')
-        },
-        {
-            accessorKey: 'C1Name',
-            header: 'CO1 Name ',
-            size: 15,
-        },
-        {
-            accessorKey: 'C1Mob',
-            header: 'CO1 Mobile',
-            size: 10,
-        },
-
-        {
-            accessorKey: 'C2Name',
-            header: 'CO2 Name',
-            size: 15,
-        },
-        {
-            accessorKey: 'C2Mob',
-            header: 'CO2 Mobile',
-            size: 10,
-        },
-        {
-            accessorKey: 'C3Name',
-            header: 'CO3 Name',
-            size: 15,
-        },
-        {
-            accessorKey: 'C3Mob',
-            header: 'CO3 Mobile',
-            size: 10,
-        },
-        {
-            accessorKey: 'ReceivedDate',
-            header: 'Received Date',
-            size: 8,
-        },
-        {
-            accessorKey: 'ERemarks',
-            header: 'Remarks',
-            size: 25,
-        },
-    ], [IFDetails]);
-
-
+                ),
+            }] : []),
+            {
+                accessor: (index) => index + 1,
+                id: 'serialNumber',
+                Header: 'S.No',
+                size: 5,
+                Cell: ({ cell }) => cell.row.index + 1,
+                Footer: "Total"
+            },
+            {
+                accessorKey: 'PacketNo',
+                header: 'PacketNo',
+                size: 5,
+            },
+            {
+                accessorKey: 'RName',
+                header: 'Name ',
+                size: 15,
+            },
+            {
+                accessorKey: 'RMob1',
+                header: 'Mobile',
+                size: 10,
+            },
+            {
+                accessorKey: 'RAddress',
+                header: 'Address',
+                size: 20,
+            },
+            {
+                accessorKey: 'NFormsKN',
+                header: 'InForm Kanpur',
+                size: 5,
+                Footer: () => calculateColumnTotals('NFormsKN')
+            },
+            {
+                accessorKey: 'NFormsKd',
+                header: 'InForm Dehat',
+                size: 5,
+                Footer: () => calculateColumnTotals('NFormsKd')
+            },
+            {
+                accessorKey: 'NFormsU',
+                header: 'InForm Unnao',
+                size: 5,
+                Footer: () => calculateColumnTotals('NFormsU')
+            },
+            {
+                accessorKey: 'TotalForms',
+                header: 'Total Forms',
+                size: 4,
+                Footer: () => calculateColumnTotals('TotalForms')
+            },
+            {
+                accessorKey: 'C1Name',
+                header: 'CO1 Name ',
+                size: 15,
+            },
+            {
+                accessorKey: 'C1Mob',
+                header: 'CO1 Mobile',
+                size: 10,
+            },
+            {
+                accessorKey: 'C2Name',
+                header: 'CO2 Name',
+                size: 15,
+            },
+            {
+                accessorKey: 'C2Mob',
+                header: 'CO2 Mobile',
+                size: 10,
+            },
+            {
+                accessorKey: 'C3Name',
+                header: 'CO3 Name',
+                size: 15,
+            },
+            {
+                accessorKey: 'C3Mob',
+                header: 'CO3 Mobile',
+                size: 10,
+            },
+            {
+                accessorKey: 'ReceivedDate',
+                header: 'Received Date',
+                size: 8,
+            },
+            {
+                accessorKey: 'ERemarks',
+                header: 'Remarks',
+                size: 25,
+            },
+        ];
+    
+        return baseColumns;
+    }, [IFDetails, role]); // Make sure to include `role` in the dependencies
+    
     const handleExport = (rows, format) => {
         const exportData = rows.map((row, index) => ({
             "S.No": index + 1,
@@ -471,35 +488,40 @@ function IncomingForms() {
                     <Row className="mb-3">
                         <div className="col-md-3 mb-3">
                             <Form.Group>
-                                <Form.Label>Mobile No. 1<sup className='text-red-500'>*</sup></Form.Label>
+                                <Form.Label>Mobile Number<sup className='text-red-500'>*</sup></Form.Label>
                                 <Typeahead
                                     id="VMob1"
-                                    selected={formData.VMob1 ? [formData.VMob1] : []}
-                                    onInputChange={(inputValue) => {
-                                    
-                                        setFormData((prevDetails) => ({
-                                            ...prevDetails,
-                                            VMob1: inputValue,
+                                    selected={formData.VMob1 ? [{ VMob1: formData.VMob1 }] : []}
+                                    name="VMob1"
+                                    onInputChange={(value) => {
+                                        fetchSuggestedMobiles(value, setSuggestedMobiles);
+                                        const error = validateFormsAdmin("VMob1", value);
+                                        setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
+
+                                        // Update formData with the typed value
+                                        setFormData(prevData => ({
+                                            ...prevData,
+                                            VMob1: value
                                         }));
-                                        fetchSuggestedMobiles(inputValue, setSuggestedMobiles)
                                     }}
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
-                                            const choice = selected[0];
+                                            const [choice] = selected;
                                             setFormData(prevData => ({
                                                 ...prevData,
-                                                VMob1: choice.VMob1 || choice,
-                                                VMob2: choice.VMob2 || '',
-                                                VEName: choice.VEName || '',
-                                                VHName: choice.VHName || '',
-                                                VEAddress: choice.VEAddress || '',
-                                                VHAddress: choice.VHAddress || '',
+                                                VMob1: choice.VMob1,
+                                                VMob2: choice.VMob2,
+                                                VEName: choice.VEName,
+                                                VHName: choice.VHName,
+                                                VEAddress: choice.VEAddress,
+                                                VHAddress: choice.VHAddress,
                                             }));
-                                        
+                                            const error = validateFormsAdmin("VMob1", choice.VMob1);
+                                            setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                         } else {
-                                            setFormData((prevDetails) => ({
-                                                ...prevDetails,
-                                                VMob1: '',
+                                            // If no option is selected, keep the typed value
+                                            setFormData((prevData) => ({
+                                                ...prevData,
                                                 VMob2: '',
                                                 VEName: '',
                                                 VHName: '',
@@ -509,7 +531,7 @@ function IncomingForms() {
                                         }
                                     }}
                                     options={suggestedMobiles}
-                                    placeholder="Mobile Number 1"
+                                    placeholder="Mobile Number"
                                     labelKey="VMob1"
                                     renderMenuItemChildren={(option) => (
                                         <div>
@@ -517,10 +539,9 @@ function IncomingForms() {
                                         </div>
                                     )}
                                 />
-                              
+                                {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
                             </Form.Group>
                         </div>
-
                         <div className="col-md-3 mb-3">
                             <Form.Group >
                                 <Form.Label>Mobile No. 2</Form.Label>
@@ -670,7 +691,8 @@ function IncomingForms() {
                                                     const error = validateFormsAdmin("CMob1", choice.VMob1);
                                                     setErrors((prevErrors) => ({ ...prevErrors, [`VMob1-${index}`]: error }));
                                                 } else {
-                                                    updatedCOList[index].VMob1 = '';
+                                                    // Keep the typed value in VMob1 when no option is selected
+                                                    updatedCOList[index].VMob1 = formData.COList[index].VMob1;
                                                     setFormData((prevDetails) => ({
                                                         ...prevDetails,
                                                         COList: updatedCOList,

@@ -45,9 +45,10 @@ export const validateFormsAdmin = (field, value) => {
 
             if (!value) {
                 error = 'Name (English)  is required';
-            } else if (value && !/^[a-zA-Z\s]+$/.test(value)) {
-                error = 'Only alphabets are allowed';
-            }
+            } 
+            // else if (value && !/^[a-zA-Z\s]+$/.test(value)) {
+            //     error = 'Only alphabets are allowed';
+            // }
             break;
 
             case 'VHName':

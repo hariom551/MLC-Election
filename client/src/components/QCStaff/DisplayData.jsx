@@ -32,9 +32,7 @@ const TelecallerEmployeeData = () => {
           throw new Error("Empty or invalid details data");
         }
         setEmployNameOption(data);
-        console.log(data);
-
-        // Extract distinct AssignTo values
+        
         const distinctAssignToValues = [...new Set(data.map(item => item.AssignTo))];
         setDistinctAssignTo(distinctAssignToValues);
       } catch (error) {
@@ -53,7 +51,7 @@ const TelecallerEmployeeData = () => {
       const selectedData = employNameOption.filter(details => details.AssignTo === selectedEmployee);
       setData(selectedData);
     }
-    console.log(`Selected employee data:`, data);
+    
   };
 
   const columns = useMemo(() => [

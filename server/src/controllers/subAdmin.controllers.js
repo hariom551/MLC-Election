@@ -56,7 +56,7 @@ const NoMobvoterList = asyncHandler(async (req, res) => {
 
         return res.json(results);
     } catch (error) {
-        console.error('Database query error', error);
+
         return res.status(500).json({ error: 'A database error occurred.' });
     }
 });
@@ -85,7 +85,7 @@ const FeedingStaff = asyncHandler(async (req, res) => {
 
 const DayWiseReport = asyncHandler(async (req, res) => {
     const { startDate, endDate, userId } = req.body;
-    console.log(startDate, endDate, userId);
+   
     try {
         const query = `SELECT DATE_FORMAT(SDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
                        FROM voterlist 
@@ -93,10 +93,10 @@ const DayWiseReport = asyncHandler(async (req, res) => {
                          AND SDate BETWEEN ? AND ? 
                        GROUP BY SBy, SDate;`;
         const results = await queryDatabase(query, [userId, startDate, endDate]);
-        console.log(results);
+      
         return res.json(results);
     } catch (error) {
-        console.error("Database error:", error);
+
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
@@ -108,7 +108,6 @@ const staffname = asyncHandler(async (req, res) => {
         const results = await queryDatabase(query, [userId]);
         return res.json(results);
     } catch (error) {
-        console.error("Database error:", error);
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
@@ -134,7 +133,7 @@ const qcstaffcount = asyncHandler(async (req, res) => {
 
 const QCDayWiseReport = asyncHandler(async (req, res) => {
     const { startDate, endDate, userId } = req.body;
-    console.log(startDate, endDate, userId);
+    
     try {
         const query = `SELECT DATE_FORMAT(SDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
                        FROM voterlist 
@@ -142,10 +141,10 @@ const QCDayWiseReport = asyncHandler(async (req, res) => {
                          AND MDate BETWEEN ? AND ? 
                        GROUP BY MBy, MDate;`;
         const results = await queryDatabase(query, [userId, startDate, endDate]);
-        console.log(results);
+       
         return res.json(results);
     } catch (error) {
-        console.error("Database error:", error);
+       
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
@@ -166,6 +165,7 @@ const ReferenceVoterList = asyncHandler(async (req, res) => {
         WHERE  volunteer.VMob1 = ?;
       `;
       const results = await queryDatabase(query, [number]);
+      console.log(results)
       return res.json(results);
     } catch (error) {
       return res.status(500).json({ error: "A database error occurred." });

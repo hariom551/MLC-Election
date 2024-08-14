@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Toast } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { ToastContainer, toast } from "react-toastify";
@@ -10,13 +11,12 @@ const AddTellecallerData = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    console.log("Selected file", file);
     setSelectedFile(file);
   };
 
   const handleFileUpload = async () => {
     if (!selectedFile) {
-      console.error("No file selected");
+      toast.error("No file selected");
       return;
     }
     const formData = new FormData();
@@ -33,7 +33,7 @@ const AddTellecallerData = () => {
         throw new Error("Failed to upload file");
       }
       const result = await response.json();
-      // console.log("File upload result:", result);
+      
       toast.success("File Uploaded Successfully");
       setSelectedFile(null);
       fileInputRef.current.value = null; 

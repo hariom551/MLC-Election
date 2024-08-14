@@ -126,8 +126,7 @@ function OutgoingForms() {
 
             if (result.ok) {
                 toast.success("OutgoingForms Added Successfully.");
-                // window.location.reload();
-                // Reset the form data while preserving visibility of VMob1 and CMob1
+
                 setFormData({
                     ...initialFormData,
                     VMob1: '',
@@ -303,7 +302,13 @@ function OutgoingForms() {
                                     onInputChange={(value) => {
                                         fetchSuggestedMobiles(value, setSuggestedMobiles);
                                         const error = validateFormsAdmin("VMob1", value);
-                                     
+                                        setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
+
+                                        // Update formData with the typed value
+                                        setFormData(prevData => ({
+                                            ...prevData,
+                                            VMob1: value
+                                        }));
                                     }}
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
@@ -320,19 +325,15 @@ function OutgoingForms() {
                                             const error = validateFormsAdmin("VMob1", choice.VMob1);
                                             setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                         } else {
-                                            const typedValue = formData.VMob1 || ''; 
-                                            setFormData((prevDetails) => ({
-                                                ...prevDetails,
-                                                VMob1: typedValue,
+                                            // If no option is selected, keep the typed value
+                                            setFormData((prevData) => ({
+                                                ...prevData,
                                                 VMob2: '',
                                                 VEName: '',
                                                 VHName: '',
                                                 VEAddress: '',
                                                 VHAddress: '',
                                             }));
-                                           
-                                            const error = validateFormsAdmin("VMob1", typedValue);
-                                            setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                         }
                                     }}
                                     options={suggestedMobiles}
@@ -401,6 +402,7 @@ function OutgoingForms() {
                             </Form.Group>
                         </div>
                     </Row>
+
                     <div className="row mb-3">
                         <div className="col-md-3 mb-3">
                             <Form.Group>
@@ -408,11 +410,17 @@ function OutgoingForms() {
                                 <Typeahead
                                     id="CMob1"
                                     name="CMob1"
-                                    selected={formData.CMob1 ? [{ VMob1: formData.VMob1 }] : []}
+                                    selected={formData.CMob1 ? [{ VMob1: formData.CMob1 }] : []}
                                     onInputChange={(value) => {
                                         fetchSuggestedMobiles(value, setSuggestedCareOfMobiles);
                                         const error = validateFormsAdmin("CMob1", value);
                                         setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
+
+                                        // Update formData with the typed value
+                                        setFormData(prevData => ({
+                                            ...prevData,
+                                            CMob1: value
+                                        }));
                                     }}
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
@@ -423,9 +431,18 @@ function OutgoingForms() {
                                                 CEName: choice.VEName,
                                                 CHName: choice.VHName,
                                             }));
-                                            const error = validateFormsAdmin("CMob1", choice.VMob1);
-                                            setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
+                                        } else {
+                                            // If no option is selected, keep the typed value for CMob1
+                                            setFormData((prevData) => ({
+                                                ...prevData,
+                                                // CMob1 is not changed here, keeping the last typed or selected value
+                                                CEName: '',
+                                                CHName: '',
+                                            }));
                                         }
+                                        // Validate after setting the new value
+                                        const error = validateFormsAdmin("CMob1", selected.length > 0 ? selected[0].VMob1 : formData.CMob1);
+                                        setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
                                     }}
                                     options={suggestedCareOfMobiles}
                                     placeholder="Mobile Number"
@@ -439,6 +456,8 @@ function OutgoingForms() {
                                 {errors.CMob1 && <div className="text-danger">{errors.CMob1}</div>}
                             </Form.Group>
                         </div>
+
+
                         <div className="col-md-3 mb-3">
                             <Form.Group>
                                 <Form.Label>Careof (English)</Form.Label>

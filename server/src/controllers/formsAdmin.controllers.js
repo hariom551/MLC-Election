@@ -23,7 +23,7 @@ const AddOutForm = asyncHandler(async (req, res) => {
         CHName,
         loginUserId
     } = req.body;
-
+console.log(req.body);
     try {
         let volunteer = await queryDatabase(
             'SELECT Id FROM volunteer WHERE VMob1 = ?',

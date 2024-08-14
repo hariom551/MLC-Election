@@ -1,6 +1,6 @@
-import React, {  useEffect, useRef, useState } from 'react';
-
-import {  toast } from 'react-toastify';
+import React, { useEffect, useRef, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
@@ -8,17 +8,15 @@ const UpdateLetter = () => {
   const [editorHtml, setEditorHtml] = useState('');
   const quillRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("user"));
-  const DId = user ? user.DId : '';
-  const loginUserId = user.userid;
+  const loginUserId = user ? user.userid : '';
 
-    
   useEffect(() => {
     if (window.google && window.google.elements) {
       window.google.elements.transliteration.load({
-        sourceLanguage: 'hi',  
+        sourceLanguage: 'hi',
         destinationLanguage: ['hi'],
         shortcutKey: 'ctrl+g',
-        transliterationEnabled: true, 
+        transliterationEnabled: true,
       });
 
       const quillEditor = quillRef.current.getEditor();
@@ -37,19 +35,17 @@ const UpdateLetter = () => {
     }
   }, []);
 
-
-
   const handleChange = (html) => {
     setEditorHtml(html);
   };
 
   const handleSave = async () => {
     try {
-      if(!editorHtml){
+      if (!editorHtml) {
         toast.error('Enter the content.');
         return;
       }
-      else{
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/updateletter`, {
         method: 'POST',
         headers: {
@@ -57,27 +53,24 @@ const UpdateLetter = () => {
         },
         body: JSON.stringify({ content: editorHtml, loginUserId }),
       });
-  
-      const result = await response.json(); // Get the response data
-  
+
+      const result = await response.json();
+
       if (!response.ok) {
-        toast.error('Failed to save the letter.');
+        toast.error(result.message || 'Failed to save the letter.');
       } else {
-        toast.success('Save successful:', result.message || 'Letter saved successfully!');
+        toast.success(result.message || 'Letter saved successfully!');
         setEditorHtml(''); // Reset editor content to an empty string
-      }}
-  
+      }
     } catch (error) {
       toast.error('Error saving the letter: ' + error.message);
     }
   };
-  
-
 
   return (
     <div className="bg-gray-100 py-6 p-20">
-  
-      <h1 className="text-2xl font-bold mb-4 text-black ">Update Letter</h1>
+      <ToastContainer />
+      <h1 className="text-2xl font-bold mb-4 text-black">Update Letter</h1>
 
       <ReactQuill
         ref={quillRef}
@@ -90,20 +83,17 @@ const UpdateLetter = () => {
       />
       <button
         onClick={handleSave}
-        variant="primary"
-        className="bg-blue-500 hover:bg-blue-700 text-white  py-2 px-4 rounded"
+        className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
       >
         Save
       </button>
-   
     </div>
   );
 };
 
-
 UpdateLetter.modules = {
   toolbar: [
-    [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
+    [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
     [{ size: [] }],
     ['bold', 'italic', 'underline', 'strike', 'blockquote'],
     [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
