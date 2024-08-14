@@ -26,7 +26,7 @@ const __dirname = path.dirname(__filename);
     }
   });
 
-  
+  // Create the multer instance with the storage configuration
   const upload = multer({
     storage: storage,
     limits: {
@@ -34,8 +34,6 @@ const __dirname = path.dirname(__filename);
     },
 });
 
-
-  
 
 const currentDate = new Date();
 const CDate = currentDate.toISOString(); 
