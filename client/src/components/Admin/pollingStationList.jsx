@@ -28,53 +28,52 @@ function PollingStationList() {
     PSNo: '',
     ESPName: '',
     HSPName: '',
-    RoomNo: ''
-
+    RoomNo: '',
   });
+  
   const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSListDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+  // Function to fetch data
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSListDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch PollingStationList details');
-        }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid PollingStationList details data');
-        }
-        setPSListDetails(data);
-        if (content) {
-          const PSD = data.find(item => item.Id == content);
-
-          if (PSD) {
-            setFormData({
-              ESPArea: PSD.EPSArea,
-              HSPArea: PSD.HPSArea,
-              PSNo: PSD.PSNo,
-              ESPName: PSD.EPSName,
-              HSPName: PSD.HPSName,
-              RoomNo: PSD.RoomNo
-
-            });
-          } else {
-            toast.error(`PollingStationList with ID ${content} not found`);
-          }
-        }
-      } catch (error) {
-        toast.error('Error fetching PollingStationList data:', error);
+      if (!response.ok) {
+        throw new Error('Failed to fetch PollingStationList details');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid PollingStationList details data');
+      }
+      setPSListDetails(data);
+      if (content) {
+        const PSD = data.find(item => item.Id == content);
+        if (PSD) {
+          setFormData({
+            ESPArea: PSD.EPSArea,
+            HSPArea: PSD.HPSArea,
+            PSNo: PSD.PSNo,
+            ESPName: PSD.EPSName,
+            HSPName: PSD.HPSName,
+            RoomNo: PSD.RoomNo,
+          });
+        } else {
+          toast.error(`PollingStationList with ID ${content} not found`);
+        }
+      }
+    } catch (error) {
+      toast.error('Error fetching PollingStationList data:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, [content]);
 
@@ -85,15 +84,23 @@ function PollingStationList() {
         method: 'POST',
         body: JSON.stringify({ ...formData, loginUserId, DId }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (result.ok) {
         toast.success("PollingStationList Added Successfully.");
-        setTimeout(() => {
-          // window.location.reload();
-        }, 1000);
+        setFormData({
+          Id: '',
+          DId: '',
+          ESPArea: '',
+          HSPArea: '',
+          PSNo: '',
+          ESPName: '',
+          HSPName: '',
+          RoomNo: '',
+        }); // Reset form data
+        fetchData(); // Refresh the table data
       } else {
         toast.error("Error in Adding PollingStationList:", result.statusText);
       }
@@ -109,15 +116,14 @@ function PollingStationList() {
         method: 'POST',
         body: JSON.stringify({ ...formData, loginUserId, content }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (result.ok) {
         toast.success("PollingStationList Updated successfully.");
-        setTimeout(() => {
-          window.location.href = '/PollingStationList';
-        }, 500);
+        fetchData(); 
+        window.location.href='/PollingStationList'
       } else {
         toast.error("Error in Updating PollingStationList:", result.statusText);
       }
@@ -130,26 +136,23 @@ function PollingStationList() {
     const { name, value } = event.target;
     setFormData(prevFormData => ({
       ...prevFormData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleDelete = async (Id) => {
-    console.log(Id);
     try {
       let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deletePSListDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (result.ok) {
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 500);
         toast.success("PollingStationList deleted successfully.");
+        fetchData(); 
       } else {
         toast.error("Error in deleting PollingStationList:", result.statusText);
       }
@@ -249,7 +252,6 @@ function PollingStationList() {
   const table = useMaterialReactTable({
     columns,
     data: PSListDetails,
-    // enableRowSelection: true,
     columnFilterDisplayMode: 'popover',
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',

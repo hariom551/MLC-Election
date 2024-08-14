@@ -658,14 +658,14 @@ const{DId}=req.params;
 const UpdatePSListDetail = asyncHandler(async (req, res) => {
 
     const { content, ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId } = req.body;
-    console.log(req.body);
+
     if (!content || !ESPArea || !HSPArea || !PSNo || !ESPName || !HSPName || !RoomNo) {
         throw new ApiError(400, "Please enter all details!")
     }
     try {
         await queryDatabase(
-            'UPDATE pollingstation SET EPSArea= ?, HPSArea= ?, PSNo =?, EPSName =?, HPSName=?, RoomNo=?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId,SDate,MDate, content]
+            'UPDATE pollingstation SET EPSArea= ?, HPSArea= ?, PSNo =?, EPSName =?, HPSName=?, RoomNo=?, MBy=?, MDate=? WHERE Id= ?',
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, MDate, content]
         );
 
         const updatedPSList = {

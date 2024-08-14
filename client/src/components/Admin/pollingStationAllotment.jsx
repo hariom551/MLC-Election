@@ -38,7 +38,6 @@ function PollingStationAllotment() {
   const [WBOptions, setWBOptions] = useState([]);
 
   useEffect(() => {
-
     const fetchWBOptions = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
@@ -69,7 +68,6 @@ function PollingStationAllotment() {
       if (formData.WBId) {
         setLoadingTotalVoters(true);
         try {
-
           const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/getTotalVoters`, {
             method: 'POST',
             headers: {
@@ -101,7 +99,6 @@ function PollingStationAllotment() {
 
     fetchTotalVoters();
   }, [formData.WBId]);
-
 
   const loadPSNoOptions = async (inputValue) => {
     try {
@@ -166,60 +163,66 @@ function PollingStationAllotment() {
       PSId: details.PSId
     }));
   };
-  
 
-
+  // Function to fetch Polling Station Allotment data
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSAllotDetails`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch Polling Station Allotment details');
+      }
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        toast.info('No Polling Station Allotment details available.'); 
+        return; 
+      }
+      setPSListDetails(data);
+    } catch (error) {
+      toast.error('Error fetching Polling Station Allotment data: ' + error.message);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/pSAllotDetails`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch Polling Station Allotment details');
-        }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          toast.info('No Polling Station Allotment details available.'); 
-          return; 
-        }
-        setPSListDetails(data);
-      } catch (error) {
-        toast.error('Error fetching Polling Station Allotment data: ' + error.message);
-      }
-    };
-  
-    fetchData();
+    fetchData(); // Fetch data on component mount
   }, []);
   
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { PSId, WBId,VtsFrom, VtsTo}= formData;
+      const { PSId, WBId, VtsFrom, VtsTo } = formData;
 
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addPSA`, {
         method: 'POST',
-        body: JSON.stringify({PSId, WBId,VtsFrom, VtsTo, loginUserId}),
+        body: JSON.stringify({ PSId, WBId, VtsFrom, VtsTo, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
       if (result.ok) {
-        toast.success("PollingStationAllotment Added Successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        toast.success("Polling Station Allotment Added Successfully.");
+        fetchData(); // Fetch data after adding
+        setFormData({
+          Id: '',
+          PSId: '',
+          WBId: '',
+          TotalVoters: '0',
+          PSNo: '',
+          ESPName: '',
+          RoomNo: '',
+          VtsFrom: '',
+          VtsTo: '',
+        }); // Reset form after adding
       } else {
-        toast.error("Error in Adding PollingStationAllotment:", result.statusText);
+        toast.error("Error in Adding Polling Station Allotment:", result.statusText);
       }
     } catch (error) {
-      toast.error("Error in Adding PollingStationAllotment:", error.message);
+      toast.error("Error in Adding Polling Station Allotment:", error.message);
     }
   };
 
@@ -242,15 +245,13 @@ function PollingStationAllotment() {
       });
 
       if (result.ok) {
-        toast.success("PollingStationAllotment deleted successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        toast.success("Polling Station Allotment deleted successfully.");
+        fetchData(); // Fetch data after deletion
       } else {
-        toast.error("Error in deleting PollingStationAllotment:", result.statusText);
+        toast.error("Error in deleting Polling Station Allotment:", result.statusText);
       }
     } catch (error) {
-      toast.error("Error in deleting PollingStationAllotment:", error.message);
+      toast.error("Error in deleting Polling Station Allotment:", error.message);
     }
   };
 
@@ -330,8 +331,6 @@ function PollingStationAllotment() {
       size: 20,
     },
   ], []);
-
-
 
   const table = useMaterialReactTable({
     columns,
@@ -429,7 +428,6 @@ function PollingStationAllotment() {
               </Form.Group>
             </div>
 
-
             <div className="col-md-5 mb-3">
               <Form.Group>
                 <Form.Label>PS Name<sup className='text-red-600'>*</sup></Form.Label>
@@ -464,7 +462,7 @@ function PollingStationAllotment() {
           </Button>
         </Form>
         <hr className="my-4" />
-        <h4 className="container mt-3 text-xl font-bold mb-3">PollingStationAllotment List</h4>
+        <h4 className="container mt-3 text-xl font-bold mb-3">Polling Station Allotment List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />
         </div>
