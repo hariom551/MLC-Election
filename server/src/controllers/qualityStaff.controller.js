@@ -25,11 +25,7 @@ const __dirname = path.dirname(__filename);
       cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
   });
-<<<<<<< HEAD
-  
 
-const upload = multer({ storage: storage });
-=======
   // Create the multer instance with the storage configuration
   const upload = multer({
     storage: storage,
@@ -38,8 +34,6 @@ const upload = multer({ storage: storage });
     },
 });
 
->>>>>>> 40dfb023576e2c6c28a66accbb38410a6ce17adf
-  
 
 const currentDate = new Date();
 const CDate = currentDate.toISOString(); 
