@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Form, Container, Row, Col } from 'react-bootstrap';
+// import Webcam from 'react-webcam';
 
 function VoterDocs({ voterDocs, setVoterDocs }) {
+  const webref = useRef(null);
+  const [image, setImage] = useState(null);
 
   const handleChange = (event) => {
     const { name, files } = event.target;
@@ -9,21 +12,26 @@ function VoterDocs({ voterDocs, setVoterDocs }) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setVoterDocs(prevDetails => {
-          const newDetails = {
-            ...prevDetails,
-            [name]: {
-              file,
-              dataUrl: reader.result, 
-            },
-          };
-        
-          return newDetails;
-        });
+        setVoterDocs((prevDetails) => ({
+          ...prevDetails,
+          [name]: {
+            file,
+            dataUrl: reader.result,
+          },
+        }));
       };
       reader.readAsDataURL(file);
     }
   };
+
+  const capturePic = useCallback(() => {
+    const imageSrc = webref.current.getScreenshot();
+    setImage(imageSrc);
+    setVoterDocs((prevDetails) => ({
+      ...prevDetails,
+      VImage: imageSrc,
+    }));
+  }, [webref, setVoterDocs]);
 
   return (
     <div className='w-full py-4 h-full mx-auto bg-gray-100' style={{ boxShadow: '0 0 5px 1px #ddd' }}>
@@ -40,53 +48,28 @@ function VoterDocs({ voterDocs, setVoterDocs }) {
               <Form.Group>
                 <Form.Label>Image</Form.Label>
                 <Form.Control type="file" name="Image" onChange={handleChange} />
+                {voterDocs.Image && <img src={voterDocs.Image.dataUrl} alt="Image Preview" style={{ width: '50%', marginTop: '10px' }} />}
               </Form.Group>
             </Col>
             <Col md={4}>
               <Form.Group>
                 <Form.Label>Id</Form.Label>
                 <Form.Control type="file" name="IdProof" onChange={handleChange} />
+                {voterDocs.IdProof && <img src={voterDocs.IdProof.dataUrl} alt="ID Preview" style={{ width: '50%', marginTop: '10px' }} />}
               </Form.Group>
             </Col>
             <Col md={4}>
               <Form.Group>
                 <Form.Label>Degree</Form.Label>
                 <Form.Control type="file" name="Degree" onChange={handleChange} />
+                {voterDocs.Degree && <img src={voterDocs.Degree.dataUrl} alt="Degree Preview" style={{ width: '50%', marginTop: '10px' }} />}
               </Form.Group>
             </Col>
           </Row>
         </Form>
 
-      </Container>
-    </div>
-  );
-}
-
-export default VoterDocs;
-
-
-
-
-
-
-
-
-// import Webcam from 'react-webcam-v2';
-// const webref = useRef(null);
-// const [image, setImage] = useState(null);
-
-// const capturePic = useCallback(() => {
-//     const imageSrc = webref.current.getScreenshot();
-//     setImage(imageSrc);
-//     setVoterDocs(prevDetails => ({
-//       ...prevDetails,
-//       VImage: imageSrc,
-//     }));
-//   }, [webref, setVoterDocs]);
-
-
-{/* Uncomment and adjust the following block if you want to use the camera functionality */ }
-{/* <div className="row border-2 mt-5">
+        {/* Uncomment and adjust the following block if you want to use the camera functionality */}
+        {/* <div className="row border-2 mt-5">
           <div className="col-md-4 border-r-2">
             <div className='border-b-2'>
               <p className='underline flex items-center justify-center text-black py-4'>Live Camera</p>
@@ -103,7 +86,7 @@ export default VoterDocs;
               <p className='underline flex items-center text-black justify-center py-4'>Captured Picture</p>
             </div>
             <div className='h-[40vh] flex items-center justify-center'>
-              {image && <img src={image} alt='captured' />}
+              {image && <img src={image} alt='Captured' style={{ width: '100%' }} />}
             </div>
             <div className='flex items-center justify-center py-2 border-t-2'>
               <button className='btn bg-blue-400 text-white'>Crop</button>
@@ -114,10 +97,16 @@ export default VoterDocs;
               <p className='underline flex items-center text-black justify-center py-4'>Preview Picture</p>
             </div>
             <div className='h-[40vh] flex items-center justify-center'>
-       
+              {image && <img src={image} alt='Preview' style={{ width: '100%' }} />}
             </div>
             <div className='flex items-center justify-center py-2 border-t-2'>
               <Form.Control type="file" name="PreviewPicture" onChange={handleChange} />
             </div>
           </div>
         </div> */}
+      </Container>
+    </div>
+  );
+}
+
+export default VoterDocs;
