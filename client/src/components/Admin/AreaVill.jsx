@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import Select from 'react-select'; 
+import Select from 'react-select';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -31,7 +31,7 @@ function AreaVill() {
   const [wbOptions, setWBOptions] = useState([]);
   const [cbOptions, setCBOptions] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("user")); 
+  const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
 
@@ -52,7 +52,7 @@ function AreaVill() {
         if (!data || !Array.isArray(data) || data.length === 0) {
           throw new Error('Empty or invalid Ward block options data');
         }
-        
+
         const options = data.map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }));
         setWBOptions(options);
       } catch (error) {
@@ -61,7 +61,7 @@ function AreaVill() {
     };
 
     fetchWBOptions();
-  }, []);
+  }, [DId]);
 
   const fetchCBOptions = async (wbId) => {
     try {
@@ -90,67 +90,80 @@ function AreaVill() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/AreaVillDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+  const fetchAreaVillDetails = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/AreaVillDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch AreaVill details');
-        }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid AreaVill details data');
-        }
-        setAreaVillDetails(data);
-        if (content) {
-          const AreaVill = data.find(item => item.Id == content);
-          if (AreaVill) {
-            setFormData({
-              Id:AreaVill.Id,
-              WBID: AreaVill.WBId,
-              EAreaVill: AreaVill.EAreaVill,
-              HAreaVill: AreaVill.HAreaVill,
-              HnoRange: AreaVill.HnoRange,
-              EWardBlock: AreaVill.EWardBlock,
-              CBPId: AreaVill.CBPId,
-              ECBPanch: AreaVill.ECBPanch
-              //hariom
-            });
-
-            fetchCBOptions(AreaVill.WBId);
-          } else {
-            console.error(`AreaVill with ID ${content} not found`);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching AreaVill data:', error);
+      if (!response.ok) {
+        throw new Error('Failed to fetch AreaVill details');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid AreaVill details data');
+      }
+      setAreaVillDetails(data);
+      if (content) {
+        const AreaVill = data.find(item => item.Id == content);
+        if (AreaVill) {
+          setFormData({
+            Id: AreaVill.Id,
+            WBID: AreaVill.WBId,
+            EAreaVill: AreaVill.EAreaVill,
+            HAreaVill: AreaVill.HAreaVill,
+            HnoRange: AreaVill.HnoRange,
+            EWardBlock: AreaVill.EWardBlock,
+            CBPId: AreaVill.CBPId,
+            ECBPanch: AreaVill.ECBPanch
+          });
 
-    fetchData();
-  }, [content]);
+          fetchCBOptions(AreaVill.WBId);
+        } else {
+          console.error(`AreaVill with ID ${content} not found`);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching AreaVill data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAreaVillDetails();
+  }, [content, DId]);
+
+  // Reset form data
+  const resetFormData = () => {
+    setFormData({
+      Id: '',
+      EAreaVill: '',
+      HAreaVill: '',
+      HnoRange: '',
+      EWardBlock: '',
+      WBID: '',
+      CBPId: '',
+      ECBPanch: ''
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addAreaVill`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData,
-          loginUserId,}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
       if (result.ok) {
-        window.location.href = '/AreaVill';
         toast.success("AreaVill Added Successfully.");
+        resetFormData(); // Reset form data
+        await fetchAreaVillDetails(); // Refresh the table data
       } else {
         toast.error("Error in Adding AreaVill:", result.statusText);
       }
@@ -160,7 +173,6 @@ function AreaVill() {
   };
 
   const handleChange = (selectedOption, name) => {
-
     setFormData(prevFormData => ({
       ...prevFormData,
       [name]: selectedOption.value
@@ -186,9 +198,7 @@ function AreaVill() {
       }
 
       toast.success("AreaVill deleted successfully.");
-      setTimeout(() => {
-        window.location.reload()
-      }, 100);
+      await fetchAreaVillDetails(); // Refresh the table data
     } catch (error) {
       toast.error("Error deleting AreaVill:", error.message);
     }
@@ -196,22 +206,20 @@ function AreaVill() {
 
   const handleEdit = async (e) => {
     e.preventDefault();
-    console.log(formData.Id)
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateAreaVillDetail`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData, loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
-
-
       if (result.ok) {
-        window.location.href = '/AreaVill';
-
         toast.success("AreaVill Updated successfully.");
+        resetFormData(); // Reset form data
+        await fetchAreaVillDetails(); 
+        window.location.href = '/AreaVill';
       } else {
         toast.error("Error in Updating AreaVill:", result.statusText);
       }
@@ -233,12 +241,7 @@ function AreaVill() {
       Cell: ({ row }) => (
         <>
           <Button variant="primary" className="changepassword">
-            <Link
-              to={{ pathname: "/AreaVill", search: `?content=${row.original.Id}` }}
-
-            >
-              Edit
-            </Link>
+            <Link to={{ pathname: "/AreaVill", search: `?content=${row.original.Id}` }}>Edit</Link>
           </Button>
           <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
             Delete
@@ -280,7 +283,6 @@ function AreaVill() {
         <h1 className="text-2xl font-bold mb-4">Add AreaVill</h1>
         <Form onSubmit={content ? handleEdit : handleSubmit} className="AreaVill-form">
           <Row className="mb-3">
-
             <div className="col-md-3 mb-3">
               <Form.Group>
                 <Form.Label>Select Ward Block</Form.Label>
@@ -289,11 +291,9 @@ function AreaVill() {
                   name="WBID"
                   value={wbOptions.find(option => option.value == formData.WBID)}
                   onChange={(selectedOption) => handleChange(selectedOption, 'WBID')}
-                  // onChange={option => setFormData(prevFormData => ({ ...prevFormData, WBID: option.value }))}
-
                   options={wbOptions}
                   placeholder="Select Ward Block"
-                  isSearchable={true} // Enable search
+                  isSearchable={true}
                   required
                 />
               </Form.Group>
@@ -309,14 +309,14 @@ function AreaVill() {
                   onChange={(selectedOption) => handleChange(selectedOption, 'CBPId')}
                   options={cbOptions}
                   placeholder="Select Chak Block"
-                  isSearchable={true} // Enable search
+                  isSearchable={true}
                   required
                 />
               </Form.Group>
             </div>
 
             <div className="col-md-3 mb-3">
-              <Form.Group >
+              <Form.Group>
                 <Form.Label>Hno Range</Form.Label>
                 <Form.Control type="text" placeholder="Hno Range" id="HnoRange" name="HnoRange" value={formData.HnoRange} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HnoRange: e.target.value }))} />
               </Form.Group>
@@ -325,13 +325,13 @@ function AreaVill() {
 
           <Row className="mb-3">
             <div className="col-md-3 mb-3">
-              <Form.Group >
+              <Form.Group>
                 <Form.Label>AreaVill Name (English)<sup className='text-red-600'>*</sup></Form.Label>
                 <Form.Control type="text" placeholder="AreaVill Name (English)" id="EAreaVill" name="EAreaVill" value={formData.EAreaVill} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, EAreaVill: e.target.value }))} required />
               </Form.Group>
             </div>
             <div className="col-md-3 mb-3">
-              <Form.Group >
+              <Form.Group>
                 <Form.Label>AreaVill Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
                 <Form.Control type="text" placeholder="AreaVill Name (Hindi)" id="HAreaVill" name="HAreaVill" value={formData.HAreaVill} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HAreaVill: e.target.value }))} required />
               </Form.Group>

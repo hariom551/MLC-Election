@@ -28,74 +28,82 @@ function WardBlock() {
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
 
-  useEffect(() => {
-    const fetchVSOptions = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch vidhanSabha options');
+  const fetchVSOptions = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid vidhansabha options data');
-        }
-        const options = data.map(vs => ({
-          value: vs.Id,
-          label: `${vs.VSNo} - ${vs.EVidhanSabha}`
-        }));
-        setVSOptions(options);
-      } catch (error) {
-        toast.error('Error fetching vidhanSabha options: ' + error.message);
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch vidhanSabha options');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid vidhansabha options data');
+      }
+      const options = data.map(vs => ({
+        value: vs.Id,
+        label: `${vs.VSNo} - ${vs.EVidhanSabha}`
+      }));
+      setVSOptions(options);
+    } catch (error) {
+      toast.error('Error fetching vidhanSabha options: ' + error.message);
+    }
+  };
 
+  const fetchWardBlockDetails = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch WardBlock details');
+      }
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid WardBlock details data');
+      }
+      setWardBlockDetails(data);
+      if (content) {
+        const WardBlock = data.find(item => item.Id == content);
+        if (WardBlock) {
+          setFormData(WardBlock);
+        } else {
+          toast.error(`WardBlock with ID ${content} not found`);
+        }
+      }
+    } catch (error) {
+      toast.error('Error fetching WardBlock data: ' + error.message);
+    }
+  };
+
+  useEffect(() => {
     fetchVSOptions();
-  }, []);
+    fetchWardBlockDetails();
+  }, [DId, content]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch WardBlock details');
-        }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid WardBlock details data');
-        }
-        setWardBlockDetails(data);
-        if (content) {
-          const WardBlock = data.find(item => item.Id == content);
-          if (WardBlock) {
-            setFormData(WardBlock);
-          } else {
-            toast.error(`WardBlock with ID ${content} not found`);
-          }
-        }
-      } catch (error) {
-        toast.error('Error fetching WardBlock data: ' + error.message);
-      }
-    };
-
-    fetchData();
-  }, [content]);
+  const resetFormData = () => {
+    setFormData({
+      Id: '',
+      EWardBlock: '',
+      HWardBlock: '',
+      WardNo: '',
+      EVidhanSabha: '',
+      VSId: ''
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addWardBlock`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData,loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -103,9 +111,8 @@ function WardBlock() {
 
       if (result.ok) {
         toast.success('WardBlock Added Successfully.');
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        resetFormData(); // Reset form data
+        await fetchWardBlockDetails(); // Refresh the table data
       } else {
         toast.error('Error in Adding WardBlock: ' + result.statusText);
       }
@@ -119,7 +126,7 @@ function WardBlock() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateWardBlockDetails`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData, loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -127,9 +134,9 @@ function WardBlock() {
 
       if (result.ok) {
         toast.success('WardBlock Updated successfully.');
-        setTimeout(() => {
-          window.location.href = '/WardBlock';
-        }, 1000);
+        resetFormData(); // Reset form data
+        await fetchWardBlockDetails(); 
+        window.location.href='/WardBlock'
       } else {
         toast.error('Error in Updating WardBlock: ' + result.statusText);
       }
@@ -158,9 +165,7 @@ function WardBlock() {
 
       if (result.ok) {
         toast.success('WardBlock Deleted Successfully.');
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        await fetchWardBlockDetails(); // Refresh the table data
       } else {
         toast.error('Error in Deleting WardBlock: ' + result.statusText);
       }

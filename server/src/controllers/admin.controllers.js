@@ -491,7 +491,7 @@ const UpdateChakBlockDetail = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'UPDATE chakblockpanch SET ECBPanch= ?, HCBPanch= ?, WBId= ?, ChakNo=?, MBy=?,MDate=? WHERE Id= ?',
-            [ECBPanch, HCBPanch, WBId, ChakNo,loginUserId, Id,MDate]
+            [ECBPanch, HCBPanch, WBId, ChakNo,loginUserId,MDate,  Id]
         );
 
         const updatedCouncil = {

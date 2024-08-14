@@ -34,35 +34,29 @@ function VidhanSabha() {
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
 
-  useEffect(() => {
-    const fetchTehsilOptions = async () => {
-      try {
-        const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch Tehsil options');
+  const fetchTehsilOptions = async () => {
+    try {
+      const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid Tehsil options data');
-        }
-        // Map data to an array of { value, label } objects
-        const options = data.map(tehsil => ({ value: tehsil.Id, label: tehsil.EName }));
-        setTehsilOptions(options);
-      } catch (error) {
-        toast.error('Error fetching Tehsil options:', error);
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch Tehsil options');
       }
-    };
-
-    fetchTehsilOptions();
-  }, []);
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid Tehsil options data');
+      }
+      const options = data.map(tehsil => ({ value: tehsil.Id, label: tehsil.EName }));
+      setTehsilOptions(options);
+    } catch (error) {
+      toast.error('Error fetching Tehsil options:', error);
+    }
+  };
 
   const fetchCouncilOptions = async (tehId) => {
-    console.log(tehId);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
         method: 'GET',
@@ -79,12 +73,9 @@ function VidhanSabha() {
         throw new Error('Empty or invalid council options data');
       }
 
-
       const options = data
-        .filter(council => council.TehId == tehId) // Filter based on Tehid
+        .filter(council => council.TehId == tehId)
         .map(council => ({ value: council.Id, label: council.ECouncil }));
-
-
 
       setCouncilOptions(options);
     } catch (error) {
@@ -92,59 +83,70 @@ function VidhanSabha() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+  const fetchVidhanSabhaDetails = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch VidhanSabha details');
-        }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid VidhanSabha details data');
-        }
-        setVidhanSabhaDetails(data);
-        if (content) {
-          const VidhanSabha = data.find(item => item.Id == content);
-          if (VidhanSabha) {
-            setFormData(VidhanSabha);
-            console.log("set ", formData.counId);
-            fetchCouncilOptions(VidhanSabha.counId);
-          } else {
-            toast.error(`VidhanSabha with ID ${content} not found`);
-          }
-        }
-      } catch (error) {
-        toast.error('Error fetching VidhanSabha data:', error);
+      if (!response.ok) {
+        throw new Error('Failed to fetch VidhanSabha details');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid VidhanSabha details data');
+      }
+      setVidhanSabhaDetails(data);
+      if (content) {
+        const VidhanSabha = data.find(item => item.Id == content);
+        if (VidhanSabha) {
+          setFormData(VidhanSabha);
+          fetchCouncilOptions(VidhanSabha.counId);
+        } else {
+          toast.error(`VidhanSabha with ID ${content} not found`);
+        }
+      }
+    } catch (error) {
+      toast.error('Error fetching VidhanSabha data:', error);
+    }
+  };
 
-    fetchData();
-  }, [content]);
+  useEffect(() => {
+    fetchTehsilOptions();
+    fetchVidhanSabhaDetails();
+  }, [DId, content]);
+
+  const resetFormData = () => {
+    setFormData({
+      Id: '',
+      EVidhanSabha: '',
+      HVidhanSabha: '',
+      VSNo: '',
+      EName: '',
+      TehId: '',
+      counId: '',
+      Ecouncil: ''
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addVidhanSabha`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData,loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
       if (result.ok) {
-
         toast.success("VidhanSabha Added Successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        resetFormData(); // Reset form data
+        await fetchVidhanSabhaDetails(); // Refresh the table data
       } else {
         toast.error("Error in Adding VidhanSabha:", result.statusText);
       }
@@ -155,7 +157,6 @@ function VidhanSabha() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    // Update the formData with the new value
     setFormData(prevFormData => ({
       ...prevFormData,
       [name]: value
@@ -163,14 +164,12 @@ function VidhanSabha() {
 
     if (name === 'TehId') {
       fetchCouncilOptions(value);
-
     }
-
   };
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteVidhanSabhaDetail`, {
+      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteVidhanSabhaDetail`, {
         method: 'POST',
         body: JSON.stringify({ Id }),
         headers: {
@@ -179,16 +178,13 @@ function VidhanSabha() {
       });
 
       if (result.ok) {
-
-        toast.success("VidhanSabha Added Successfully successfully.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        toast.success("VidhanSabha Deleted Successfully.");
+        await fetchVidhanSabhaDetails(); // Refresh the table data
       } else {
-        toast.error("Error in Adding VidhanSabha:", result.statusText);
+        toast.error("Error in Deleting VidhanSabha:", result.statusText);
       }
     } catch (error) {
-      toast.error("Error in Adding VidhanSabha:", error.message);
+      toast.error("Error in Deleting VidhanSabha:", error.message);
     }
   };
 
@@ -197,16 +193,16 @@ function VidhanSabha() {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateVidhanSabhaDetail`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData,loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
       });
       if (result.ok) {
         toast.success("VidhanSabha Updated successfully.");
-        setTimeout(() => {
-          window.location.href = '/VidhanSabha';
-        }, 1000);
+        resetFormData(); // Reset form data
+        await fetchVidhanSabhaDetails(); 
+        window.location.href = '/VidhanSabha'
       } else {
         toast.error("Error in Updating VidhanSabha:", result.statusText);
       }
@@ -214,7 +210,6 @@ function VidhanSabha() {
       toast.error("Error in updating :", error.message);
     }
   };
-
 
   const columns = useMemo(() => [
     {
