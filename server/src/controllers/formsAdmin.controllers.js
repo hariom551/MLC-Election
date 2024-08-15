@@ -23,7 +23,7 @@ const AddOutForm = asyncHandler(async (req, res) => {
         CHName,
         loginUserId
     } = req.body;
-console.log(req.body);
+
     try {
         let volunteer = await queryDatabase(
             'SELECT Id FROM volunteer WHERE VMob1 = ?',
@@ -87,8 +87,8 @@ const OutFormDetails = asyncHandler(async (req, res) => {
 
     try {
         const OutForms = await queryDatabase(`
-        SELECT v1.VEName AS RName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress,
-        v2.VEName AS C1Name, V2.VMob1 as C1Mob,
+        SELECT O.Id, v1.VEName AS RName, V1.VHName as RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress,v1.VHAddress AS RHAddress,
+        v2.VEName AS C1Name, v2.VHName AS CH1Name , V2.VMob1 as C1Mob, 
         O.SendingDate, O.ERemark, O.NoOfForms
         FROM outgoingform AS O
         LEFT JOIN volunteer AS v1 ON O.RefId = v1.Id
@@ -99,6 +99,68 @@ const OutFormDetails = asyncHandler(async (req, res) => {
         // res.status(200).json(new ApiResponse(200, incomingForms, "Fetched all Outgoing forms successfully"));
     } catch (error) {
         console.error('Error in fetching incoming forms:', error);
+        return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
+    }
+});
+
+const updateOutForm = asyncHandler(async (req, res) => {
+    const {
+        content,
+        VMob1,
+        VMob2,
+        VEName,
+        VHName,
+        VEAddress,
+        VHAddress,
+        NoOfForms,
+        SendingDate,
+        ERemarks,
+        CMob1,
+        CEName,
+        CHName,
+        loginUserId
+    } = req.body;
+console.log(req.body);
+    try {
+        let volunteer = await queryDatabase(
+            'SELECT Id FROM volunteer WHERE VMob1 = ?',
+            [VMob1]
+        );
+
+        let volunteerId;
+        if (volunteer.length > 0) {
+            volunteerId = volunteer[0].Id;
+            await queryDatabase(
+                `UPDATE volunteer SET VEName = ?, VHName = ?, VEAddress = ?, VHAddress = ?, Mdate=?, MBy=? WHERE id = ?`,
+                [VEName, VHName, VEAddress, VHAddress, CDate, loginUserId, volunteerId]
+            );
+        }
+         
+
+        let volunteer2 = await queryDatabase(
+            'SELECT Id FROM volunteer WHERE VMob1 = ?',
+            [CMob1]
+        );
+
+        let volunteerId2;
+        if (volunteer2.length > 0) {
+            volunteerId2 = volunteer2[0].Id;
+            await queryDatabase(
+                `UPDATE volunteer SET VEName = ?, VHName = ?, Mdate=?, MBy=? WHERE id = ?`,
+                [CEName, CHName,CDate, loginUserId, volunteerId2]
+            );
+        }
+
+        await queryDatabase(
+            `UPDATE outgoingform SET RefId=?,  ERemark=?, SendingDate=?, NoOfForms=?, COID=?, MBy=?, MDate=? where Id=?`,    
+            [volunteerId, ERemarks, SendingDate, NoOfForms,volunteerId2,loginUserId,CDate,content ]
+        );
+
+        res.status(201).json(
+            new ApiResponse(200, "OF details updated successfully")
+        );
+    } catch (error) {
+        console.error('Error in adding Ougoing form forms:', error);
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });
@@ -370,7 +432,7 @@ const FormsAdminInfo= asyncHandler(async (req, res) => {
 
 export {
     SearchVMobNo,
-    AddOutForm, OutFormDetails,
+    AddOutForm, OutFormDetails,updateOutForm,
     AddIncomForm, UpdateIncomForm, incomFormDetails,
     FormsAdminInfo
 };

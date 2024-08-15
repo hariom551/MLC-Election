@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button, Form, Row } from 'react-bootstrap';
 import { Box, Button as MUIButton } from '@mui/material';
 import { Typeahead } from 'react-bootstrap-typeahead';
@@ -25,8 +26,14 @@ const formatDate = (date) => {
 const today = formatDate(new Date());
 
 function OutgoingForms() {
+
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const content = searchParams.get('content');
+
     const [OFDetails, setOFListDetails] = useState([]);
     const initialFormData = {
+        Id:content || '',
         VMob1: '',
         VMob2: '',
         VEName: '',
@@ -48,6 +55,7 @@ function OutgoingForms() {
     const user = JSON.parse(localStorage.getItem("user"));
     const DId = user ? user.DId : '';
     const loginUserId = user.userid;
+    const role = user.role;
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
@@ -89,13 +97,36 @@ function OutgoingForms() {
                     throw new Error('Empty or invalid OutgoingForms details data');
                 }
                 setOFListDetails(data);
+
+                if (content) {
+                    const OF = data.find(item => item.Id == content);
+                    if (OF) {
+                        setFormData({
+                            VMob1: OF.RMob1|| '',
+                            VMob2: OF.VMob2|| '',
+                            VEName: OF.RName|| '',
+                            VHName: OF.RHName|| '',
+                            VEAddress: OF.RAddress|| '',
+                            VHAddress: OF.RHAddress|| '',
+                            NoOfForms: OF.NoOfForms|| '',
+                            SendingDate: OF.SendingDate|| '',
+                            ERemarks: OF.ERemark|| '',
+                            CMob1: OF.C1Mob|| '',
+                            CEName: OF.C1Name|| '',
+                            CHName: OF.CH1Name|| '',
+                           
+                        });
+                    } else {
+                        toast.error(`IncomingForm with PacketNo ${content} not found`);
+                    }
+                }
             } catch (error) {
                 console.error('Error fetching OutgoingForms data:', error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [content]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -140,6 +171,49 @@ function OutgoingForms() {
         }
     };
 
+    const handleEdit = async (e) => {
+        e.preventDefault();
+
+        let formHasErrors = false;
+        const newErrors = {};
+        for (let key in formData) {
+            const error = validateFormsAdmin(key, formData[key]);
+            if (error) {
+                newErrors[key] = error;
+                formHasErrors = true;
+            }
+        }
+        setErrors(newErrors);
+        if (formHasErrors) {
+            toast.error("Please fix the validation errors");
+            return;
+        }
+
+        try {
+            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/FormsAdmin/updateOutForm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ...formData, content, loginUserId }),
+            });
+
+            if (result.ok) {
+                toast.success("OutgoingForms updated Successfully.");
+
+                setFormData({
+                    ...initialFormData,
+                    VMob1: '',
+                    CMob1: ''
+                });
+                window.location.href='/outgoingForms'
+            } else {
+                toast.error("Error in updatinh OutgoingForms:", result.statusText);
+            }
+        } catch (error) {
+            toast.error("Error in updating OutgoingForms:", error.message);
+        }
+    };
 
     const calculateColumnTotals = (key) => {
         return OFDetails.reduce((sum, row) => sum + (Number(row[key]) || 0), 0);
@@ -153,7 +227,23 @@ function OutgoingForms() {
     };
 
 
-    const columns = useMemo(() => [
+    const columns = useMemo(() => {
+         const baseColumns = [
+        // Action column added at the start if role is Super Admin
+        ...(role === "Super Admin" ? [{
+            accessorKey: 'Action',
+            header: 'Action',
+            size: 1,
+            Cell: ({ row }) => (
+                <Button variant="primary" className="changepassword">
+                    <Link
+                        to={{ pathname: "/outgoingForms", search: `?content=${row.original.Id}` }}
+                    >
+                        Edit
+                    </Link>
+                </Button>
+            ),
+        }] : []),
         {
             accessor: (index) => index + 1,
             id: 'serialNumber',
@@ -203,7 +293,9 @@ function OutgoingForms() {
             header: 'Remarks',
             size: 25,
         },
-    ], [OFDetails]);
+    ]
+    return baseColumns
+}, [OFDetails]);
 
     const handleExport = (rows, format) => {
         const exportData = rows.map((row, index) => ({
@@ -290,7 +382,7 @@ function OutgoingForms() {
                 </div>
 
                 <h1 className="text-3xl font-bold my-4">Outgoing Form Info</h1>
-                <Form onSubmit={handleSubmit} className="OutgoingForms-form">
+                <Form onSubmit={content ? handleEdit : handleSubmit} className="OutgoingForms-form">
                     <Row className="mb-3">
                         <div className="col-md-3 mb-3">
                             <Form.Group>
@@ -413,8 +505,8 @@ function OutgoingForms() {
                                     selected={formData.CMob1 ? [{ VMob1: formData.CMob1 }] : []}
                                     onInputChange={(value) => {
                                         fetchSuggestedMobiles(value, setSuggestedCareOfMobiles);
-                                        const error = validateFormsAdmin("CMob1", value);
-                                        setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
+                                        // const error = validateFormsAdmin("CMob1", value);
+                                        // setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
 
                                         // Update formData with the typed value
                                         setFormData(prevData => ({
@@ -441,8 +533,8 @@ function OutgoingForms() {
                                             }));
                                         }
                                         // Validate after setting the new value
-                                        const error = validateFormsAdmin("CMob1", selected.length > 0 ? selected[0].VMob1 : formData.CMob1);
-                                        setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
+                                        // const error = validateFormsAdmin("CMob1", selected.length > 0 ? selected[0].VMob1 : formData.CMob1);
+                                        // setErrors((prevErrors) => ({ ...prevErrors, CMob1: error }));
                                     }}
                                     options={suggestedCareOfMobiles}
                                     placeholder="Mobile Number"
@@ -502,7 +594,7 @@ function OutgoingForms() {
                     </div>
 
                     <Button variant="primary" type="submit">
-                        Submit
+                    {content ? 'Edit':'Submit'}  
                     </Button>
                 </Form>
 

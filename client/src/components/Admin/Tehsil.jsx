@@ -17,14 +17,15 @@ function Tehsil() {
 
   const [tehsilDetails, setTehsilDetails] = useState([]);
   const [formData, setFormData] = useState({
-    Id: content || '', 
+    Id: content || '',
     EName: '',
     HName: '',
   });
-  
-  const user = JSON.parse(localStorage.getItem("user")); 
+
+  const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
 
   useEffect(() => {
     fetchTehsilData();
@@ -77,7 +78,7 @@ function Tehsil() {
 
       if (result.ok) {
         toast.success("Tehsil Added Successfully.");
-        setFormData({ Id: '', EName: '', HName: '' }); 
+        setFormData({ Id: '', EName: '', HName: '' });
         fetchTehsilData(); // Refresh table data
       } else {
         toast.error("Error in Adding Tehsil:", result.statusText);
@@ -112,9 +113,9 @@ function Tehsil() {
 
       if (result.ok) {
         toast.success("Tehsil Updated successfully.");
-        setFormData({ Id: '', EName: '', HName: '' }); 
+        setFormData({ Id: '', EName: '', HName: '' });
         fetchTehsilData();
-        window.location.href= '/tehsil'
+        window.location.href = '/tehsil'
       } else {
         toast.error("Error in Updating Tehsil:", result.statusText);
       }
@@ -148,43 +149,51 @@ function Tehsil() {
     }
   };
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Id',
-      header: 'S.No',
-      size: 3,
-      Cell: ({ row }) => row.index + 1,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="primary" className="changepassword">
-            <Link
-              to={{ pathname: "/tehsil", search: `?content=${row.original.Id}` }}
-            >
-              Edit
-            </Link>
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-            Delete
-          </Button>
-        </>
-      ),
-    },
-    {
-      accessorKey: 'EName',
-      header: 'Tehsil Name (English)',
-      size: 15,
-    },
-    {
-      accessorKey: 'HName',
-      header: 'Tehsil Name (Hindi)',
-      size: 15,
-    },
-  ], []);
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Id',
+        header: 'S.No',
+        size: 3,
+        Cell: ({ row }) => row.index + 1,
+      },
+      {
+        accessorKey: 'EName',
+        header: 'Tehsil Name (English)',
+        size: 15,
+      },
+      {
+        accessorKey: 'HName',
+        header: 'Tehsil Name (Hindi)',
+        size: 15,
+      },
+    ];
+
+    if (permission !== '0') {
+      baseColumns.unshift({
+        accessorKey: 'Action',
+        header: 'Action',
+        size: 10,
+        Cell: ({ row }) => (
+          <>
+            <Button variant="primary" className="changepassword">
+              <Link
+                to={{ pathname: "/tehsil", search: `?content=${row.original.Id}` }}
+              >
+                Edit
+              </Link>
+            </Button>
+            {permission == '2' &&
+              <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
+                Delete
+              </Button>
+            }
+          </>
+        ),
+      });
+    }
+    return baseColumns;
+  }, [permission]);
 
   const table = useMaterialReactTable({
     columns,
@@ -192,30 +201,37 @@ function Tehsil() {
   });
 
   return (
+
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">Add Tehsil</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="Tehsil-form">
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Tehsil Name (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Tehsil Name (English)" id="EName" name="EName" value={formData.EName} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Tehsil Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Tehsil Name (Hindi)" id="HName" name="HName" value={formData.HName} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
-        <hr className="my-4" />
+        {permission !== '0' && (
+
+          <>
+            <h1 className="text-2xl font-bold mb-4">Add Tehsil</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="Tehsil-form">
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Tehsil Name (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Tehsil Name (English)" id="EName" name="EName" value={formData.EName} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Tehsil Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Tehsil Name (Hindi)" id="HName" name="HName" value={formData.HName} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+            <hr className="my-4" />
+          </>
+        )
+        }
         <h4 className="container mt-3 text-xl font-bold mb-3">Tehsil List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

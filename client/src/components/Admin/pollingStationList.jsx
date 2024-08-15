@@ -30,10 +30,11 @@ function PollingStationList() {
     HSPName: '',
     RoomNo: '',
   });
-  
+
   const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
 
   // Function to fetch data
   const fetchData = async () => {
@@ -122,8 +123,8 @@ function PollingStationList() {
 
       if (result.ok) {
         toast.success("PollingStationList Updated successfully.");
-        fetchData(); 
-        window.location.href='/PollingStationList'
+        fetchData();
+        window.location.href = '/PollingStationList'
       } else {
         toast.error("Error in Updating PollingStationList:", result.statusText);
       }
@@ -152,7 +153,7 @@ function PollingStationList() {
 
       if (result.ok) {
         toast.success("PollingStationList deleted successfully.");
-        fetchData(); 
+        fetchData();
       } else {
         toast.error("Error in deleting PollingStationList:", result.statusText);
       }
@@ -192,62 +193,77 @@ function PollingStationList() {
       doc.save('PollingStationList-export.pdf');
     }
   };
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Serial No',
+        header: 'S.No',
+        size: 5,
+        Cell: ({ row }) => row.index + 1,
+      },
+      {
+        accessorKey: 'EPSArea',
+        header: 'PS Area (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HPSArea',
+        header: 'PS Area (Hindi)',
+        size: 20,
+      },
+      {
+        accessorKey: 'PSNo',
+        header: 'PS No.',
+        size: 20,
+      },
+      {
+        accessorKey: 'EPSName',
+        header: 'PS Name (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HPSName',
+        header: 'PS Name (Hindi)',
+        size: 20,
+      },
+      {
+        accessorKey: 'RoomNo',
+        header: 'Room No.',
+        size: 20,
+      },
+    ];
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Serial No',
-      header: 'S.No',
-      size: 5,
-      Cell: ({ row }) => row.index + 1,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="primary" className="changepassword">
-            <Link to={{ pathname: "/PollingStationList", search: `?content=${row.original.Id}` }}>
-              Edit
-            </Link>
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-            Delete
-          </Button>
-        </>
-      ),
-    },
-    {
-      accessorKey: 'EPSArea',
-      header: 'PS Area (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HPSArea',
-      header: 'PS Area (Hindi)',
-      size: 20,
-    },
-    {
-      accessorKey: 'PSNo',
-      header: 'PS No.',
-      size: 20,
-    },
-    {
-      accessorKey: 'EPSName',
-      header: 'PS Name(English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HPSName',
-      header: 'PS Name (Hindi)',
-      size: 20,
-    },
-    {
-      accessorKey: 'RoomNo',
-      header: 'Room No.',
-      size: 20,
-    },
-  ], []);
+    // Conditionally add the "Action" column based on `permission`
+    if (permission !== '0') {
+      baseColumns.unshift({
+        accessorKey: 'Action',
+        header: 'Action',
+        size: 10,
+        Cell: ({ row }) => (
+          <>
+            <Button variant="primary" className="changepassword">
+              <Link to={{ pathname: '/PollingStationList', search: `?content=${row.original.Id}` }}>
+                Edit
+              </Link>
+            </Button>
+            {permission === '2' && (
+              <Button
+                variant="danger"
+                onClick={() => handleDelete(row.original.Id)}
+                className="delete"
+                type="button"
+              >
+                Delete
+              </Button>
+            )}
+          </>
+        ),
+      });
+    }
+
+    return baseColumns;
+  }, [permission]);
+
 
   const table = useMaterialReactTable({
     columns,
@@ -286,53 +302,58 @@ function PollingStationList() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">Add Polling Station</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="PollingStationList-form">
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>PS Area (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="PS Area (English)" id="ESPArea" name="ESPArea" value={formData.ESPArea} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>PS Area (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="PS Area (Hindi)" id="HSPArea" name="HSPArea" value={formData.HSPArea} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>PS No.<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="PS No." id="PSNo" name="PSNo" value={formData.PSNo} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>PS Name (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="PS Name (English)" id="ESPName" name="ESPName" value={formData.ESPName} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>PS Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="PS Name (Hindi)" id="HSPName" name="HSPName" value={formData.HSPName} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Room No.<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Room No." id="RoomNo" name="RoomNo" value={formData.RoomNo} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
-        <hr className="my-4" />
+        {permission !== '0' && (
+          <>
+            <h1 className="text-2xl font-bold mb-4">Add Polling Station</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="PollingStationList-form">
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>PS Area (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="PS Area (English)" id="ESPArea" name="ESPArea" value={formData.ESPArea} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>PS Area (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="PS Area (Hindi)" id="HSPArea" name="HSPArea" value={formData.HSPArea} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>PS No.<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="PS No." id="PSNo" name="PSNo" value={formData.PSNo} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>PS Name (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="PS Name (English)" id="ESPName" name="ESPName" value={formData.ESPName} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>PS Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="PS Name (Hindi)" id="HSPName" name="HSPName" value={formData.HSPName} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Room No.<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Room No." id="RoomNo" name="RoomNo" value={formData.RoomNo} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+            <hr className="my-4" />
+          </>
+        )
+        }
         <h4 className="container mt-3 text-xl font-bold mb-3">PollingStationList List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

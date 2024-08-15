@@ -29,6 +29,8 @@ function ChakBlock() {
   const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
+
 
   const [WBOptions, setWBOptions] = useState([]);
 
@@ -149,8 +151,8 @@ function ChakBlock() {
       if (result.ok) {
         toast.success("ChakBlock Updated successfully.");
         resetFormData(); // Reset form data
-        await fetchChakBlockDetails(); 
-        window.location.href='/ChakBlock'
+        await fetchChakBlockDetails();
+        window.location.href = '/ChakBlock'
       } else {
         toast.error("Error in Updating ChakBlock:", result.statusText);
       }
@@ -191,46 +193,56 @@ function ChakBlock() {
   };
 
   // Define columns for the table
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Id',
-      header: 'S.No',
-      size: 10,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="primary" className="changepassword">
-            <Link to={{ pathname: "/ChakBlock", search: `?content=${row.original.Id}` }}>Edit</Link>
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>Delete</Button>
-        </>
-      ),
-    },
-    {
-      accessorKey: 'EWardBlock',
-      header: 'WardBlock',
-      size: 20,
-    },
-    {
-      accessorKey: 'ChakNo',
-      header: 'Chak No',
-      size: 20,
-    },
-    {
-      accessorKey: 'ECBPanch',
-      header: 'ChakBlock (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HCBPanch',
-      header: 'ChakBlock (Hindi)',
-      size: 20,
-    },
-  ], []);
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Id',
+        header: 'S.No',
+        size: 10,
+      },
+      {
+        accessorKey: 'EWardBlock',
+        header: 'WardBlock',
+        size: 20,
+      },
+      {
+        accessorKey: 'ChakNo',
+        header: 'Chak No',
+        size: 20,
+      },
+      {
+        accessorKey: 'ECBPanch',
+        header: 'ChakBlock (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HCBPanch',
+        header: 'ChakBlock (Hindi)',
+        size: 20,
+      },
+    ];
+    if (permission !== '0') {
+      baseColumns.unshift({
+        accessorKey: 'Action',
+        header: 'Action',
+        size: 10,
+        Cell: ({ row }) => (
+          <>
+            <Button variant="primary" className="changepassword">
+              <Link to={{ pathname: "/ChakBlock", search: `?content=${row.original.Id}` }}>Edit</Link>
+            </Button>
+            {permission == '2' &&
+              <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>Delete</Button>
+            }
+          </>
+        ),
+      });
+    }
+
+    return baseColumns;
+  }, [permission]);
+
+
 
   const table = useMaterialReactTable({
     columns,
@@ -241,48 +253,53 @@ function ChakBlock() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">Add ChakBlock</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="ChakBlock-form">
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select WardBlock<sup className="text-red-600">*</sup></Form.Label>
-                <Select
-                  id="WBSelect"
-                  name="WBId"
-                  value={WBOptions.find(option => option.value === formData.WBId)}
-                  onChange={option => setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }))}
-                  options={WBOptions}
-                  placeholder="Select WardBlock"
-                />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Chak No <sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Chak No" id="ChakNo" name="ChakNo" value={formData.ChakNo} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>ChakBlock Name (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="ChakBlock Name (English)" id="ECBPanch" name="ECBPanch" value={formData.ECBPanch} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>ChakBlock Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="ChakBlock Name (Hindi)" id="HCBPanch" name="HCBPanch" value={formData.HCBPanch} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
-        <hr className="my-4" />
+        {permission !== '0' && (
+          <>
+            <h1 className="text-2xl font-bold mb-4">Add ChakBlock</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="ChakBlock-form">
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Select WardBlock<sup className="text-red-600">*</sup></Form.Label>
+                    <Select
+                      id="WBSelect"
+                      name="WBId"
+                      value={WBOptions.find(option => option.value === formData.WBId)}
+                      onChange={option => setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }))}
+                      options={WBOptions}
+                      placeholder="Select WardBlock"
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Chak No <sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Chak No" id="ChakNo" name="ChakNo" value={formData.ChakNo} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>ChakBlock Name (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="ChakBlock Name (English)" id="ECBPanch" name="ECBPanch" value={formData.ECBPanch} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>ChakBlock Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="ChakBlock Name (Hindi)" id="HCBPanch" name="HCBPanch" value={formData.HCBPanch} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+            <hr className="my-4" />
+          </>
+        )
+        }
         <h4 className="container mt-3 text-xl font-bold mb-3">ChakBlock List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

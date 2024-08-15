@@ -30,9 +30,11 @@ function VidhanSabha() {
   const [tehsilOptions, setTehsilOptions] = useState([]);
   const [councilOptions, setCouncilOptions] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("user")); 
+  const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
+
 
   const fetchTehsilOptions = async () => {
     try {
@@ -201,7 +203,7 @@ function VidhanSabha() {
       if (result.ok) {
         toast.success("VidhanSabha Updated successfully.");
         resetFormData(); // Reset form data
-        await fetchVidhanSabhaDetails(); 
+        await fetchVidhanSabhaDetails();
         window.location.href = '/VidhanSabha'
       } else {
         toast.error("Error in Updating VidhanSabha:", result.statusText);
@@ -211,57 +213,66 @@ function VidhanSabha() {
     }
   };
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Id',
-      header: 'S.No',
-      size: 10,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="primary" className="changepassword">
-            <Link
-              to={{ pathname: "/VidhanSabha", search: `?content=${row.original.Id}` }}
-            >
-              Edit
-            </Link>
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-            Delete
-          </Button>
-        </>
-      ),
-    },
-    {
-      accessorKey: 'EName',
-      header: 'Tehsil',
-      size: 20,
-    },
-    {
-      accessorKey: 'ECouncil',
-      header: 'Nikaya',
-      size: 20,
-    },
-    {
-      accessorKey: 'VSNo',
-      header: 'VSNo',
-      size: 5,
-    },
-    {
-      accessorKey: 'EVidhanSabha',
-      header: 'VidhanSabha Name (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HVidhanSabha',
-      header: 'VidhanSabha Name (Hindi)',
-      size: 20,
-    },
-  ], []);
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Id',
+        header: 'S.No',
+        size: 10,
+      },
+      {
+        accessorKey: 'EName',
+        header: 'Tehsil',
+        size: 20,
+      },
+      {
+        accessorKey: 'ECouncil',
+        header: 'Nikaya',
+        size: 20,
+      },
+      {
+        accessorKey: 'VSNo',
+        header: 'VSNo',
+        size: 5,
+      },
+      {
+        accessorKey: 'EVidhanSabha',
+        header: 'VidhanSabha Name (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HVidhanSabha',
+        header: 'VidhanSabha Name (Hindi)',
+        size: 20,
+      },
+    ]
+
+    if (permission !== '0') {
+      baseColumns.unshift({
+        accessorKey: 'Action',
+        header: 'Action',
+        size: 10,
+        Cell: ({ row }) => (
+          <>
+            <Button variant="primary" className="changepassword">
+              <Link
+                to={{ pathname: "/VidhanSabha", search: `?content=${row.original.Id}` }}
+              >
+                Edit
+              </Link>
+            </Button>
+            {permission == '2' &&
+              <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
+                Delete
+              </Button>
+            }
+          </>
+        ),
+      });
+    }
+
+    return baseColumns;
+  }, [permission]);
 
   const table = useMaterialReactTable({
     columns,
@@ -272,83 +283,88 @@ function VidhanSabha() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">Add VidhanSabha</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="VidhanSabha-form">
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select Tehsil<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Select
-                  id="tehsilSelect"
-                  name="TehId"
-                  value={formData.TehId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Tehsil</option>
-                  {tehsilOptions.map(option => (
-                    <option
-                      key={option.value}
-                      value={option.value}
+        {permission !== '0' && (
+          <>
+            <h1 className="text-2xl font-bold mb-4">Add VidhanSabha</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="VidhanSabha-form">
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Select Tehsil<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Select
+                      id="tehsilSelect"
+                      name="TehId"
+                      value={formData.TehId}
+                      onChange={handleChange}
+                      required
                     >
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </div>
+                      <option value="">Select Tehsil</option>
+                      {tehsilOptions.map(option => (
+                        <option
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {option.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </div>
 
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select Nikaya<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Select
-                  id="CouncilSelect"
-                  name="counId"
-                  value={formData.counId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Nikaya</option>
-                  {councilOptions.map(option => (
-                    <option
-                      key={option.value}
-                      value={option.value}
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Select Nikaya<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Select
+                      id="CouncilSelect"
+                      name="counId"
+                      value={formData.counId}
+                      onChange={handleChange}
+                      required
                     >
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </div>
+                      <option value="">Select Nikaya</option>
+                      {councilOptions.map(option => (
+                        <option
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {option.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </div>
 
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>VidhanSabha No<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="VidhanSabha No" id="VSNo" name="VSNo" value={formData.VSNo} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>VidhanSabha No<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="VidhanSabha No" id="VSNo" name="VSNo" value={formData.VSNo} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
 
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>VidhanSabha Name (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="VidhanSabha Name (English)" id="EVidhanSabha" name="EVidhanSabha" value={formData.EVidhanSabha} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>VidhanSabha Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="VidhanSabha Name (Hindi)" id="HVidhanSabha" name="HVidhanSabha" value={formData.HVidhanSabha} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>VidhanSabha Name (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="VidhanSabha Name (English)" id="EVidhanSabha" name="EVidhanSabha" value={formData.EVidhanSabha} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>VidhanSabha Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="VidhanSabha Name (Hindi)" id="HVidhanSabha" name="HVidhanSabha" value={formData.HVidhanSabha} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
 
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
-        <hr className="my-4" />
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+            <hr className="my-4" />
+          </>
+        )
+        }
         <h4 className="container mt-3 text-xl font-bold mb-3">VidhanSabha List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

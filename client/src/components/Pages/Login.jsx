@@ -47,13 +47,14 @@ function Login() {
         const { user, token } = data.data;
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('token', token);
-        navigate('/home'); // Use navigate to redirect
+        // navigate('/home'); 
+        window.location.href='/home';
       } else {
-        setError(data.message); // Set the error message
+        setError(data.message); 
       }
     } catch (error) {
       console.error('Login request failed:', error);
-      setError('Invalid user credentials.'); // Set the error message
+      setError('Invalid user credentials.');
     }
   };
 

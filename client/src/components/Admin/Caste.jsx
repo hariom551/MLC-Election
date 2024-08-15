@@ -16,6 +16,8 @@ function Caste() {
   const searchParams = new URLSearchParams(location.search);
   const content = searchParams.get('content');
 
+
+
   const [casteDetails, setCasteDetails] = useState([]);
   const [formData, setFormData] = useState({
     ID: content || '', // Set initial value to content
@@ -43,7 +45,7 @@ function Caste() {
         }
         setCasteDetails(data);
         if (content) {
-          const caste = data.find(item => {  return item.Id == content });
+          const caste = data.find(item => { return item.Id == content });
 
           if (caste) {
             setFormData(caste);
@@ -60,15 +62,16 @@ function Caste() {
     fetchData();
   }, [content]);
 
-  const user = JSON.parse(localStorage.getItem("user")); 
+  const user = JSON.parse(localStorage.getItem("user"));
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addCaste`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData, loginUserId}),
+        body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
           'Content-Type': 'application/json'
         }
@@ -108,7 +111,7 @@ function Caste() {
       loginUserId
 
     };
-   
+
 
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCasteDetail`, {
@@ -137,47 +140,58 @@ function Caste() {
 
   // console.log(formData);
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Id',
-      header: 'S.No',
-      size: 10,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <Button variant="primary" className="changepassword">
-          <Link
-            to={{ pathname: "/CasteManagement", search: `?content=${row.original.Id}` }}
-          >
-            Edit
-          </Link>
-        </Button>
-      ),
-    },
-    {
-      accessorKey: 'ESurname',
-      header: 'Surname (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HSurname',
-      header: 'Surname (Hindi)',
-      size: 20,
-    },
-    {
-      accessorKey: 'ECaste',
-      header: 'Caste (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HCaste',
-      header: 'Caste (Hindi)',
-      size: 20,
-    }
-  ], []);
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Id',
+        header: 'S.No',
+        size: 10,
+      },
+
+      {
+        accessorKey: 'ESurname',
+        header: 'Surname (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HSurname',
+        header: 'Surname (Hindi)',
+        size: 20,
+      },
+      {
+        accessorKey: 'ECaste',
+        header: 'Caste (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HCaste',
+        header: 'Caste (Hindi)',
+        size: 20,
+      }
+    ];
+
+    if (permission !== '0') {
+      baseColumns.unshift(
+        {
+          accessorKey: 'Action',
+          header: 'Action',
+          size: 10,
+          Cell: ({ row }) => (
+            <Button variant="primary" className="changepassword">
+              <Link
+                to={{ pathname: "/CasteManagement", search: `?content=${row.original.Id}` }}
+              >
+                Edit
+              </Link>
+            </Button>
+          ),
+        },)
+    };
+
+    return baseColumns;
+  }, [permission]);
+
+
 
   const table = useMaterialReactTable({
     columns,
@@ -188,42 +202,47 @@ function Caste() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">Add Caste</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="caste-form">
-          <h1 className='text-lg font-bold mb-3'>Caste Information</h1>
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>Surname (English) <sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Surname (English)" id="ESurname" name="ESurname" value={formData.ESurname} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>Surname (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Surname (Hindi)" id="HSurname" name="HSurname" value={formData.HSurname} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>Caste (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Caste (English)" id="ECaste" name="ECaste" value={formData.ECaste} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group >
-                <Form.Label>Caste (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="Caste (Hindi)" id="HCaste" name="HCaste" value={formData.HCaste} onChange={handleChange} required />
-              </Form.Group>
-            </div>
-          </Row>
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
-        <hr className="my-4" />
+        {permission !== '0' && (
+          <>
+            <h1 className="text-2xl font-bold mb-4">Add Caste</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="caste-form">
+              <h1 className='text-lg font-bold mb-3'>Caste Information</h1>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>Surname (English) <sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Surname (English)" id="ESurname" name="ESurname" value={formData.ESurname} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>Surname (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Surname (Hindi)" id="HSurname" name="HSurname" value={formData.HSurname} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>Caste (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Caste (English)" id="ECaste" name="ECaste" value={formData.ECaste} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group >
+                    <Form.Label>Caste (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="Caste (Hindi)" id="HCaste" name="HCaste" value={formData.HCaste} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+            <hr className="my-4" />
+          </>
+        )
+        }
         <h4 className="container mt-3 text-xl font-bold mb-2">Caste</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

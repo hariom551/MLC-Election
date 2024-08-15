@@ -63,7 +63,8 @@ const loginUser = asyncHandler(async (req, res) => {
                     userid: user.userid,
                     role: user.role,
                     name: user.name,
-                    DId: user.DId
+                    DId: user.DId,
+                    permissionaccess:user.permissionaccess
                     
                 };
 

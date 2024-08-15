@@ -24,9 +24,11 @@ function WardBlock() {
   });
 
   const [vsOptions, setVSOptions] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const user = JSON.parse(localStorage.getItem("user")); 
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
+
 
   const fetchVSOptions = async () => {
     try {
@@ -135,8 +137,8 @@ function WardBlock() {
       if (result.ok) {
         toast.success('WardBlock Updated successfully.');
         resetFormData(); // Reset form data
-        await fetchWardBlockDetails(); 
-        window.location.href='/WardBlock'
+        await fetchWardBlockDetails();
+        window.location.href = '/WardBlock'
       } else {
         toast.error('Error in Updating WardBlock: ' + result.statusText);
       }
@@ -174,46 +176,55 @@ function WardBlock() {
     }
   };
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Id',
-      header: 'S.No',
-      size: 10,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="primary" className="changepassword">
-            <Link to={{ pathname: "/WardBlock", search: `?content=${row.original.Id}` }}>Edit</Link>
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type="button">Delete</Button>
-        </>
-      ),
-    },
-    {
-      accessorKey: 'EVidhanSabha',
-      header: 'VidhanSabha',
-      size: 20,
-    },
-    {
-      accessorKey: 'WardNo',
-      header: 'Ward No',
-      size: 20,
-    },
-    {
-      accessorKey: 'EWardBlock',
-      header: 'WardBlock (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HWardBlock',
-      header: 'WardBlock (Hindi)',
-      size: 20,
-    },
-  ], []);
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Id',
+        header: 'S.No',
+        size: 10,
+      },
+      {
+        accessorKey: 'EVidhanSabha',
+        header: 'VidhanSabha',
+        size: 20,
+      },
+      {
+        accessorKey: 'WardNo',
+        header: 'Ward No',
+        size: 20,
+      },
+      {
+        accessorKey: 'EWardBlock',
+        header: 'WardBlock (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HWardBlock',
+        header: 'WardBlock (Hindi)',
+        size: 20,
+      },
+    ]
+    if (permission !== '0') {
+      baseColumns.unshift({
+        accessorKey: 'Action',
+        header: 'Action',
+        size: 10,
+        Cell: ({ row }) => (
+          <>
+            <Button variant="primary" className="changepassword">
+              <Link to={{ pathname: "/WardBlock", search: `?content=${row.original.Id}` }}>Edit</Link>
+            </Button>
+            {permission == '2' &&
+              <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type="button">Delete</Button>
+            }
+          </>
+        ),
+      });
+    }
+
+    return baseColumns;
+  }, [permission]);
+
 
   const table = useMaterialReactTable({
     columns,
@@ -224,72 +235,77 @@ function WardBlock() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">{content ? 'Edit WardBlock' : 'Add WardBlock'}</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="WardBlock-form">
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select VidhanSabha<sup className="text-red-600">*</sup></Form.Label>
-                <Select
-                  id="VSSelect"
-                  name="VSId"
-                  value={vsOptions.find(option => option.value === formData.VSId)}
-                  onChange={option => setFormData(prevFormData => ({ ...prevFormData, VSId: option.value }))}
-                  options={vsOptions}
-                  placeholder="Select VidhanSabha"
-                />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Ward No<sup className="text-red-600">*</sup></Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Ward No"
-                  id="WardNo"
-                  name="WardNo"
-                  value={formData.WardNo}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
-            </div>
-          </Row>
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>WardBlock Name (English)<sup className="text-red-600">*</sup></Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="WardBlock Name (English)"
-                  id="EWardBlock"
-                  name="EWardBlock"
-                  value={formData.EWardBlock}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>WardBlock Name (Hindi)<sup className="text-red-600">*</sup></Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="WardBlock Name (Hindi)"
-                  id="HWardBlock"
-                  name="HWardBlock"
-                  value={formData.HWardBlock}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
-            </div>
-          </Row>
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
-        <hr className="my-4" />
+        {permission !== '0' && (
+          <>
+            <h1 className="text-2xl font-bold mb-4">{content ? 'Edit WardBlock' : 'Add WardBlock'}</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="WardBlock-form">
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Select VidhanSabha<sup className="text-red-600">*</sup></Form.Label>
+                    <Select
+                      id="VSSelect"
+                      name="VSId"
+                      value={vsOptions.find(option => option.value === formData.VSId)}
+                      onChange={option => setFormData(prevFormData => ({ ...prevFormData, VSId: option.value }))}
+                      options={vsOptions}
+                      placeholder="Select VidhanSabha"
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Ward No<sup className="text-red-600">*</sup></Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Ward No"
+                      id="WardNo"
+                      name="WardNo"
+                      value={formData.WardNo}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>WardBlock Name (English)<sup className="text-red-600">*</sup></Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="WardBlock Name (English)"
+                      id="EWardBlock"
+                      name="EWardBlock"
+                      value={formData.EWardBlock}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>WardBlock Name (Hindi)<sup className="text-red-600">*</sup></Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="WardBlock Name (Hindi)"
+                      id="HWardBlock"
+                      name="HWardBlock"
+                      value={formData.HWardBlock}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </div>
+              </Row>
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+            <hr className="my-4" />
+          </>
+        )
+        }
         <h4 className="container mt-3 text-xl font-bold mb-3">WardBlock List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

@@ -378,9 +378,9 @@ function UserForm() {
                   onChange={handleChange}
                 >
                   <option value="" disabled>Select Access</option>
-                  <option value="read">Read</option>
-                  <option value="write">Write</option>
-                  <option value="execute">Execute</option>
+                  <option value="0">Read</option>
+                  <option value="1">Write</option>
+                  <option value="2">Execute</option>
                 </Form.Select>
                 {errors.permission && <div className="text-danger">{errors.permission}</div>}
               </Form.Group>

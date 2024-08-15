@@ -35,6 +35,8 @@ function PollingStationAllotment() {
   const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
+
   const [WBOptions, setWBOptions] = useState([]);
 
   useEffect(() => {
@@ -109,13 +111,13 @@ function PollingStationAllotment() {
         },
         body: JSON.stringify({ query: inputValue })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch PS No options');
       }
-  
+
       const data = await response.json();
-  
+
       if (data && data.length > 0) {
         return data.map(ps => ({
           value: ps.PSNo,
@@ -133,13 +135,13 @@ function PollingStationAllotment() {
         toast.info('No PS No options found.');
         return [];
       }
-  
+
     } catch (error) {
       toast.error(`Error fetching PS No options: ${error.message}`);
       return [];
     }
   };
-  
+
   const handlePSNoChange = async (selectedOption) => {
     if (!selectedOption) {
       // Reset related fields if no PS No. is selected
@@ -152,9 +154,9 @@ function PollingStationAllotment() {
       }));
       return;
     }
-  
+
     const { value: psNo, details } = selectedOption;
-  
+
     setFormData(prevFormData => ({
       ...prevFormData,
       PSNo: psNo,
@@ -178,8 +180,8 @@ function PollingStationAllotment() {
       }
       const data = await response.json();
       if (!data || !Array.isArray(data) || data.length === 0) {
-        toast.info('No Polling Station Allotment details available.'); 
-        return; 
+        toast.info('No Polling Station Allotment details available.');
+        return;
       }
       setPSListDetails(data);
     } catch (error) {
@@ -190,7 +192,7 @@ function PollingStationAllotment() {
   useEffect(() => {
     fetchData(); // Fetch data on component mount
   }, []);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -277,23 +279,12 @@ function PollingStationAllotment() {
     }
   };
 
-  const columns = useMemo(() => [
+  const columns = useMemo(() => {
+    const baseColumns=[
     {
       accessorKey: 'Id',
       header: 'S.No',
       size: 10,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-            Delete
-          </Button>
-        </>
-      ),
     },
     {
       accessorKey: 'PSNo',
@@ -330,7 +321,28 @@ function PollingStationAllotment() {
       header: 'To',
       size: 20,
     },
-  ], []);
+  ];
+  if (permission !== '0') {
+    baseColumns.unshift({
+    accessorKey: 'Action',
+    header: 'Action',
+    size: 10,
+    Cell: ({ row }) => (
+      <>
+      {permission == '2' && (
+        <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
+          Delete
+        </Button>
+      )
+    }
+      </>
+   ),
+  });
+}
+
+return baseColumns;
+}, [permission]);
+
 
   const table = useMaterialReactTable({
     columns,
@@ -370,6 +382,8 @@ function PollingStationAllotment() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
+      {permission !== '0' && (
+        <>
         <h1 className="text-2xl font-bold mb-4">Polling Station Allotment</h1>
         <Form onSubmit={handleSubmit} className="PollingStationAllotment-form">
           <Row className="mb-3">
@@ -462,6 +476,9 @@ function PollingStationAllotment() {
           </Button>
         </Form>
         <hr className="my-4" />
+        </>
+        )
+        }         
         <h4 className="container mt-3 text-xl font-bold mb-3">Polling Station Allotment List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

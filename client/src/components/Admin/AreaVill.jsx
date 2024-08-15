@@ -34,6 +34,7 @@ function AreaVill() {
   const user = JSON.parse(localStorage.getItem("user"));
   const DId = user ? user.DId : '';
   const loginUserId = user.userid;
+  const permission = user.permissionaccess;
 
   useEffect(() => {
     const fetchWBOptions = async () => {
@@ -218,7 +219,7 @@ function AreaVill() {
       if (result.ok) {
         toast.success("AreaVill Updated successfully.");
         resetFormData(); // Reset form data
-        await fetchAreaVillDetails(); 
+        await fetchAreaVillDetails();
         window.location.href = '/AreaVill';
       } else {
         toast.error("Error in Updating AreaVill:", result.statusText);
@@ -228,48 +229,59 @@ function AreaVill() {
     }
   };
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: 'Id',
-      header: 'S.No',
-      size: 10,
-    },
-    {
-      accessorKey: 'Action',
-      header: 'Action',
-      size: 10,
-      Cell: ({ row }) => (
-        <>
-          <Button variant="primary" className="changepassword">
-            <Link to={{ pathname: "/AreaVill", search: `?content=${row.original.Id}` }}>Edit</Link>
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
-            Delete
-          </Button>
-        </>
-      ),
-    },
-    {
-      accessorKey: 'ECBPanch',
-      header: 'Chak Block',
-      size: 20,
-    },
-    {
-      accessorKey: 'EAreaVill',
-      header: 'AreaVill Name (English)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HAreaVill',
-      header: 'AreaVill Name (Hindi)',
-      size: 20,
-    },
-    {
-      accessorKey: 'HnoRange',
-      header: 'HNo Range',
-      size: 5,
-    },
-  ], []);
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        accessorKey: 'Id',
+        header: 'S.No',
+        size: 10,
+      },
+      {
+        accessorKey: 'ECBPanch',
+        header: 'Chak Block',
+        size: 20,
+      },
+      {
+        accessorKey: 'EAreaVill',
+        header: 'AreaVill Name (English)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HAreaVill',
+        header: 'AreaVill Name (Hindi)',
+        size: 20,
+      },
+      {
+        accessorKey: 'HnoRange',
+        header: 'HNo Range',
+        size: 5,
+      },
+    ];
+
+    if (permission !== '0') {
+      baseColumns.unshift({
+        accessorKey: 'Action',
+        header: 'Action',
+        size: 10,
+        Cell: ({ row }) => (
+          <>
+            <Button variant="primary" className="changepassword">
+              <Link to={{ pathname: "/AreaVill", search: `?content=${row.original.Id}` }}>Edit</Link>
+            </Button>
+            {permission == '2' &&
+              <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
+                Delete
+              </Button>
+            }
+          </>
+        ),
+      });
+    }
+
+    return baseColumns;
+  }, [permission]);
+
+
 
   const table = useMaterialReactTable({
     columns,
@@ -280,68 +292,72 @@ function AreaVill() {
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        <h1 className="text-2xl font-bold mb-4">Add AreaVill</h1>
-        <Form onSubmit={content ? handleEdit : handleSubmit} className="AreaVill-form">
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select Ward Block</Form.Label>
-                <Select
-                  id="wbSelect"
-                  name="WBID"
-                  value={wbOptions.find(option => option.value == formData.WBID)}
-                  onChange={(selectedOption) => handleChange(selectedOption, 'WBID')}
-                  options={wbOptions}
-                  placeholder="Select Ward Block"
-                  isSearchable={true}
-                  required
-                />
-              </Form.Group>
-            </div>
+        {permission !== '0' && (
+          <>
+            <h1 className="text-2xl font-bold mb-4">Add AreaVill</h1>
+            <Form onSubmit={content ? handleEdit : handleSubmit} className="AreaVill-form">
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Select Ward Block</Form.Label>
+                    <Select
+                      id="wbSelect"
+                      name="WBID"
+                      value={wbOptions.find(option => option.value == formData.WBID)}
+                      onChange={(selectedOption) => handleChange(selectedOption, 'WBID')}
+                      options={wbOptions}
+                      placeholder="Select Ward Block"
+                      isSearchable={true}
+                      required
+                    />
+                  </Form.Group>
+                </div>
 
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Select Chak Block<sup className='text-red-600'>*</sup></Form.Label>
-                <Select
-                  id="CBSelect"
-                  name="CBPId"
-                  value={cbOptions.find(option => option.value === formData.CBPId)}
-                  onChange={(selectedOption) => handleChange(selectedOption, 'CBPId')}
-                  options={cbOptions}
-                  placeholder="Select Chak Block"
-                  isSearchable={true}
-                  required
-                />
-              </Form.Group>
-            </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Select Chak Block<sup className='text-red-600'>*</sup></Form.Label>
+                    <Select
+                      id="CBSelect"
+                      name="CBPId"
+                      value={cbOptions.find(option => option.value === formData.CBPId)}
+                      onChange={(selectedOption) => handleChange(selectedOption, 'CBPId')}
+                      options={cbOptions}
+                      placeholder="Select Chak Block"
+                      isSearchable={true}
+                      required
+                    />
+                  </Form.Group>
+                </div>
 
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>Hno Range</Form.Label>
-                <Form.Control type="text" placeholder="Hno Range" id="HnoRange" name="HnoRange" value={formData.HnoRange} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HnoRange: e.target.value }))} />
-              </Form.Group>
-            </div>
-          </Row>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>Hno Range</Form.Label>
+                    <Form.Control type="text" placeholder="Hno Range" id="HnoRange" name="HnoRange" value={formData.HnoRange} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HnoRange: e.target.value }))} />
+                  </Form.Group>
+                </div>
+              </Row>
 
-          <Row className="mb-3">
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>AreaVill Name (English)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="AreaVill Name (English)" id="EAreaVill" name="EAreaVill" value={formData.EAreaVill} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, EAreaVill: e.target.value }))} required />
-              </Form.Group>
-            </div>
-            <div className="col-md-3 mb-3">
-              <Form.Group>
-                <Form.Label>AreaVill Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                <Form.Control type="text" placeholder="AreaVill Name (Hindi)" id="HAreaVill" name="HAreaVill" value={formData.HAreaVill} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HAreaVill: e.target.value }))} required />
-              </Form.Group>
-            </div>
-          </Row>
+              <Row className="mb-3">
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>AreaVill Name (English)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="AreaVill Name (English)" id="EAreaVill" name="EAreaVill" value={formData.EAreaVill} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, EAreaVill: e.target.value }))} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <Form.Group>
+                    <Form.Label>AreaVill Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
+                    <Form.Control type="text" placeholder="AreaVill Name (Hindi)" id="HAreaVill" name="HAreaVill" value={formData.HAreaVill} onChange={(e) => setFormData(prevFormData => ({ ...prevFormData, HAreaVill: e.target.value }))} required />
+                  </Form.Group>
+                </div>
+              </Row>
 
-          <Button variant="primary" type="submit">
-            {content ? 'Update' : 'Submit'}
-          </Button>
-        </Form>
+              <Button variant="primary" type="submit">
+                {content ? 'Update' : 'Submit'}
+              </Button>
+            </Form>
+          </>)
+        }
         <hr className="my-4" />
         <h4 className="container mt-3 text-xl font-bold mb-3">AreaVill List</h4>
         <div className="overflow-x-auto">

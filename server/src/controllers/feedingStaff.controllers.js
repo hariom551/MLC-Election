@@ -256,6 +256,11 @@ const AddVoter = [
             if (duplicateResult.length > 0) {
                 return res.status(400).json(new ApiResponse(400, null, 'Duplicate voter entry found'));
             }
+            if ( !(voterDetails.AadharNo || voterDetails.VIdNo))
+            {
+                return res.status(400).json(new ApiResponse(400, null, 'please enter Aadhar No or Voter Id '));
+            }
+
 
             const voterDocs = {};
 

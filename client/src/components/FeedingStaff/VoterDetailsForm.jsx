@@ -165,7 +165,9 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                                         setVoterDetails(prevDetails => ({
                                             ...prevDetails,
                                             ELName: choice.ESurname,
-                                            HLName: choice.HSurname
+                                            HLName: choice.HSurname,
+                                            ERLName: choice.ESurname,
+                                            HRLName: choice.HSurname
                                         }));
                                         fetchCasteOptions(choice.ESurname);
                                     } else {
@@ -269,6 +271,7 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                             <Form.Label>Rel. Last Name (English)<sup className='text-red-500'>*</sup></Form.Label>
                             <Typeahead
                                 id="rel-last-name-english"
+                                name="ERLName"
                                 selected={voterDetails.ERLName ? [voterDetails.ERLName ] : []}
                                 onInputChange={(value) => fetchSurnameOptions(value, setRelativeSurnameOptions)}
                                 onChange={(selected) => {
@@ -279,6 +282,12 @@ function VoterDetailsForm({ voterDetails, setVoterDetails, errors, setErrors }) 
                                             ERLName: choice.ESurname,
                                             HRLName: choice.HSurname,
 
+                                        }));
+
+                                    } else {
+                                        setVoterDetails(prevDetails => ({
+                                            ...prevDetails,
+                                            ERLName: '',
                                         }));
                                     }
                                     const error = validateVoterDetails("ERLName", selected.length > 0 ? selected[0].ERLName : "");
