@@ -192,65 +192,76 @@ function DispatchLetter() {
 
     const table = useMaterialReactTable({ columns, data: votersDetails });
 
-    const handleDispatchLetter = () => {
-        const letterContent = votersDetails.map((voter, index) => (
-            `<div class="letter">
-                <p>सेवा में ,</p>
-                <p>${voter.HFName + " " + voter.HLName}</p>
-                <p>${voter.HNo + " " + voter.HAreaVill},</p>
-                <p>प्रिय ${voter.HFName + " " + voter.HLName},</p>
-                <p>नमस्कार!</p>
+ const handleDispatchLetter = () => {
+    const letterContent = votersDetails.map((voter, index) => (
+        `<div class="letter">
+            <p>सेवा में ,</p>
+            <p>${voter.HFName + " " + voter.HLName}</p>
+            <p>${voter.HNo ? voter.HNo : ''} ${voter.HAreaVill},</p>
+            <p>प्रिय ${voter.HFName + " " + voter.HLName},</p>
+            <p>नमस्कार!</p>
 
-                ${letters}
-             
-                <p>आपका स्नेही,</p>
-                <p>अरुण पाठक</p>
-                <p>स्नातक चैत्र, कानपूर</p>
-            </div>`
-        )).join('<div class="page-break"></div>');
+            <div class="letter-justify">${letters}</div> <!-- Justified content -->
 
+            <p>आपका स्नेही,</p>
+            <p>अरुण पाठक</p>
+            <p>स्नातक चैत्र, कानपूर</p>
+        </div>`
+    )).join('<div class="page-break"></div>');
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Letters</title>
-                    <style>
-                      @page {
-                            size: A4;
-                            margin: 0;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Letters</title>
+                <style>
+                    @page {
+                        size: A4;
+                        margin: 0;
+                    }
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        margin: 0; /* Remove margin for print */
+                        padding: 20mm; /* Padding for printed content */
+                        box-sizing: border-box;
+                        min-height: 100vh;
+                    }
+                    .letter {
+
+                        margin-top: 6rem;
+                        margin-bottom: 0.3rem;
+                        page-break-after: always;
+                    }
+                    .letter-justify {
+                        text-align: justify; /* Justify the text */
+                        margin: 1rem 0; /* Optional margin for spacing */
+                    }
+                    
+                    @media print {
+                        body {
+                            width: 21cm;
+                            height: 29.7cm;
                         }
-                         body {
-                            font-family: Arial, sans-serif;
-                            line-height: 1.6;
-                            color: #333;
-                            margin-top: 0.3rem;
-                            padding: 20mm;
-                            box-sizing: border-box;
-                            min-height: 100vh;
+                        /* Hide elements not needed in print */
+                        header, footer {
+                            display: none; /* Hide header and footer */
                         }
-                        .letter {
-                            margin-bottom: 0.3rem;
-                            page-break-after: always;
-                        }
-                       
-                        @media print {
-                            body {
-                                width: 21cm;
-                                height: 29.7cm;
-                      
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${letterContent}
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-    };
+                    }
+                </style>
+            </head>
+            <body>
+                ${letterContent}
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+};
+
+    
+    
 
     return (
         <main className="bg-gray-100">
