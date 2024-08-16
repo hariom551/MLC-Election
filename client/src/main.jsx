@@ -40,6 +40,7 @@ import TelecallerEmployeeData from './components/QCStaff/DisplayData.jsx';
 import AddTellecallerData from './components/QCStaff/AddTellecallerData.jsx';
 import MISDistrict from './components/Admin/Reports/MISDistrict.jsx';
 import MISPollingStation from './components/Admin/Reports/MISPollingStation.jsx';
+import Publish from './components/SuperAdmin/Publish.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -53,6 +54,7 @@ const getRoutesForRole = (role) => {
           <Route path="/changePassword" element={<ChangePassword />} />
           <Route path="/incomingForms" element={<IncomingForms />} />
           <Route path="/outgoingForms" element={<OutgoingForms />} />
+          <Route path="/publish" element={<Publish />} />
         </>
       );
     case 'Forms Admin':

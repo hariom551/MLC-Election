@@ -21,6 +21,11 @@ const FeedingStaffCount = () => {
   const [endDate, setEndDate] = useState(null);
   const [feedingStaffDetails, setFeedingStaffDetails] = useState([]);      
 
+  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const DId = user ? user.DId : '';
+  const loginUserId = user.userid;
+  const permission = user.permissionaccess;
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();

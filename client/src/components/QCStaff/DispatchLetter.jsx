@@ -267,7 +267,7 @@ function DispatchLetter() {
         <main className="bg-gray-100">
             <ToastContainer />
             <div className="container py-4 pl-6 text-black">
-                <h1 className="text-2xl font-bold mb-4">Voter Details</h1>
+                <h1 className="text-2xl font-bold mb-4">Dispatch Letter</h1>
                 <Form onSubmit={handleSubmit} className="voter-form">
                     <Row className="mb-3">
                         <div className="col-md-3 mb-3" style={{ zIndex: 10 }}>
@@ -287,16 +287,18 @@ function DispatchLetter() {
                                 />
                             </Form.Group>
                         </div>
+                         <div className="col-md-3 mt-8">
+                    <Button variant="primary" type="submit">Search</Button></div>
                     </Row>
-                    <Button variant="primary" type="submit">Submit</Button>
                 </Form>
+                <Button variant="primary" onClick={handleDispatchLetter}className="mt-8 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Dispatch Letter</Button>
                 <hr className="my-4" />
                 <h4 className="container mt-3 text-xl font-bold mb-3">Voter List</h4>
                 <div className="overflow-x-auto" style={{ zIndex: -1 }}>
                     <MaterialReactTable table={table} />
                 </div>
-                <Button variant="primary" onClick={handleDispatchLetter}className="mt-8 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    Dispatch Letter</Button>
+              
             </div>
         </main>
     );

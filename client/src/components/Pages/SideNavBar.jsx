@@ -47,6 +47,8 @@ function SideNavBar({ show }) {
 
     const user = JSON.parse(localStorage.getItem("user"));
     const role = user ? user.role : "";
+    const permission = user.permissionaccess;
+
 
     return (
         <div className={show ? 'sidenav active' : 'sidenav'}>
@@ -82,6 +84,15 @@ function SideNavBar({ show }) {
                             <div className={`dropdown-content ${dropdownStates.outgoing ? 'show' : ''}`} id="outgoing-dropdown-content">
                                 <ul><li><Link to="/outgoingForms">Outgoing List</Link></li></ul>
                                 <ul><li><Link to="/incomingForms">Incoming List</Link></li></ul>
+                            </div>
+                        </div>
+                        <div className="dropdown">
+                            <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('publish')}>
+                                <FaUserGroup className='text-xl' />publish <span className="dropdown-symbol">{dropdownStates.publish ? '-' : '+'}</span>
+                            </button>
+                            <div className={`dropdown-content ${dropdownStates.publish ? 'show' : ''}`} id="publish-dropdown-content">
+                                <ul><li><Link to="/publish">publish</Link></li></ul>
+                                {/* <ul><li><Link to="/incomingForms">Incoming List</Link></li></ul> */}
                             </div>
                         </div>
 
@@ -288,12 +299,17 @@ function SideNavBar({ show }) {
                     </button>
                     
                     <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
+                        {permission!=='0' &&
                         <ul><li><Link to="/addtelecallerdata">Add Data</Link></li></ul>
+                        }
                         <ul><li><Link to="/employeeDetails">Display Data</Link></li></ul>
                     </div>
                  </div>
 
+                 {permission!=='0'&&
+                       
                  <div className="dropdown">
+
                     <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('VoterL')}>
                         <FaUserGroup className='text-xl' /> Letter <span className="dropdown-symbol">{dropdownStates.VoterL ? '-' : '+'}</span>
                     </button>
@@ -302,7 +318,7 @@ function SideNavBar({ show }) {
                         <ul><li><Link to="/DispatchLetter">Dispatch letter </Link></li></ul>
                     </div>
                  </div>
-
+                }
                  <ul><li><Link onClick={handleLogout} className='flex gap-2'><IoLogOutSharp className='text-2xl' />Logout</Link></li></ul>
 
             

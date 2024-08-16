@@ -16,6 +16,8 @@ function VoterList() {
     const user = JSON.parse(localStorage.getItem("user"));
     const DId = user ? user.DId : '';
     const userRole= user.role;
+    const permission = user.permissionaccess;
+
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
@@ -184,7 +186,7 @@ function VoterList() {
             },
         ];
 
-        if (userRole === 'QC Staff') {
+        if (userRole === 'QC Staff' && permission!=='0') {
             baseColumns.unshift(
                 {
                     header: 'Edit',
@@ -197,6 +199,10 @@ function VoterList() {
                         </Button>
                     ),
                 },
+     ) 
+    }
+                if (userRole === 'QC Staff' && permission==='2') {
+                    baseColumns.unshift(
                 {
                     header: 'Delete',
                     size: 10,
@@ -209,8 +215,7 @@ function VoterList() {
 
                     ),
                 }
-
-            );
+            )
         }
 
         return baseColumns;

@@ -56,6 +56,8 @@ function OutgoingForms() {
     const DId = user ? user.DId : '';
     const loginUserId = user.userid;
     const role = user.role;
+    const permission = user.permissionaccess;
+
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
@@ -380,7 +382,8 @@ function OutgoingForms() {
                 <div className='w-full h-full my-1 container-fluid'>
                     <FormsAdminInfo />
                 </div>
-
+                {permission !== '0' && (
+                    <>
                 <h1 className="text-3xl font-bold my-4">Outgoing Form Info</h1>
                 <Form onSubmit={content ? handleEdit : handleSubmit} className="OutgoingForms-form">
                     <Row className="mb-3">
@@ -597,8 +600,10 @@ function OutgoingForms() {
                     {content ? 'Edit':'Submit'}  
                     </Button>
                 </Form>
-
                 <hr className="my-4" />
+                </>
+                )
+            }
                 <h4 className="container mt-3 text-xl font-bold mb-3">OutgoingForms List</h4>
 
 
