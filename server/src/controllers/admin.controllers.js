@@ -433,7 +433,6 @@ const DeleteWardBlockDetail = asyncHandler(async (req, res) => {
 });
 
 const AddChakBlock = asyncHandler(async (req, res) => {
-    console.log("first");
     const { ECBPanch, HCBPanch, ChakNo, WBId, loginUserId } = req.body;
 
     if (!ECBPanch || !HCBPanch || !ChakNo || !WBId)

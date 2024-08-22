@@ -72,28 +72,8 @@ const TelecallerEmployeeData = () => {
       size: 50,
     },
     {
-      accessorKey: 'ImportedBy',
-      header: 'Imported By',
-      size: 50,
-    },
-    {
-      accessorKey: 'LeadNo',
-      header: 'Lead No',
-      size: 50,
-    },
-    {
       accessorKey: 'FirstName',
       header: 'First Name',
-      size: 50,
-    },
-    {
-      accessorKey: 'LastName',
-      header: 'Last Name',
-      size: 50,
-    },
-    {
-      accessorKey: 'CountryCode',
-      header: 'Country Code',
       size: 50,
     },
     {
@@ -102,18 +82,8 @@ const TelecallerEmployeeData = () => {
       size: 50,
     },
     {
-      accessorKey: 'AlternateCountryCode',
-      header: 'Alternate Country Code',
-      size: 50,
-    },
-    {
-      accessorKey: 'AlternatePhoneNo',
-      header: 'Alternate Phone Number',
-      size: 50,
-    },
-    {
-      accessorKey: 'NoOfAttempts',
-      header: 'Number Of Attempts',
+      accessorKey: 'Address1',
+      header: 'Address 1',
       size: 50,
     },
     {
@@ -122,8 +92,8 @@ const TelecallerEmployeeData = () => {
       size: 50,
     },
     {
-      accessorKey: 'LastCallEmployee',
-      header: 'Last Call Employee',
+      accessorKey: 'LastCallNote',
+      header: 'Last Call Note',
       size: 50,
     },
     {
@@ -137,83 +107,13 @@ const TelecallerEmployeeData = () => {
       size: 50,
     },
     {
-      accessorKey: 'LastCallDuration',
-      header: 'Last Call Duration',
-      size: 50,
-    },
-    {
-      accessorKey: 'LastCallNote',
-      header: 'Last Call Note',
-      size: 50,
-    },
-    {
-      accessorKey: 'AssignTo',
-      header: 'Assign To',
-      size: 50,
-    },
-    {
       accessorKey: 'LeadStatus',
       header: 'Lead Status',
       size: 50,
     },
     {
-      accessorKey: 'Reminder',
-      header: 'Reminder',
-      size: 50,
-    },
-    {
-      accessorKey: 'CompanyName',
-      header: 'Company Name',
-      size: 50,
-    },
-    {
-      accessorKey: 'Email',
-      header: 'Email',
-      size: 50,
-    },
-    {
-      accessorKey: 'Address1',
-      header: 'Address 1',
-      size: 50,
-    },
-    {
-      accessorKey: 'Address2',
-      header: 'Address 2',
-      size: 50,
-    },
-    {
-      accessorKey: 'City',
-      header: 'City',
-      size: 50,
-    },
-    {
-      accessorKey: 'State',
-      header: 'State',
-      size: 50,
-    },
-    {
-      accessorKey: 'Zipcode',
-      header: 'Zipcode',
-      size: 50,
-    },
-    {
-      accessorKey: 'Country',
-      header: 'Country',
-      size: 50,
-    },
-    {
-      accessorKey: 'Description',
-      header: 'Description',
-      size: 50,
-    },
-    {
-      accessorKey: 'Source',
-      header: 'Source',
-      size: 50,
-    },
-    {
-      accessorKey: 'Price',
-      header: 'Price',
+      accessorKey: 'LastCallDuration',
+      header: 'Last Call Duration',
       size: 50,
     },
   ], []);

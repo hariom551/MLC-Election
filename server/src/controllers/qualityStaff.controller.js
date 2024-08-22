@@ -225,7 +225,6 @@ const prevletter = asyncHandler(async (req, res) => {
 
 
 const DisplayTelecallerData = asyncHandler(async (req, res) => {
-    console.log("first");
     try {
         const result = await queryDatabase(`SELECT * FROM telecallerdetail`);
         
@@ -306,8 +305,6 @@ const addtelecallerdata = asyncHandler(async (req, res) => {
                 row["Source"],
                 row["Price"],
             ]);
-
-            console.log(`Values array: ${JSON.stringify(values)}`);
 
             // Insert data in batches
             const BATCH_SIZE = 100; // Adjust as needed

@@ -117,21 +117,23 @@ function VoterList() {
                     return `${HFName} ${HLName}`
                 },
             },
-            { accessorKey: 'RType', header: 'Relation', size: 10 },
-            {
-                accessorKey: 'ERFName', header: 'Relative Name (English)', size: 20,
-                Cell: ({ cell }) => {
-                    const { ERFName, ERLName } = cell.row.original;
-                    return `${ERFName} ${ERLName}`
-                },
-            },
-            {
-                accessorKey: 'HRFName', header: 'Relative Name (Hindi)', size: 20,
-                Cell: ({ cell }) => {
-                    const { HRFName, HRLName } = cell.row.original;
-                    return `${HRFName} ${HRLName}`
-                },
-            },
+            { accessorKey: 'MNo', header: 'Mobile', size: 10 },
+
+            // { accessorKey: 'RType', header: 'Relation', size: 10 },
+            // {
+            //     accessorKey: 'ERFName', header: 'Relative Name (English)', size: 20,
+            //     Cell: ({ cell }) => {
+            //         const { ERFName, ERLName } = cell.row.original;
+            //         return `${ERFName} ${ERLName}`
+            //     },
+            // },
+            // {
+            //     accessorKey: 'HRFName', header: 'Relative Name (Hindi)', size: 20,
+            //     Cell: ({ cell }) => {
+            //         const { HRFName, HRLName } = cell.row.original;
+            //         return `${HRFName} ${HRLName}`
+            //     },
+            // },
             {
                 accessorKey: 'EAreaVillHNo',
                 header: 'Address',
@@ -141,49 +143,48 @@ function VoterList() {
                     return `${HNo} ${EAreaVill}`;
                 },
             },
-            { accessorKey: 'ECaste', header: 'Caste', size: 20 },
-            { accessorKey: 'Qualification', header: 'Qualification', size: 20 },
-            { accessorKey: 'Occupation', header: 'Occupation', size: 20 },
+            // { accessorKey: 'ECaste', header: 'Caste', size: 20 },
+            // { accessorKey: 'Qualification', header: 'Qualification', size: 20 },
+            // { accessorKey: 'Occupation', header: 'Occupation', size: 20 },
             { accessorKey: 'Age', header: 'Age', size: 5 },
             { accessorKey: 'DOB', header: 'DOB', size: 10 },
             { accessorKey: 'Sex', header: 'Gender', size: 10 },
-            { accessorKey: 'MNo', header: 'Mobile', size: 10 },
             { accessorKey: 'AadharNo', header: 'Aadhar', size: 12 },
             { accessorKey: 'VIdNo', header: 'VoterId', size: 20 },
-            { accessorKey: 'GCYear', header: 'Grd.Year', size: 4 },
-            {
-                accessorKey: 'Image',
-                header: 'Photo',
-                size: 20,
-                Cell: ({ cell }) => {
-                    const image = cell.getValue();
-                    if (!image) return 'N/A';
-                    const imageUrl = `${import.meta.env.VITE_API_URL}/public/photo/${image}`;
-                    return <img src={imageUrl} alt="voter" style={{ width: '50px', height: '50px' }} />;
-                },
-            },
-            {
-                accessorKey: 'Degree',
-                header: 'Degree',
-                size: 20,
-                Cell: ({ cell }) => {
-                    const degreeUrl = cell.getValue();
-                    if (!degreeUrl) return 'N/A';
-                    const imageUrl = `${import.meta.env.VITE_API_URL}/public/Degree/${degreeUrl}`;
-                    return <img src={imageUrl} alt="degree" style={{ width: '50px', height: '50px' }} />;
-                },
-            },
-            {
-                accessorKey: 'IdProof',
-                header: 'Id',
-                size: 20,
-                Cell: ({ cell }) => {
-                    const idProofUrl = cell.getValue();
-                    if (!idProofUrl) return 'N/A';
-                    const imageUrl = `${import.meta.env.VITE_API_URL}/public/IdProof/${idProofUrl}`;
-                    return <img src={imageUrl} alt="id proof" style={{ width: '50px', height: '50px' }} />;
-                },
-            },
+            // { accessorKey: 'GCYear', header: 'Grd.Year', size: 4 },
+            // {
+            //     accessorKey: 'Image',
+            //     header: 'Photo',
+            //     size: 20,
+            //     Cell: ({ cell }) => {
+            //         const image = cell.getValue();
+            //         if (!image) return 'N/A';
+            //         const imageUrl = `${import.meta.env.VITE_API_URL}/public/photo/${image}`;
+            //         return <img src={imageUrl} alt="voter" style={{ width: '50px', height: '50px' }} />;
+            //     },
+            // },
+            // {
+            //     accessorKey: 'Degree',
+            //     header: 'Degree',
+            //     size: 20,
+            //     Cell: ({ cell }) => {
+            //         const degreeUrl = cell.getValue();
+            //         if (!degreeUrl) return 'N/A';
+            //         const imageUrl = `${import.meta.env.VITE_API_URL}/public/Degree/${degreeUrl}`;
+            //         return <img src={imageUrl} alt="degree" style={{ width: '50px', height: '50px' }} />;
+            //     },
+            // },
+            // {
+            //     accessorKey: 'IdProof',
+            //     header: 'Id',
+            //     size: 20,
+            //     Cell: ({ cell }) => {
+            //         const idProofUrl = cell.getValue();
+            //         if (!idProofUrl) return 'N/A';
+            //         const imageUrl = `${import.meta.env.VITE_API_URL}/public/IdProof/${idProofUrl}`;
+            //         return <img src={imageUrl} alt="id proof" style={{ width: '50px', height: '50px' }} />;
+            //     },
+            // },
         ];
 
         if (userRole === 'QC Staff' && permission!=='0') {
