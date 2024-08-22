@@ -2,7 +2,8 @@ import { Router } from "express"
 import { loginUser, hariom, submitDetails, changePassword,checkRole,
      AddDistrict, GetDistrictDetails, UpdateDistrictDetail, DeleteDistrictDetail, 
      logoutuser,
-     DistrictDetails} from "../controllers/user.controlers.js"
+     DistrictDetails,
+     Publish} from "../controllers/user.controlers.js"
 
 import { verifyJWT } from "../middleware/auth.middleware.js"
 const router = Router()
@@ -18,7 +19,9 @@ router.route("/addDistrict").post(AddDistrict)
 router.route("/getDistrictDetails").get(GetDistrictDetails)
 router.route("/updateDistrictDetail").post(UpdateDistrictDetail)
 router.route("/deleteDistrictDetail").post(DeleteDistrictDetail)
-router.route("/logoutuser").delete(logoutuser)
+router.route("/deleteDistrictDetail").post(DeleteDistrictDetail)
+router.route("/publish").post(Publish)
+
 
 // router.route("/verifyUser").get( verifyJWT)
 

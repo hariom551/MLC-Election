@@ -17,7 +17,6 @@ function UserForm() {
   const loginUserId = user.userid;
   const DId = user.DId;
   const userrole = user.role;
-  const permission = user.permissionaccess;
 
   const [userData, setUserData] = useState([]);
 
@@ -150,8 +149,7 @@ function UserForm() {
     }
   };
 
-  const columns = useMemo(() => {
-    const baseColumns = [
+  const columns = useMemo(() => [
       {
         accessorKey: 'Serial No',
         header: 'S.No',
@@ -198,27 +196,24 @@ function UserForm() {
         header: 'Permission',
         size: 50,
       },
-      
+      {
+        accessorKey: 'changePassword',
+        header: 'Change Password',
+        size: 150,
+        Cell: ({ row }) => (
+          <Button variant="primary" className="changepassword">
+            <Link
+              to={{ pathname: "/changePassword", search: `?content=${row.original.userid}` }}
+            >
+              Change Password
+            </Link>
+          </Button>
+        ),
+      }
     ]
-   
-    if (permission !== '0'){
-      baseColumns.push({
-      accessorKey: 'changePassword',
-      header: 'Change Password',
-      size: 150,
-      Cell: ({ row }) => (
-        <Button variant="primary" className="changepassword">
-          <Link
-            to={{ pathname: "/changePassword", search: `?content=${row.original.userid}` }}
-          >
-            Change Password
-          </Link>
-        </Button>
-      ),
-    })
-    }
-    return baseColumns;
-  },[permission]);
+  
+)
+    
   
 
   const table = useMaterialReactTable({
@@ -230,8 +225,6 @@ function UserForm() {
     <main className="bg-gray-100 min-h-screen">
       <ToastContainer />
       <div className="container mx-auto py-8 text-black">
-      {permission !== '0' && (
-          <>
         <div className='flex justify-between items-center'>
           <h1 className="text-2xl font-bold mb-4">Add {content}</h1>
           <p className='text-sm font-serif'><sup>*</sup>fields are required</p>
@@ -402,9 +395,6 @@ function UserForm() {
           </Button>
         </Form>
         <hr className="my-4" />
-        </>
-        )
-        }
         <h4 className="container mt-3 text-xl font-bold mb-2">{content} Detail </h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

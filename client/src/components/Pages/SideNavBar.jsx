@@ -138,6 +138,8 @@ function SideNavBar({ show }) {
                     <div className="admin-link">
                         <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
 
+
+                        {permission!=='0' &&
                         <div className="dropdown">
                             <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('SubAdmin')}>
                                 <FaUserGroup className='text-xl' />Sub Admin<span className="dropdown-symbol">{dropdownStates.SubAdmin ? '-' : '+'}</span>
@@ -147,6 +149,7 @@ function SideNavBar({ show }) {
                                 <ul><li><Link to={{ pathname: "/userForm", search: "?content=Sub Admin" }}>  <FaUserGroup className='text-xl' />Sub Admin</Link></li></ul>
                             </div>
                         </div>
+                            }
 
 
                         <div className="dropdown">
@@ -209,6 +212,7 @@ function SideNavBar({ show }) {
                     <div className="subadmin-link">
                         <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
 
+                        {permission!=='0' &&
                         <div className="dropdown">
                             <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Staff')}>
                                 <FaUserGroup className='text-xl' /> Staff<span className="dropdown-symbol">{dropdownStates.Staff ? '-' : '+'}</span>
@@ -220,6 +224,7 @@ function SideNavBar({ show }) {
                                 {/* <ul><li><Link to={{ pathname: "/userForm", search: "?content=App Feeding Staff" }}>App Feeding Staff</Link></li></ul> */}
                             </div>
                         </div>
+                        }
                         <br />
                         <div className="dropdown">
                             <button className="dropbtn flex items-center gap-2
@@ -269,10 +274,6 @@ function SideNavBar({ show }) {
 
 
                 {role === 'QC Staff' && (
-                
-
-
-
                 <div className="qualitystaff-link">
                  <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
                     <ul><li><Link to="/VoterList" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Voter List</Link></li></ul>

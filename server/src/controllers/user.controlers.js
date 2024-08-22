@@ -272,8 +272,42 @@ const logoutuser = async (req, res) => {
     }
 }
 
+const Publish = asyncHandler(async (req, res) => {
+    const { fromdate, todate } = req.body;
+       
+    try {
+      // Execute the first statement to initialize variables
+      await queryDatabase('SET @sno := 0;');
+      await queryDatabase('SET @current_wbid := \'\';');
+  
+      // Execute the update query
+      await queryDatabase(
+        `UPDATE voterlist
+        JOIN (
+          SELECT 
+            Id, 
+            WBId, 
+            EFName, 
+            @sno := IF(@current_wbid = WBId, @sno + 1, 1) AS new_SNo, 
+            @current_wbid := WBId 
+          FROM voterlist
+          WHERE SDate >= ? AND MDate <= ?
+          ORDER BY WBId, EFName
+        ) AS ordered_voters 
+        ON voterlist.Id = ordered_voters.Id 
+        SET voterlist.SNo = ordered_voters.new_SNo;`,
+        [fromdate, todate]
+      );
+  
+      return res.status(200).json(new ApiResponse(200, "District Published successfully"));
+    } catch (error) {
+      console.error("Database query error", error);
+      return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null));
+    }
+  });
+  
 
-export { loginUser, submitDetails, DistrictDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, }
+export { loginUser, submitDetails, DistrictDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, Publish}
 
 
 
