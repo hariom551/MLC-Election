@@ -329,7 +329,7 @@ function PollingStationAllotment() {
     size: 10,
     Cell: ({ row }) => (
       <>
-      {permission == '2' && (
+      {permission == '1' && (
         <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
           Delete
         </Button>

@@ -14,10 +14,10 @@ const voterList = asyncHandler(async (req, res) => {
 
     try {
         const results = await queryDatabase(
-            `SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, 
-            ERLName, HRLName, CasteId, caste.ECaste, Qualification, Occupation, Age, 
-            DATE_FORMAT(DOB, '%d/%m/%Y') as DOB, Sex, MNo, MNo2, AadharNo, VIdNo, GCYear, 
-             AreaVill.EAreaVill ,AreaVill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark, Image, IdProof, Degree 
+            `SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName,
+             CasteId, caste.ECaste, Age, 
+            DATE_FORMAT(DOB, '%d/%m/%Y') as DOB, Sex, MNo, AadharNo, VIdNo,
+             AreaVill.EAreaVill ,AreaVill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark
             FROM voterlist 
             LEFT JOIN caste ON CasteId = caste.ID 
             LEFT JOIN AreaVill ON AreaId= AreaVill.Id
@@ -165,7 +165,6 @@ const ReferenceVoterList = asyncHandler(async (req, res) => {
         WHERE  volunteer.VMob1 = ?;
       `;
       const results = await queryDatabase(query, [number]);
-      console.log(results)
       return res.json(results);
     } catch (error) {
       return res.status(500).json({ error: "A database error occurred." });

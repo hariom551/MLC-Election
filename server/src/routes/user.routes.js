@@ -19,7 +19,8 @@ router.route("/addDistrict").post(AddDistrict)
 router.route("/getDistrictDetails").get(GetDistrictDetails)
 router.route("/updateDistrictDetail").post(UpdateDistrictDetail)
 router.route("/deleteDistrictDetail").post(DeleteDistrictDetail)
-router.route("/deleteDistrictDetail").post(DeleteDistrictDetail)
+// router.route("/deleteDistrictDetail").post(DeleteDistrictDetail)
+router.route("/logoutuser").delete(logoutuser)
 router.route("/publish").post(Publish)
 
 
