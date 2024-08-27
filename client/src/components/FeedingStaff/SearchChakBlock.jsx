@@ -26,9 +26,12 @@ function SearchChakBlock() {
         EAreaVill: '',
     });
 
-    useEffect(() => {
-        fetchCBOptions();
-    }, []);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const DId = user ? user.DId : '';
+
+   
+
+    
 
     const fetchCBOptions = async () => {
         try {
@@ -48,15 +51,24 @@ function SearchChakBlock() {
                 throw new Error('Empty or invalid chakblock options data');
             }
 
-            const options = data.map((CB) => ({
-                value: CB.ChakNo,
-                label: CB.ChakNo,
-            }));
+            
+            const options = Array.from(
+                new Set(data.map((CB) => CB.ChakNo))
+              ).sort((a, b) => parseFloat(a) - parseFloat(b)) 
+                .map((value) => ({
+                  value,
+                  label: value,
+                }));
+              
 
-            const Boptions = data.map((CB) => ({
-                value: CB.ECBPanch,
-                label: CB.ECBPanch,
-            }));
+            const Boptions = Array.from(
+                new Set(data.map((CB) => CB.ECBPanch))
+            ).sort((a, b) => a.localeCompare(b)) 
+                .map((value) => ({
+                    value,
+                    label: value,
+                }));
+
 
             setCNOptions(options);
             setCBOptions(Boptions);
@@ -66,9 +78,13 @@ function SearchChakBlock() {
         }
     };
 
+    useEffect(() => {
+        fetchCBOptions();
+    }, []);
+
     const fetchAreaVillOptions = async (input) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill/${DId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,6 +97,7 @@ function SearchChakBlock() {
             }
 
             const data = await response.json();
+            
             setAreaVillOptions(data);
         } catch (error) {
             console.error('Error fetching suggested AreaVill:', error);
@@ -107,17 +124,17 @@ function SearchChakBlock() {
                 setPerseemanDetails([]);
                 throw new Error('Empty or invalid details data');
             }
-            else{
+            else {
 
 
-            setPerseemanDetails(data);
+                setPerseemanDetails(data);
             }
             // setFormData({
             //     ChakNo: '',
             //     ECBPanch: '',
             //     EAreaVill: '',
             // });
-          
+
             setAreaVillOptions([]);
         } catch (error) {
             toast.error(`Error in fetching data: ${error.message}`);
@@ -153,7 +170,11 @@ function SearchChakBlock() {
             accessorKey: 'EAreaVill',
             header: 'Area',
             size: 20,
-        },
+            Cell: ({ cell }) => {
+              const { HnoRange, EAreaVill } = cell.row.original;
+              return HnoRange ? `${EAreaVill} || ${HnoRange}` : EAreaVill;
+            }
+          },
         {
             accessorKey: 'WardNoEWardBlock',
             header: 'WardNo',
@@ -234,7 +255,7 @@ function SearchChakBlock() {
                                             ...prevDetails,
                                             EAreaVill: inputValue,
                                         }));
-                                        fetchAreaVillOptions(inputValue); // Fetch options based on input value
+                                        fetchAreaVillOptions(inputValue); 
                                     }}
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
@@ -246,7 +267,7 @@ function SearchChakBlock() {
                                         } else {
                                             setFormData((prevDetails) => ({
                                                 ...prevDetails,
-                                                EAreaVill: '', // Reset if cleared
+                                                EAreaVill: '', 
                                             }));
                                         }
                                     }}
@@ -255,7 +276,11 @@ function SearchChakBlock() {
                                     defaultInputValue={formData.EAreaVill}
                                     labelKey="EAreaVill"
                                     isClearable
-                                    renderMenuItemChildren={(option) => <div>{option.EAreaVill}</div>}
+                                    renderMenuItemChildren={(option) => (
+                                        <div>
+                                          {option.EAreaVill} | {option.HnoRange}
+                                        </div>
+                                      )}
                                 />
 
 

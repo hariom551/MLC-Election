@@ -54,7 +54,6 @@ const searchAreaVill = asyncHandler(async (req, res) => {
             ON areavill.CBPId = chakblockpanch.id 
             INNER JOIN wardblock 
             ON wardblock.id = chakblockpanch.WBID
-            
             JOIN vidhansabha AS V
             ON wardblock.VSID= V.Id
             JOIN council AS C
@@ -62,9 +61,6 @@ const searchAreaVill = asyncHandler(async (req, res) => {
             JOIN tehsillist AS T
             ON T.Id= C.TehId
             WHERE T.Did=? AND EAreaVill LIKE ? ORDER BY EAreaVill  `, [DId, `%${query}%`]
-
-
-
         );
         return res.json(results);
     } catch (error) {
@@ -414,7 +410,7 @@ const getPerseemanDetails = asyncHandler(async (req, res) => {
 
     try {
         let query = `
-            SELECT CBP.ChakNo, CBP.ECBPanch, AV.EAreaVill, WB.WardNo
+            SELECT CBP.ChakNo, CBP.ECBPanch, AV.EAreaVill, AV.HnoRange, WB.WardNo, WB.EWardBlock
             FROM chakblockpanch AS CBP 
             JOIN areavill AS AV ON CBP.Id = AV.CBPId 
             JOIN wardblock AS WB ON WB.Id = CBP.WBId
@@ -446,7 +442,7 @@ const getPerseemanDetails = asyncHandler(async (req, res) => {
 
 const ChakNoBlock = asyncHandler(async (req, res) => {
     try {
-        const result = await queryDatabase('select ECBPanch, ChakNo FROM chakblockpanch')
+        const result = await queryDatabase('select ECBPanch, ChakNo FROM chakblockpanch ORDER BY ChakNo')
 
         return res.json(result);
 
