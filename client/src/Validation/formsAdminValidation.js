@@ -2,11 +2,11 @@
 export const validateFormsAdmin = (field, value) => {
     let error = '';
     switch (field) {
-        case 'PacketNo':
-            if (!value) {
-                return 'This is required';
-            }
-            break;
+        // case 'PacketNo':
+        //     if (!value) {
+        //         return 'This is required';
+        //     }
+        //     break;
 
         case 'VEAddress':
         case 'VHAddress':

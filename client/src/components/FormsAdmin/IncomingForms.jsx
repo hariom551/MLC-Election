@@ -42,7 +42,7 @@ function IncomingForms() {
         NoOfFormsKN: 0,
         NoOfFormsKD: 0,
         NoOfFormsU: 0,
-        PacketNo: content || '',
+        PacketNo: '',
         ReceivedDate: today,
         ERemarks: '',
         COList: [{
@@ -60,7 +60,7 @@ function IncomingForms() {
     const loginUserId = user.userid;
     const role = user.role;
     const permission = user.permissionaccess;
-    
+
 
     const fetchSuggestedMobiles = async (input, setter) => {
         try {
@@ -78,73 +78,82 @@ function IncomingForms() {
             const data = await response.json();
             setter(data);
         } catch (error) {
-            console.error('Error fetching suggested mobile numbers:', error);
+            toast.error('Error fetching suggested mobile numbers:', error);
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/incomFormDetails`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch IncomingForms details');
+            }
+
+            const data = await response.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error('Empty or invalid IncomingForms details data');
+            }
+
+            setIFDetails(data);
+
+            if (content) {
+                const incomingForm = data.find(item => item.Id === parseInt(content, 10));
+               
+                if (incomingForm) {
+                    setFormData({
+                        VMob1: incomingForm.RMob1 || '',
+                        VMob2: incomingForm.RMob2 || '',
+                        VEName: incomingForm.RName || '',
+                        VHName: incomingForm.RHName || '',
+                        VEAddress: incomingForm.RAddress || '',
+                        VHAddress: incomingForm.RHAddress || '',
+                        NoOfFormsKN: incomingForm.NFormsKN || '0',
+                        NoOfFormsKD: incomingForm.NFormsKd || '0',
+                        NoOfFormsU: incomingForm.NFormsU || '0',
+                        PacketNo: incomingForm.PacketNo || '',
+                        ReceivedDate: incomingForm.ReceivedDate ? incomingForm.ReceivedDate.split('T')[0] : '',
+                        ERemarks: incomingForm.ERemarks || '',
+                        COList: [
+                          {
+                            VMob1: incomingForm.C1Mob || '',
+                            VEName: incomingForm.C1Name || '',
+                            VHName: incomingForm.C1HName || '',
+                          },
+                          {
+                            VMob1: incomingForm.C2Mob || '',
+                            VEName: incomingForm.C2Name || '',
+                            VHName: incomingForm.C2HName || '',
+                          },
+                          {
+                            VMob1: incomingForm.C3Mob || '',
+                            VEName: incomingForm.C3Name || '',
+                            VHName: incomingForm.C3HName || '',
+                          }
+                        ].filter(co => co.VMob1 || co.VEName || co.VHName) // Only include non-empty entries
+                      });
+                } else {
+                    toast.error(`IncomingForm not found`);
+                }
+            }
+        } catch (error) {
+            toast.error(`Error fetching IncomingForms data: ${error.message}`);
         }
     };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/incomFormDetails`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('Failed to fetch IncomingForms details');
-                }
-                const data = await response.json();
-                if (!data || !Array.isArray(data) || data.length === 0) {
-                    throw new Error('Empty or invalid IncomingForms details data');
-                }
-                setIFDetails(data);
-
-                if (content) {
-                    const IF = data.find(item => item.PacketNo === content);
-                    if (IF) {
-                        setFormData({
-                            VMob1: IF.RMob1,
-                            VMob2: IF.RMob2 || '',
-                            VEName: IF.RName,
-                            VHName: IF.RHName,
-                            VEAddress: IF.RAddress || '',
-                            VHAddress: IF.RHAddress || '',
-                            NoOfFormsKN: IF.NFormsKN || 0,
-                            NoOfFormsKD: IF.NFormsKd || 0,
-                            NoOfFormsU: IF.NFormsU || 0,
-                            PacketNo: IF.PacketNo,
-                            ReceivedDate: IF.ReceivedDate.split('T')[0],
-                            ERemarks: IF.ERemarks || '',
-                            COList: [
-                                {
-                                    VMob1: IF.C1Mob,
-                                    VEName: IF.C1Name,
-                                    VHName: IF.C1HName,
-                                },
-                                IF.C2Name ? {
-                                    VMob1: IF.C2Mob,
-                                    VEName: IF.C2Name,
-                                    VHName: IF.C2HName,
-                                } : null,
-                                IF.C3Name ? {
-                                    VMob1: IF.C3Mob,
-                                    VEName: IF.C3Name,
-                                    VHName: IF.C3HName,
-                                } : null
-                            ].filter(co => co !== null)
-                        });
-                    } else {
-                        toast.error(`IncomingForm with PacketNo ${content} not found`);
-                    }
-                }
-            } catch (error) {
-                toast.error('Error fetching IncomingForms data:', error);
-            }
-        };
+       
 
         fetchData();
     }, [content]);
+
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -176,6 +185,7 @@ function IncomingForms() {
 
             if (result.ok) {
                 // window.location.reload();
+                fetchData();
                 setFormData({
 
                     VMob1: '',
@@ -187,7 +197,7 @@ function IncomingForms() {
                     NoOfFormsKN: 0,
                     NoOfFormsKD: 0,
                     NoOfFormsU: 0,
-                    PacketNo: content || '',
+                    PacketNo: '',
                     ReceivedDate: today,
                     ERemarks: '',
                     COList: [{
@@ -212,7 +222,7 @@ function IncomingForms() {
         try {
             const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/UpdateIncomForm`, {
                 method: 'POST',
-                body: JSON.stringify({ ...formData, loginUserId }),
+                body: JSON.stringify({ ...formData, loginUserId, content }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -220,27 +230,10 @@ function IncomingForms() {
 
             if (result.ok) {
                 toast.success("incomingForms Updated successfully.");
-                setFormData({
+                fetchData();
+                window.location.href = './incomingForms'
+                
 
-                    VMob1: '',
-                    VMob2: '',
-                    VEName: '',
-                    VHName: '',
-                    VEAddress: '',
-                    VHAddress: '',
-                    NoOfFormsKN: 0,
-                    NoOfFormsKD: 0,
-                    NoOfFormsU: 0,
-                    PacketNo: content || '',
-                    ReceivedDate: today,
-                    ERemarks: '',
-                    COList: [{
-                        VMob1: '',
-                        VEName: '',
-                        VHName: '',
-                    }]
-                })
-              
             } else {
                 toast.error("Error in Updating incomingForms:", result.statusText);
             }
@@ -266,7 +259,7 @@ function IncomingForms() {
                 Cell: ({ row }) => (
                     <Button variant="primary" className="changepassword">
                         <Link
-                            to={{ pathname: "/incomingForms", search: `?content=${row.original.PacketNo}` }}
+                            to={{ pathname: "/incomingForms", search: `?content=${row.original.Id}` }}
                         >
                             Edit
                         </Link>
@@ -366,10 +359,10 @@ function IncomingForms() {
                 size: 25,
             },
         ];
-    
+
         return baseColumns;
     }, [IFDetails, role]); // Make sure to include `role` in the dependencies
-    
+
     const handleExport = (rows, format) => {
         const exportData = rows.map((row, index) => ({
             "S.No": index + 1,
@@ -486,225 +479,56 @@ function IncomingForms() {
                 </div>
 
                 {permission !== '0' && (
-          <>
-                <h1 className="text-3xl font-bold my-4">Incoming Form Info</h1>
-                <Form onSubmit={content ? handleEdit : handleSubmit} className="IncomingForms-form">
-                    <Row className="mb-3">
-                        <div className="col-md-3 mb-3">
-                            <Form.Group>
-                                <Form.Label>Mobile Number<sup className='text-red-500'>*</sup></Form.Label>
-                                <Typeahead
-                                    id="VMob1"
-                                    selected={formData.VMob1 ? [{ VMob1: formData.VMob1 }] : []}
-                                    name="VMob1"
-                                    onInputChange={(value) => {
-                                        fetchSuggestedMobiles(value, setSuggestedMobiles);
-                                        const error = validateFormsAdmin("VMob1", value);
-                                        setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
-
-                                        // Update formData with the typed value
-                                        setFormData(prevData => ({
-                                            ...prevData,
-                                            VMob1: value
-                                        }));
-                                    }}
-                                    onChange={(selected) => {
-                                        if (selected.length > 0) {
-                                            const [choice] = selected;
-                                            setFormData(prevData => ({
-                                                ...prevData,
-                                                VMob1: choice.VMob1,
-                                                VMob2: choice.VMob2,
-                                                VEName: choice.VEName,
-                                                VHName: choice.VHName,
-                                                VEAddress: choice.VEAddress,
-                                                VHAddress: choice.VHAddress,
-                                            }));
-                                            const error = validateFormsAdmin("VMob1", choice.VMob1);
-                                            setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
-                                        } else {
-                                            // If no option is selected, keep the typed value
-                                            setFormData((prevData) => ({
-                                                ...prevData,
-                                                VMob2: '',
-                                                VEName: '',
-                                                VHName: '',
-                                                VEAddress: '',
-                                                VHAddress: '',
-                                            }));
-                                        }
-                                    }}
-                                    options={suggestedMobiles}
-                                    placeholder="Mobile Number"
-                                    labelKey="VMob1"
-                                    renderMenuItemChildren={(option) => (
-                                        <div>
-                                            {option.VMob1} - {option.VEName}
-                                        </div>
-                                    )}
-                                />
-                                {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-3 mb-3">
-                            <Form.Group >
-                                <Form.Label>Mobile No. 2</Form.Label>
-                                <Form.Control type="tel" placeholder="Mobile No. 2" name="VMob2" value={formData.VMob2} onChange={handleChange} />
-                                {errors.VMob2 && <div className="text-danger">{errors.VMob2}</div>}
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-3 mb-3">
-                            <Form.Group >
-                                <Form.Label>Name (English)<sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="text" placeholder="Name (English)" name="VEName" value={formData.VEName} onChange={handleChange} />
-                                {errors.VEName && <div className="text-danger">{errors.VEName}</div>}
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-3 mb-3">
-                            <Form.Group >
-                                <Form.Label>Name (Hindi) <sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="text" placeholder="Name (Hindi)" name="VHName" value={formData.VHName} onChange={handleChange} />
-                                {errors.VHName && <div className="text-danger">{errors.VHName}</div>}
-                            </Form.Group>
-                        </div>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <div className="col-md-5 mb-3">
-                            <Form.Group >
-                                <Form.Label>Address (English)<sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="text" placeholder="Address (English)" name="VEAddress" value={formData.VEAddress} onChange={handleChange} />
-                                {errors.VEAddress && <div className="text-danger">{errors.VEAddress}</div>}
-                            </Form.Group>
-                        </div>
-
-                        <div className="col-md-5 mb-3">
-                            <Form.Group >
-                                <Form.Label>Address (Hindi)<sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="text" placeholder="Address (Hindi)" name="VHAddress"
-                                    value={formData.VHAddress}
-                                    onChange={handleChange} />
-                                {errors.VHAddress && <div className="text-danger">{errors.VHAddress}</div>}
-                            </Form.Group>
-                        </div>
-                    </Row>
-
-
-                    <Row className="mb-3">
-                        <div className="col-md-3 mb-3">
-                            <Form.Group>
-                                <Form.Label>No. of Forms (Kanpur)</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder={`No. of Forms (Kanpur)`}
-                                    name="NoOfFormsKN"
-                                    value={formData.NoOfFormsKN}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-3 mb-3">
-                            <Form.Group>
-                                <Form.Label>No. of Forms (Dehat)</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="No. of Forms (Dehat)"
-                                    name="NoOfFormsKD"
-                                    value={formData.NoOfFormsKD}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-3 mb-3">
-                            <Form.Group>
-                                <Form.Label>No. of Forms (Unnao)</Form.Label>
-                                <Form.Control type="number"
-                                    placeholder="No. of Forms (Unnao)"
-                                    name="NoOfFormsU"
-                                    value={formData.NoOfFormsU}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </div>
-
-                        <div className="col-md-2 mb-3">
-                            <Form.Group>
-                                <Form.Label>Total Forms<sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="number" placeholder="Total Forms" name="" value={Number(formData.NoOfFormsKN) + Number(formData.NoOfFormsKD) + Number(formData.NoOfFormsU)} readOnly />
-                            </Form.Group>
-                        </div>
-                    </Row>
-
-
-                    <Row className="mb-3">
-                        <div className="col-md-5 mb-3">
-                            <Form.Group >
-                                <Form.Label>Remarks</Form.Label>
-                                <Form.Control type="text" placeholder="Remarks" name="ERemarks" value={formData.ERemarks} onChange={handleChange} />
-                            </Form.Group>
-                        </div>
-
-                        <div className="col-md-2 mb-3">
-                            <Form.Group >
-                                <Form.Label>Packet No.<sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="text" placeholder="Packet No." name="PacketNo" value={formData.PacketNo} onChange={handleChange} />
-                                {errors.PacketNo && <div className="text-danger">{errors.PacketNo}</div>}
-                            </Form.Group>
-                        </div>
-
-                        <div className="col-md-2 mb-3">
-                            <Form.Group >
-                                <Form.Label>Received Date :<sup className='text-red-500'>*</sup></Form.Label>
-                                <Form.Control type="date" placeholder="" name="ReceivedDate" value={formData.ReceivedDate} onChange={handleChange} />
-                            </Form.Group>
-                        </div>
-                    </Row>
-
-                    {formData.COList.map((e, index) => (
-                        <div className="row mb-3" key={index}>
+                    <>
+                        <h1 className="text-3xl font-bold my-4">Incoming Form Info</h1>
+                        <Form onSubmit={content ? handleEdit : handleSubmit} className="IncomingForms-form">
                             <Row className="mb-3">
                                 <div className="col-md-3 mb-3">
-                                    <Form.Group controlId={`COList-${index}-VMob1`}>
-                                        <Form.Label>Care Of Mobile {index + 1}</Form.Label>
+                                    <Form.Group>
+                                        <Form.Label>Mobile Number<sup className='text-red-500'>*</sup></Form.Label>
                                         <Typeahead
-                                            id={`COList-${index}-VMob1`}
-                                            selected={formData.COList[index].VMob1 ? [{ VMob1: formData.COList[index].VMob1 }] : []}
-                                            onInputChange={(inputValue) => {
-                                                const error = validateFormsAdmin("CMob1", inputValue);
-                                                setErrors((prevErrors) => ({ ...prevErrors, [`VMob1-${index}`]: error }));
+                                            id="VMob1"
+                                            selected={formData.VMob1 ? [{ VMob1: formData.VMob1 }] : []}
+                                            name="VMob1"
+                                            onInputChange={(value) => {
+                                                fetchSuggestedMobiles(value, setSuggestedMobiles);
+                                                const error = validateFormsAdmin("VMob1", value);
+                                                setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
 
-                                                const updatedCOList = [...formData.COList];
-                                                updatedCOList[index].VMob1 = inputValue;
-                                                setFormData((prevDetails) => ({
-                                                    ...prevDetails,
-                                                    COList: updatedCOList,
+                                                // Update formData with the typed value
+                                                setFormData(prevData => ({
+                                                    ...prevData,
+                                                    VMob1: value
                                                 }));
-                                                fetchSuggestedMobiles(inputValue, setSuggestedCareOfMobiles);
                                             }}
                                             onChange={(selected) => {
-                                                const updatedCOList = [...formData.COList];
                                                 if (selected.length > 0) {
                                                     const [choice] = selected;
-                                                    updatedCOList[index] = {
-                                                        ...updatedCOList[index],
+                                                    setFormData(prevData => ({
+                                                        ...prevData,
                                                         VMob1: choice.VMob1,
+                                                        VMob2: choice.VMob2,
                                                         VEName: choice.VEName,
                                                         VHName: choice.VHName,
-                                                    };
-                                                    setFormData({ ...formData, COList: updatedCOList });
-                                                    const error = validateFormsAdmin("CMob1", choice.VMob1);
-                                                    setErrors((prevErrors) => ({ ...prevErrors, [`VMob1-${index}`]: error }));
+                                                        VEAddress: choice.VEAddress,
+                                                        VHAddress: choice.VHAddress,
+                                                    }));
+                                                    const error = validateFormsAdmin("VMob1", choice.VMob1);
+                                                    setErrors((prevErrors) => ({ ...prevErrors, VMob1: error }));
                                                 } else {
-                                                    // Keep the typed value in VMob1 when no option is selected
-                                                    updatedCOList[index].VMob1 = formData.COList[index].VMob1;
-                                                    setFormData((prevDetails) => ({
-                                                        ...prevDetails,
-                                                        COList: updatedCOList,
+                                                    // If no option is selected, keep the typed value
+                                                    setFormData((prevData) => ({
+                                                        ...prevData,
+                                                        VMob2: '',
+                                                        VEName: '',
+                                                        VHName: '',
+                                                        VEAddress: '',
+                                                        VHAddress: '',
                                                     }));
                                                 }
                                             }}
-                                            options={suggestedCareOfMobiles}
-                                            placeholder="Search mobile"
+                                            options={suggestedMobiles}
+                                            placeholder="Mobile Number"
                                             labelKey="VMob1"
                                             renderMenuItemChildren={(option) => (
                                                 <div>
@@ -712,62 +536,231 @@ function IncomingForms() {
                                                 </div>
                                             )}
                                         />
-                                        {errors[`VMob1-${index}`] && <div className="text-danger">{errors[`VMob1-${index}`]}</div>}
-                                    </Form.Group>
-                                </div>
-
-
-                                <div className="col-md-3 mb-3">
-                                    <Form.Group>
-                                        <Form.Label>Care of Name {index + 1} (English)</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder={`Care of (English) ${index + 1}`}
-                                            name="VEName"
-                                            value={formData.COList[index].VEName}
-                                            onChange={(e) => handleCareOfChange(e, index)}
-
-                                        />
+                                        {errors.VMob1 && <div className="text-danger">{errors.VMob1}</div>}
                                     </Form.Group>
                                 </div>
                                 <div className="col-md-3 mb-3">
-                                    <Form.Group>
-                                        <Form.Label>Care of Name {index + 1} (Hindi)</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder={`Care of (Hindi) ${index + 1}`}
-                                            name="VHName"
-                                            value={formData.COList[index].VHName}
-                                            onChange={(e) => handleCareOfChange(e, index)}
-                                        />
+                                    <Form.Group >
+                                        <Form.Label>Mobile No. 2</Form.Label>
+                                        <Form.Control type="tel" placeholder="Mobile No. 2" name="VMob2" value={formData.VMob2} onChange={handleChange} />
+                                        {errors.VMob2 && <div className="text-danger">{errors.VMob2}</div>}
                                     </Form.Group>
                                 </div>
-                                {index < 2 && (
-                                    <div className="col-md-2 mb-3">
-                                        <Form.Group>
-                                            <Form.Label>Add Care Of {index + 2}<sup className='text-red-500'>*</sup></Form.Label>
-                                            <br />
-                                            <input
-                                                type="checkbox"
-                                                className='w-6 h-6'
-                                                checked={formData.COList.length > index + 1}
-                                                onChange={(event) => handleCareOfCheck(index + 1, event)}
-                                            />
-                                        </Form.Group>
-                                    </div>
-                                )}
+                                <div className="col-md-3 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Name (English)<sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="text" placeholder="Name (English)" name="VEName" value={formData.VEName} onChange={handleChange} />
+                                        {errors.VEName && <div className="text-danger">{errors.VEName}</div>}
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-3 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Name (Hindi) <sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="text" placeholder="Name (Hindi)" name="VHName" value={formData.VHName} onChange={handleChange} />
+                                        {errors.VHName && <div className="text-danger">{errors.VHName}</div>}
+                                    </Form.Group>
+                                </div>
                             </Row>
-                        </div>
-                    ))}
 
-                    <Button variant="primary" type="submit">
-                        {content ? 'Update' : 'Submit'}
-                    </Button>
-                </Form>
-                <hr className="my-4" />
+                            <Row className="mb-3">
+                                <div className="col-md-5 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Address (English)<sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="text" placeholder="Address (English)" name="VEAddress" value={formData.VEAddress} onChange={handleChange} />
+                                        {errors.VEAddress && <div className="text-danger">{errors.VEAddress}</div>}
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-md-5 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Address (Hindi)<sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="text" placeholder="Address (Hindi)" name="VHAddress"
+                                            value={formData.VHAddress}
+                                            onChange={handleChange} />
+                                        {errors.VHAddress && <div className="text-danger">{errors.VHAddress}</div>}
+                                    </Form.Group>
+                                </div>
+                            </Row>
+
+
+                            <Row className="mb-3">
+                                <div className="col-md-3 mb-3">
+                                    <Form.Group>
+                                        <Form.Label>No. of Forms (Kanpur)</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder={`No. of Forms (Kanpur)`}
+                                            name="NoOfFormsKN"
+                                            value={formData.NoOfFormsKN}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-3 mb-3">
+                                    <Form.Group>
+                                        <Form.Label>No. of Forms (Dehat)</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder="No. of Forms (Dehat)"
+                                            name="NoOfFormsKD"
+                                            value={formData.NoOfFormsKD}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="col-md-3 mb-3">
+                                    <Form.Group>
+                                        <Form.Label>No. of Forms (Unnao)</Form.Label>
+                                        <Form.Control type="number"
+                                            placeholder="No. of Forms (Unnao)"
+                                            name="NoOfFormsU"
+                                            value={formData.NoOfFormsU}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-md-2 mb-3">
+                                    <Form.Group>
+                                        <Form.Label>Total Forms<sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="number" placeholder="Total Forms" name="" value={Number(formData.NoOfFormsKN) + Number(formData.NoOfFormsKD) + Number(formData.NoOfFormsU)} readOnly />
+                                    </Form.Group>
+                                </div>
+                            </Row>
+
+
+                            <Row className="mb-3">
+                                <div className="col-md-5 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Remarks</Form.Label>
+                                        <Form.Control type="text" placeholder="Remarks" name="ERemarks" value={formData.ERemarks} onChange={handleChange} />
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-md-2 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Packet No.<sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="text" placeholder="Packet No." name="PacketNo" value={formData.PacketNo} onChange={handleChange} />
+                                        {errors.PacketNo && <div className="text-danger">{errors.PacketNo}</div>}
+                                    </Form.Group>
+                                </div>
+
+                                <div className="col-md-2 mb-3">
+                                    <Form.Group >
+                                        <Form.Label>Received Date :<sup className='text-red-500'>*</sup></Form.Label>
+                                        <Form.Control type="date" placeholder="" name="ReceivedDate" value={formData.ReceivedDate} onChange={handleChange} />
+                                    </Form.Group>
+                                </div>
+                            </Row>
+
+                            {formData.COList.map((e, index) => (
+                                <div className="row mb-3" key={index}>
+                                    <Row className="mb-3">
+                                        <div className="col-md-3 mb-3">
+                                            <Form.Group controlId={`COList-${index}-VMob1`}>
+                                                <Form.Label>Care Of Mobile {index + 1}</Form.Label>
+                                                <Typeahead
+                                                    id={`COList-${index}-VMob1`}
+                                                    selected={formData.COList[index].VMob1 ? [{ VMob1: formData.COList[index].VMob1 }] : []}
+                                                    onInputChange={(inputValue) => {
+                                                        const error = validateFormsAdmin("CMob1", inputValue);
+                                                        setErrors((prevErrors) => ({ ...prevErrors, [`VMob1-${index}`]: error }));
+
+                                                        const updatedCOList = [...formData.COList];
+                                                        updatedCOList[index].VMob1 = inputValue;
+                                                        setFormData((prevDetails) => ({
+                                                            ...prevDetails,
+                                                            COList: updatedCOList,
+                                                        }));
+                                                        fetchSuggestedMobiles(inputValue, setSuggestedCareOfMobiles);
+                                                    }}
+                                                    onChange={(selected) => {
+                                                        const updatedCOList = [...formData.COList];
+                                                        if (selected.length > 0) {
+                                                            const [choice] = selected;
+                                                            updatedCOList[index] = {
+                                                                ...updatedCOList[index],
+                                                                VMob1: choice.VMob1,
+                                                                VEName: choice.VEName,
+                                                                VHName: choice.VHName,
+                                                            };
+                                                            setFormData({ ...formData, COList: updatedCOList });
+                                                            const error = validateFormsAdmin("CMob1", choice.VMob1);
+                                                            setErrors((prevErrors) => ({ ...prevErrors, [`VMob1-${index}`]: error }));
+                                                        } else {
+                                                            // Keep the typed value in VMob1 when no option is selected
+                                                            updatedCOList[index].VMob1 = formData.COList[index].VMob1;
+                                                            setFormData((prevDetails) => ({
+                                                                ...prevDetails,
+                                                                COList: updatedCOList,
+                                                            }));
+                                                        }
+                                                    }}
+                                                    options={suggestedCareOfMobiles}
+                                                    placeholder="Search mobile"
+                                                    labelKey="VMob1"
+                                                    renderMenuItemChildren={(option) => (
+                                                        <div>
+                                                            {option.VMob1} - {option.VEName}
+                                                        </div>
+                                                    )}
+                                                />
+                                                {errors[`VMob1-${index}`] && <div className="text-danger">{errors[`VMob1-${index}`]}</div>}
+                                            </Form.Group>
+                                        </div>
+
+
+                                        <div className="col-md-3 mb-3">
+                                            <Form.Group>
+                                                <Form.Label>Care of Name {index + 1} (English)</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder={`Care of (English) ${index + 1}`}
+                                                    name="VEName"
+                                                    value={formData.COList[index].VEName}
+                                                    onChange={(e) => handleCareOfChange(e, index)}
+
+                                                />
+                                            </Form.Group>
+                                        </div>
+                                        <div className="col-md-3 mb-3">
+                                            <Form.Group>
+                                                <Form.Label>Care of Name {index + 1} (Hindi)</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder={`Care of (Hindi) ${index + 1}`}
+                                                    name="VHName"
+                                                    value={formData.COList[index].VHName}
+                                                    onChange={(e) => handleCareOfChange(e, index)}
+                                                />
+                                            </Form.Group>
+                                        </div>
+                                        {index < 2 && (
+                                            <div className="col-md-2 mb-3">
+                                                <Form.Group>
+                                                    <Form.Label>Add Care Of {index + 2}<sup className='text-red-500'>*</sup></Form.Label>
+                                                    <br />
+                                                    <input
+                                                        type="checkbox"
+                                                        className='w-6 h-6'
+                                                        checked={formData.COList.length > index + 1}
+                                                        onChange={(event) => handleCareOfCheck(index + 1, event)}
+                                                    />
+                                                </Form.Group>
+                                            </div>
+                                        )}
+                                    </Row>
+                                </div>
+                            ))}
+
+                            <Button variant="primary" type="submit">
+                                {content ? 'Update' : 'Submit'}
+                            </Button>
+                        </Form>
+                        <hr className="my-4" />
                     </>
                 )
-            }
+                }
                 <h4 className="container mt-3 text-xl font-bold mb-3">IncomingForms List</h4>
                 <div className="overflow-x-auto">
 

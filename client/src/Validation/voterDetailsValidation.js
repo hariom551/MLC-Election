@@ -59,11 +59,12 @@ export const validateVoterDetails = (name, value) => {
             }
             break;
 
-        case 'VIdNo':
-            if (value && !/^\d{10}$/.test(value)){
-                error= 'Voter Id must be 10 digits'
-            }
-            break;
+            case 'VIdNo':
+                if (value && !/^[a-zA-Z0-9]{10}$/.test(value)) {
+                    error = 'Voter ID must be 10 alphanumeric characters';
+                }
+                break;
+            
 
         case 'RType':
         case 'CasteId':
