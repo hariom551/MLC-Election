@@ -6,6 +6,7 @@ import fetch from 'node-fetch';
 import uploadFiles from "../middleware/multer.middleware.js";
 import multer from "multer";
 import { fileURLToPath } from "url";
+import axios from 'axios';
 
 // import upload from '../middleware/upload.js';
 
@@ -113,6 +114,44 @@ const sendSMS = asyncHandler(async (req, res) => {
     }
 });
 
+const ultramsgApiUrl = 'https://api.ultramsg.com/instance93141/messages/chat';
+const ultramsgToken = 'tyxyxiv2k0e7801s';
+
+const whatsapp = asyncHandler(async (req, res) => {
+    const { Mobile, Text } = req.body;
+
+    if (!Mobile || !Array.isArray(Mobile) || !Text) {
+      return res.status(400).json({ error: 'Invalid input data' });
+    }
+  
+    try {
+      var data = JSON.stringify({
+        "token": ultramsgToken,
+        "to": Mobile.join(', '),
+        "body": Text
+      });
+  
+      var config = {
+        method: 'post',
+        url: ultramsgApiUrl,
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        data : data
+      };
+  
+      const response = await axios(config);
+  
+      console.log(JSON.stringify(response.data));
+      res.status(200).json({ message: 'Message sent successfully', data: response.data });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: 'Failed to send message', details: error.message });
+    }
+
+       
+});
+
 const DeleteVoter = asyncHandler(async (req, res) => {
     const { Id } = req.body;
     if (!Id) {
@@ -186,8 +225,6 @@ const voterDetailById = asyncHandler(async (req, res)=>{
 
 });
 
-
-
 const updateletter=asyncHandler(async(req,res)=>{
     const { content,loginUserId } = req.body;
     if (!content) {
@@ -241,11 +278,13 @@ const DisplayTelecallerData = asyncHandler(async (req, res) => {
 });
 
 
+
+
+
   
 import fs from 'fs';
 import path from 'path';
 import csvParser from 'csv-parser';
-// import asyncHandler from 'express-async-handler';
 
 const addtelecallerdata = asyncHandler(async (req, res) => {
     // Check if the file exists
@@ -339,5 +378,5 @@ const addtelecallerdata = asyncHandler(async (req, res) => {
 
 
 
-export { wardwiseVoterContact, sendSMS, DeleteVoter, voterDetailById , updateletter,prevletter, 
+export { wardwiseVoterContact, sendSMS, whatsapp, DeleteVoter, voterDetailById , updateletter,prevletter, 
     DisplayTelecallerData,addtelecallerdata, upload}; 

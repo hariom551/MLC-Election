@@ -68,9 +68,9 @@ const UpdateLetter = () => {
   };
 
   return (
-    <div className="bg-gray-100 py-6 p-20">
+    <div className="bg-gray-100 py-6 ">
       <ToastContainer />
-      <h1 className="text-2xl font-bold mb-4 text-black">Update Letter</h1>
+      <h1 className="text-xl font-bold mb-4 text-black">Update Letter</h1>
 
       <ReactQuill
         ref={quillRef}
@@ -79,7 +79,7 @@ const UpdateLetter = () => {
         modules={UpdateLetter.modules}
         formats={UpdateLetter.formats}
         placeholder="Write your letter here..."
-        className="text-black mb-4 bg-white"
+        className="text-black mb-4 mr-96 bg-white"
       />
       <button
         onClick={handleSave}

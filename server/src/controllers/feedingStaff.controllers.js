@@ -5,8 +5,8 @@ import { uploadFiles } from "../middleware/multer.middleware.js";
 import { queryDatabase } from "../utils/queryDatabase.js";
 
 const currentDate = new Date();
-const SDate = currentDate.toISOString(); 
-const MDate = currentDate.toISOString(); 
+const SDate = currentDate.toISOString();
+const MDate = currentDate.toISOString();
 
 const searchSurname = asyncHandler(async (req, res) => {
     const { query } = req.body;
@@ -173,7 +173,10 @@ const SearchPacketNo = asyncHandler(async (req, res) => {
     }
     try {
         const results = await queryDatabase(
-            `SELECT DISTINCT PacketNo FROM incomingform WHERE PacketNo LIKE ? LIMIT 10 `,
+            `SELECT DISTINCT PacketNo FROM incomingform WHERE PacketNo LIKE ? 
+            ORDER BY CAST(REGEXP_REPLACE(PacketNo, '[^0-9]', '') AS UNSIGNED),
+            REGEXP_REPLACE(PacketNo, '[0-9]', '') 
+            LIMIT 20;`,
             [`%${query}%`]
         );
         return res.json(results);
@@ -235,12 +238,12 @@ const AddVoter = [
             }
 
 
-            let referenceDetails, voterDetails, addressDetail,loginIdDetails;
+            let referenceDetails, voterDetails, addressDetail, loginIdDetails;
             try {
                 referenceDetails = JSON.parse(req.body.referenceDetails);
                 voterDetails = JSON.parse(req.body.voterDetails);
                 addressDetail = JSON.parse(req.body.addressDetail);
-                loginIdDetails=JSON.parse(req.body.loginIdDetails);
+                loginIdDetails = JSON.parse(req.body.loginIdDetails);
             } catch (e) {
                 return res.status(400).json(new ApiResponse(400, null, 'Invalid JSON data in the request body'));
             }
@@ -252,8 +255,7 @@ const AddVoter = [
             if (duplicateResult.length > 0) {
                 return res.status(400).json(new ApiResponse(400, null, 'Duplicate voter entry found'));
             }
-            if ( !(voterDetails.AadharNo || voterDetails.VIdNo))
-            {
+            if (!(voterDetails.AadharNo || voterDetails.VIdNo)) {
                 return res.status(400).json(new ApiResponse(400, null, 'please enter Aadhar No or Voter Id '));
             }
 
@@ -336,12 +338,12 @@ const UpdateVoter = [
             }
 
             // Parse incoming JSON data
-            let parsedReferenceDetails, parsedVoterDetails, parsedAddressDetail,loginIdDetails ;
+            let parsedReferenceDetails, parsedVoterDetails, parsedAddressDetail, loginIdDetails;
             try {
                 parsedReferenceDetails = JSON.parse(referenceDetails);
                 parsedVoterDetails = JSON.parse(voterDetails);
                 parsedAddressDetail = JSON.parse(addressDetail);
-                loginIdDetails=JSON.parse(req.body.loginIdDetails);
+                loginIdDetails = JSON.parse(req.body.loginIdDetails);
 
             } catch (e) {
                 return res.status(400).json(new ApiResponse(400, null, 'Invalid JSON data in the request body'));
@@ -388,7 +390,7 @@ const UpdateVoter = [
                 parsedAddressDetail.VSId, parsedAddressDetail.WBId, parsedAddressDetail.ChkBlkId,
                 parsedAddressDetail.HNo, parsedAddressDetail.Landmark,
                 voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
-                loginIdDetails.loginId, loginIdDetails.loginId,MDate,
+                loginIdDetails.loginId, loginIdDetails.loginId, MDate,
                 req.params.idNo // The ID to update
             ];
 

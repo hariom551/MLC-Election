@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client'; // Import createRoot from react-dom/client
+import { createRoot } from 'react-dom/client'; 
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Layout from './Layout.jsx';
@@ -23,15 +23,12 @@ import PollongStationList from './components/Admin/pollingStationList.jsx';
 import PollingStationAllotment from './components/Admin/pollingStationAllotment.jsx';
 import OutgoingForms from './components/FormsAdmin/OutcomingForm.jsx';
 import IncomingForms from './components/FormsAdmin/IncomingForms.jsx';
-import UpdateIncomingForm from './components/FormsAdmin/UpdateIncomingForm.jsx';
 import AddVoter from './components/FeedingStaff/AddVoter.jsx';
 import SearchChakBlock from './components/FeedingStaff/SearchChakBlock.jsx';
 import VoterList from './components/SubAdmin/VoterList.jsx';
 import Cookies from 'js-cookie';
-import Voters from './components/QCStaff/Voters.jsx';
 import DispatchLetter from './components/QCStaff/DispatchLetter.jsx';
 import SendSMSForm from './components/QCStaff/SendSMSForm.jsx';
-import UpdateLetter from './components/QCStaff/UpdateLetter.jsx';
 import DaywiseReport from './components/SubAdmin/DayWiseReport.jsx';
 import QCstaffcount from './components/SubAdmin/QCstaffcount.jsx';
 import FeedingStaffCount from './components/SubAdmin/FeedingStaffCount.jsx';
@@ -41,6 +38,7 @@ import AddTellecallerData from './components/QCStaff/AddTellecallerData.jsx';
 import MISDistrict from './components/Admin/Reports/MISDistrict.jsx';
 import MISPollingStation from './components/Admin/Reports/MISPollingStation.jsx';
 import Publish from './components/SuperAdmin/Publish.jsx';
+import Whatsapp from './components/QCStaff/Whatsapp.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -80,6 +78,10 @@ const getRoutesForRole = (role) => {
           <Route path="/areaVill" element={<AreaVill />} />
           <Route path="/pollingStationList" element={<PollongStationList />} />
           <Route path="/pollingStationAllotment" element={<PollingStationAllotment />} />
+          <Route path="/DispatchLetter" element={<DispatchLetter />} />
+          <Route path="/Telecaller" element={<SearchChakBlock />} />
+          <Route path="/QcForm" element={<SendSMSForm />} />
+          <Route path="/whatsapp" element={<Whatsapp />} />
           <Route path="/MISDistrict" element={<MISDistrict />} />
           <Route path="/MISPollingStationwise" element={<MISPollingStation />} />
 
@@ -97,6 +99,9 @@ const getRoutesForRole = (role) => {
           <Route path="/qcstaffcount" element={<QCstaffcount/>} />
           <Route  path ="/daywisereport" element={<DaywiseReport/>} />
           <Route  path ="/ReferenceVoterList" element={<ReferenceVoterList/>} />
+          <Route path="/employeeDetails" element={<TelecallerEmployeeData />} />
+          <Route path="/addtelecallerdata" element={<AddTellecallerData />} />
+
         </>
       );
     case 'Feeding Staff':
@@ -113,15 +118,8 @@ const getRoutesForRole = (role) => {
           <Route path="/home" element={<Home />} />
           {/* <Route path="/VoterList" element={<Voters />} /> */}
           <Route path="/VoterList" element={<VoterList />} />
-          <Route path="/searchChakBlock" element={<SearchChakBlock />} />
-          <Route path="/DispatchLetter" element={<DispatchLetter />} />
-          <Route path="/Telecaller" element={<SearchChakBlock />} />
-          <Route path="/QcForm" element={<SendSMSForm />} />
           <Route path="/editVoter" element={<AddVoter />} />
-          <Route path="/updateletter" element={<UpdateLetter />} />
-          <Route path="/employeeDetails" element={<TelecallerEmployeeData />} />
-          <Route path="/addtelecallerdata" element={<AddTellecallerData />} />
-
+          <Route path="/searchChakBlock" element={<SearchChakBlock />} />
 
         </>
       );
@@ -130,8 +128,6 @@ const getRoutesForRole = (role) => {
       return <Route path="*" element={<Navigate to="/" />} />;
   }
 };
-
-// Get user role from localStorage
 
 const token = Cookies.get('token');
 if(!token)
@@ -143,7 +139,6 @@ if(!token)
 const user = JSON.parse(localStorage.getItem('user'));
 const userRole = token && user ? user.role : '';
 
-// Create the root and render the app
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 

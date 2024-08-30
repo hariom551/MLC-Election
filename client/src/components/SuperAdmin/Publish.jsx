@@ -6,8 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 const Publish = () => {
   const [formData, setFormData]=useState({
       publishtype:'',
-      fromdate:'',
-      todate:'',
       publishdate:'',
 
     }
@@ -50,7 +48,7 @@ const Publish = () => {
   return (
     <main className="bg-gray-100">
       <ToastContainer />
-      <div className="container py-4 pl-6 text-black">
+      <div className="container py-4 pl-8 text-black">
         <h1 className="text-2xl font-bold mb-4">Publish Voterlist</h1>
 
         <Form className="PublishVoterlist-form" onSubmit={handleSubmit}>
@@ -97,30 +95,7 @@ const Publish = () => {
           </Form.Group>
 
           <Row className="mb-3">
-            <Col md={3} className="mb-3">
-              <Form.Group>
-                <Form.Label className="block mb-2">From:</Form.Label>
-                <input
-                  type="date"
-                  name="fromdate"
-                  value={formData.fromdate}
-                  onChange={handleChange}
-                  className="form-control border rounded-md p-2 w-full"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={3} className="mb-3">
-              <Form.Group>
-                <Form.Label className="block mb-2">To:</Form.Label>
-                <input
-                  type="date"
-                  name="todate"
-                  value={formData.todate}
-                  onChange={handleChange}
-                  className="form-control border rounded-md p-2 w-full"
-                />
-              </Form.Group>
-            </Col>
+           
             <Col md={3} className="mb-3">
               <Form.Group>
                 <Form.Label className="block mb-2">Publish Date:</Form.Label>

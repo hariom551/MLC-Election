@@ -76,9 +76,9 @@ function OutgoingForms() {
             const data = await response.json();
             setter(data);
 
-            console.log(suggestedCareOfMobiles);
+          
         } catch (error) {
-            console.error('Error fetching suggested mobile numbers:', error);
+            toast.error('Error fetching suggested mobile numbers:', error);
         }
     };
 
@@ -123,7 +123,7 @@ function OutgoingForms() {
                     }
                 }
             } catch (error) {
-                console.error('Error fetching OutgoingForms data:', error);
+                toast.error('Error fetching OutgoingForms data:', error);
             }
         };
 
@@ -305,6 +305,7 @@ function OutgoingForms() {
             "Name": row.original.RName,
             "Mobile": row.original.RMob1,
             "Address": row.original.RAddress,
+            "NoOfForms": row.original.NoOfForms,
             "CO1 Name": row.original.C1Name,
             "CO1 Mobile": row.original.C1Mob,
             "Sending Date": row.original.SendingDate,
@@ -314,11 +315,12 @@ function OutgoingForms() {
 
         if (format === 'csv') {
             const csv = generateCsv(csvConfig)(exportData);
-            download(csvConfig)(csv);
+            download(csvConfig)(csv, 'OutgoingForm.csv'); 
+            // download(csvConfig)(csv);
         } else if (format === 'pdf') {
             const doc = new jsPDF();
             const tableData = exportData.map(row => Object.values(row));
-            const tableHeaders = ["S.No", "Name", "Mobile", "Address", "CO1 Name", "CO1 Mobile", "Sending Date", "Remarks"];
+            const tableHeaders = ["S.No", "Name", "Mobile", "Address","NoOfForms", "CO1 Name", "CO1 Mobile", "Sending Date", "Remarks"];
             autoTable(doc, {
                 head: [tableHeaders],
                 body: tableData,
@@ -357,6 +359,9 @@ function OutgoingForms() {
                     flexWrap: 'wrap',
                 }}
             >
+
+{permission !== '0' && (
+<>
                 <MUIButton
                     disabled={table.getPrePaginationRowModel().rows.length === 0}
                     onClick={() => handleExport(table.getPrePaginationRowModel().rows, 'csv')}
@@ -371,6 +376,8 @@ function OutgoingForms() {
                 >
                     Export All Data (PDF)
                 </MUIButton>
+                </>
+)}
             </Box>
         ),
     });

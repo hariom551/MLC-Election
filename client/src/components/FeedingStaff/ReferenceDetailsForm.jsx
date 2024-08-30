@@ -51,8 +51,7 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
 
             const data = await response.json();
 
-      
-
+    
             if (!data || Object.keys(data).length === 0) {
                 throw new Error('Empty or invalid reference details data');
             }
@@ -68,7 +67,7 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
                 PacketNo: selectedOption,
                 IncRefId: data[0].IncRefId || '',
                 VMob1: data[0].RMob1 || '',
-                VMob2: data[0].RMob2 || '',
+                VMob2: data[0].RMob2 || '',   
                 VEName: data[0].RName || '',
                 VHName: data[0].RHName || '',
                 VEAddress: data[0].RAddress || '',
@@ -80,7 +79,6 @@ function ReferenceDetailsForm({ referenceDetails, setReferenceDetails, errors, s
             toast.error(`Error fetching reference details: ${error.message}`);
         }
     };
-
 
 
     const handleChange = (event) => {

@@ -240,9 +240,9 @@ const UpdateDistrictDetail = asyncHandler(async (req, res) => {
 
 const DeleteDistrictDetail = asyncHandler(async (req, res) => {
     const { DistCode } = req.body;
-    // if (!DistCode || !EDistrict || !HDistrict || !ESGraduate || !HSGraduate) {
-    //     throw new ApiError(400, "Please enter all details!")
-    // }
+    if (!DistCode ) {
+        throw new ApiError(400, "Error ")
+    }
 
     try {
         await queryDatabase(
@@ -273,38 +273,49 @@ const logoutuser = async (req, res) => {
 }
 
 const Publish = asyncHandler(async (req, res) => {
-    const { fromdate, todate, publishdate, publishtype } = req.body;
+    const {  publishdate, publishtype } = req.body;
 
     try {
+        // Initialize session variables
         await queryDatabase('SET @sno := 0;');
-        await queryDatabase('SET @current_wbid := \'\';');
+        await queryDatabase("SET @current_wbid := '';");
+
+
+        // Update the voterlist table
         await queryDatabase(
             `UPDATE voterlist
             JOIN (
                 SELECT 
-                    Id, 
-                    WBId, 
-                    EFName, 
-                    @sno := IF(@current_wbid = WBId, @sno + 1, 1) AS new_SNo, 
-                    @current_wbid := WBId 
-                FROM voterlist
-                WHERE SDate >= ? AND MDate <= ? 
-                ORDER BY WBId, EFName
+                    v1.Id, 
+                    v1.WBId, 
+                    v1.EFName, 
+                    @sno := IF(@current_wbid = v1.WBId, @sno + 1, IFNULL((SELECT MAX(SNo) FROM voterlist vl WHERE vl.WBId = v1.WBId), 0) + 1) AS new_SNo, 
+                    @current_wbid := v1.WBId 
+                FROM voterlist v1
+                WHERE SNo=0 
+                ORDER BY v1.WBId, v1.EFName
             ) AS ordered_voters 
             ON voterlist.Id = ordered_voters.Id 
             SET 
                 voterlist.SNo = ordered_voters.new_SNo,
                 voterlist.PubType = ?,
                 voterlist.PubDate = ?;`,
-            [fromdate, todate, publishtype, publishdate]
+            [ publishtype, publishdate]
         );
+
         return res.status(200).json(new ApiResponse(200, "District Published successfully"));
-    } catch (error) {
+    } 
+    
+    
+    
+    
+    
+    catch (error) {
         console.error("Database query error:", error);
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null));
     }
-  });
-  
+});
+
 
 export { loginUser, submitDetails, DistrictDetails, hariom, changePassword, AddDistrict, GetDistrictDetails, logoutuser, UpdateDistrictDetail, DeleteDistrictDetail, checkRole, Publish}
 

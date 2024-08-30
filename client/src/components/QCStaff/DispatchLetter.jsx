@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+import UpdateLetter from './UpdateLetter';
 
 
 function DispatchLetter() {
@@ -267,7 +268,9 @@ function DispatchLetter() {
         <main className="bg-gray-100">
             <ToastContainer />
             <div className="container py-4 pl-6 text-black">
-                <h1 className="text-2xl font-bold mb-4">Dispatch Letter</h1>
+            <h1 className="text-2xl font-bold mb-1">Letter</h1>
+                <UpdateLetter/>
+                <h1 className="text-xl font-bold mb-4">Dispatch Letter</h1>
                 <Form onSubmit={handleSubmit} className="voter-form">
                     <Row className="mb-3">
                         <div className="col-md-3 mb-3" style={{ zIndex: 10 }}>

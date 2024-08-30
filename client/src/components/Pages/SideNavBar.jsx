@@ -139,17 +139,17 @@ function SideNavBar({ show }) {
                         <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
 
 
-                        {permission!=='0' &&
-                        <div className="dropdown">
-                            <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('SubAdmin')}>
-                                <FaUserGroup className='text-xl' />Sub Admin<span className="dropdown-symbol">{dropdownStates.SubAdmin ? '-' : '+'}</span>
-                            </button>
-                            <div className={`dropdown-content ${dropdownStates.SubAdmin ? 'show' : ''}`} id="SubAdmin-dropdown-content">
-                                {/* <ul><li><Link to="/userForm">Sub Admin</Link></li></ul> */}
-                                <ul><li><Link to={{ pathname: "/userForm", search: "?content=Sub Admin" }}>  <FaUserGroup className='text-xl' />Sub Admin</Link></li></ul>
+                        {permission !== '0' &&
+                            <div className="dropdown">
+                                <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('SubAdmin')}>
+                                    <FaUserGroup className='text-xl' />Sub Admin<span className="dropdown-symbol">{dropdownStates.SubAdmin ? '-' : '+'}</span>
+                                </button>
+                                <div className={`dropdown-content ${dropdownStates.SubAdmin ? 'show' : ''}`} id="SubAdmin-dropdown-content">
+                                    {/* <ul><li><Link to="/userForm">Sub Admin</Link></li></ul> */}
+                                    <ul><li><Link to={{ pathname: "/userForm", search: "?content=Sub Admin" }}>  <FaUserGroup className='text-xl' />Sub Admin</Link></li></ul>
+                                </div>
                             </div>
-                        </div>
-                            }
+                        }
 
 
                         <div className="dropdown">
@@ -183,6 +183,23 @@ function SideNavBar({ show }) {
                             </div>
                         </div>
 
+
+                        {permission !== '0' &&
+
+                            <div className="dropdown">
+                                <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Staff')}>
+                                    <FaUserGroup className='text-xl' /> Communication<span className="dropdown-symbol">{dropdownStates.Staff ? '-' : '+'}</span>
+                                </button>
+
+                                <div className={`dropdown-content ${dropdownStates.Staff ? 'show' : ''}`} id="Staff-dropdown-content">
+                                    <ul><li><Link to="/QcForm">SMS</Link></li></ul>
+                                    <ul><li><Link to="/whatsapp">Whatsapp</Link></li></ul>
+                                    <ul><li><Link to="/DispatchLetter">Dispatch letter </Link></li></ul>
+                                   
+                                </div>
+                            </div>
+                        }
+
                         <div className="dropdown">
                             <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Reporters')}><FaUserGroup className='text-xl' />Reporters <span className="dropdown-symbol">{dropdownStates.Reporters ? '-' : '+'}</span></button>
                             <div className={`dropdown-content ${dropdownStates.Reporters ? 'show' : ''}`} id="reporters-dropdown-content">
@@ -212,18 +229,18 @@ function SideNavBar({ show }) {
                     <div className="subadmin-link">
                         <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
 
-                        {permission!=='0' &&
-                        <div className="dropdown">
-                            <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Staff')}>
-                                <FaUserGroup className='text-xl' /> Staff<span className="dropdown-symbol">{dropdownStates.Staff ? '-' : '+'}</span>
-                            </button>
+                        {permission !== '0' &&
+                            <div className="dropdown">
+                                <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Staff')}>
+                                    <FaUserGroup className='text-xl' /> Staff<span className="dropdown-symbol">{dropdownStates.Staff ? '-' : '+'}</span>
+                                </button>
 
-                            <div className={`dropdown-content ${dropdownStates.Staff ? 'show' : ''}`} id="Staff-dropdown-content">
-                                <ul><li><Link to={{ pathname: "/userForm", search: "?content=Feeding Staff" }}>Feeding Staff</Link></li></ul>
-                                <ul><li><Link to={{ pathname: "/userForm", search: "?content=QC Staff" }}>Quality Staff</Link></li></ul>
-                                {/* <ul><li><Link to={{ pathname: "/userForm", search: "?content=App Feeding Staff" }}>App Feeding Staff</Link></li></ul> */}
+                                <div className={`dropdown-content ${dropdownStates.Staff ? 'show' : ''}`} id="Staff-dropdown-content">
+                                    <ul><li><Link to={{ pathname: "/userForm", search: "?content=Feeding Staff" }}>Feeding Staff</Link></li></ul>
+                                    <ul><li><Link to={{ pathname: "/userForm", search: "?content=QC Staff" }}>Quality Staff</Link></li></ul>
+                                   
+                                </div>
                             </div>
-                        </div>
                         }
                         <br />
                         <div className="dropdown">
@@ -244,7 +261,21 @@ function SideNavBar({ show }) {
                             <div className={`dropdown-content ${dropdownStates.VoterL ? 'show' : ''}`} id="caste-dropdown-content">
                                 <ul><li><Link to="/VoterList">Voter List</Link></li></ul>
                                 <ul><li><Link to="/ReferenceVoterList">Reference Voter List</Link></li></ul>
-                                {/* <ul><li><a href="/ApprovedVoterList">Approved Voter List</a></li></ul> */}
+                            
+                            </div>
+                        </div>
+
+                        <div className="dropdown">
+                            <button className="dropbtn flex items-center gap-2
+                    " onClick={() => toggleDropdown('Form')}>
+                                <FaUserGroup className='text-xl' /> Telecaller<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>
+                            </button>
+
+                            <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
+                                {permission !== '0' &&
+                                    <ul><li><Link to="/addtelecallerdata">Add Data</Link></li></ul>
+                                }
+                                <ul><li><Link to="/employeeDetails">Display Data</Link></li></ul>
                             </div>
                         </div>
 
@@ -274,76 +305,16 @@ function SideNavBar({ show }) {
 
 
                 {role === 'QC Staff' && (
-                <div className="qualitystaff-link">
-                 <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
-                    <ul><li><Link to="/VoterList" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Voter List</Link></li></ul>
+                    <div className="qualitystaff-link">
+                        <ul><li><Link to="/Home" className='flex items-center gap-2'><IoMdHome className='text-2xl' />Home</Link></li></ul>
+                        <ul><li><Link to="/VoterList" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Voter List</Link></li></ul>
+                        <ul><li><Link to="/SearchChakBlock" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Search Chak Block</Link></li></ul>
+                        <ul><li><Link onClick={handleLogout} className='flex gap-2'><IoLogOutSharp className='text-2xl' />Logout</Link></li></ul>
 
-                 <div className="dropdown">
-                    <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('Staff')}>
-                        <FaUserGroup className='text-xl' /> Communication<span className="dropdown-symbol">{dropdownStates.Staff ? '-' : '+'}</span>
-                    </button>
-
-                    <div className={`dropdown-content ${dropdownStates.Staff ? 'show' : ''}`} id="Staff-dropdown-content">
-                    {/* <ul><li><Link to="/QcForm" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />SMS</Link></li></ul> */}
-
-                        <ul><li><Link to={{ pathname: "/QcForm", search: "?content=Feeding Staff" }}>SMS</Link></li></ul>
-                        <ul><li><Link to={{ pathname: "/userForm", search: "?content=QC Staff" }}>Whatsapp</Link></li></ul>
-                        {/* <ul><li><Link to={{ pathname: "/userForm", search: "?content=App Feeding Staff" }}>App Feeding Staff</Link></li></ul> */}
                     </div>
-                 </div>
-                 <br />
-                    <ul><li><Link to="/SearchChakBlock" className='flex items-center gap-2'><FaUserGroup className='text-2xl' />Search Chak Block</Link></li></ul>
-                 <div className="dropdown">
-                    <button className="dropbtn flex items-center gap-2
-                    " onClick={() => toggleDropdown('Form')}>
-                        <FaUserGroup className='text-xl' /> Telecaller<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>
-                    </button>
-                    
-                    <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
-                        {permission!=='0' &&
-                        <ul><li><Link to="/addtelecallerdata">Add Data</Link></li></ul>
-                        }
-                        <ul><li><Link to="/employeeDetails">Display Data</Link></li></ul>
-                    </div>
-                 </div>
+                )}
+            </div>
 
-                 {permission!=='0'&&
-                       
-                 <div className="dropdown">
-
-                    <button className="dropbtn flex items-center gap-2" onClick={() => toggleDropdown('VoterL')}>
-                        <FaUserGroup className='text-xl' /> Letter <span className="dropdown-symbol">{dropdownStates.VoterL ? '-' : '+'}</span>
-                    </button>
-                    <div className={`dropdown-content ${dropdownStates.VoterL ? 'show' : ''}`} id="caste-dropdown-content">
-                        <ul><li><Link to="/updateletter">Update Letter</Link></li></ul>
-                        <ul><li><Link to="/DispatchLetter">Dispatch letter </Link></li></ul>
-                    </div>
-                 </div>
-                }
-                 <ul><li><Link onClick={handleLogout} className='flex gap-2'><IoLogOutSharp className='text-2xl' />Logout</Link></li></ul>
-
-            
-
-
-
-
-                    
-                
-                    </div>
-                  )}
-
-
-                  </div>
-
-
-
-
-            {/* Other general navigation items */}
-            {/* <ul>
-                <li><a href="/" className='active'>Home</a></li>
-                <li><a href="/">About Us</a></li>
-                <li><a href="/">Contact us</a></li>
-            </ul> */}
         </div>
     );
 }

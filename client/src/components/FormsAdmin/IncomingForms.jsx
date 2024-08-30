@@ -370,10 +370,10 @@ function IncomingForms() {
             "Name": row.original.RName,
             "Mobile": row.original.RMob1,
             "Address": row.original.RAddress,
-            "InForm Kanpur": row.original.NFormsKN,
-            "InForm Dehat": row.original.NFormsKd,
-            "InForm Unnao": row.original.NFormsU,
-            "TotalForms": row.original.TotalForms,
+            "InForm Kanpur": Number(row.original.NFormsKN),
+            "InForm Dehat": Number(row.original.NFormsKd),
+            "InForm Unnao": Number(row.original.NFormsU),
+           "TotalForms": Number(row.original.NFormsKN) + Number(row.original.NFormsKd) + Number(row.original.NFormsU),
             "CO1 Name": row.original.C1Name,
             "CO1 Mobile": row.original.C1Mob,
             "CO2 Name": row.original.C2Name,
@@ -386,7 +386,7 @@ function IncomingForms() {
 
         if (format === 'csv') {
             const csv = generateCsv(csvConfig)(exportData);
-            download(csvConfig)(csv);
+            download(csvConfig)(csv, 'incomingForm.csv');
         } else if (format === 'pdf') {
             const doc = new jsPDF('landscape');
             const tableData = exportData.map(row => Object.values(row));
@@ -428,6 +428,8 @@ function IncomingForms() {
                     flexWrap: 'wrap',
                 }}
             >
+                {permission !== '0' && (
+                    <>
                 <MUIButton
                     disabled={table.getPrePaginationRowModel().rows.length === 0}
                     onClick={() => handleExport(table.getPrePaginationRowModel().rows, 'csv')}
@@ -442,6 +444,8 @@ function IncomingForms() {
                 >
                     Export All Data (PDF)
                 </MUIButton>
+                </>
+                )}
             </Box>
         ),
     });
