@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Row, Form, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { jsPDF } from 'jspdf';
@@ -10,12 +11,7 @@ import autoTable from 'jspdf-autotable';
 import { Box, Button as MUIButton } from '@mui/material';
 const FeedingStaffCount = () => {
   
-  const formatDate = (date) => {
-    if (date instanceof Date && !isNaN(date)) {
-      return date.toISOString().split('T')[0]; 
-    }
-    return '';
-  };
+
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);

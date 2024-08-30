@@ -21,6 +21,7 @@ function SideNavBar({ show }) {
         VoterL: false,
         Staff: false,
         forms: false,
+        Telecaller: false,
 
     });
 
@@ -267,11 +268,11 @@ function SideNavBar({ show }) {
 
                         <div className="dropdown">
                             <button className="dropbtn flex items-center gap-2
-                    " onClick={() => toggleDropdown('Form')}>
-                                <FaUserGroup className='text-xl' /> Telecaller<span className="dropdown-symbol">{dropdownStates.Form ? '-' : '+'}</span>
+                    " onClick={() => toggleDropdown('Telecaller')}>
+                                <FaUserGroup className='text-xl' /> Telecaller<span className="dropdown-symbol">{dropdownStates.Telecaller ? '-' : '+'}</span>
                             </button>
 
-                            <div className={`dropdown-content ${dropdownStates.Form ? 'show' : ''}`} id="form-dropdown-content">
+                            <div className={`dropdown-content ${dropdownStates.Telecaller ? 'show' : ''}`} id="Telecaller-dropdown-content">
                                 {permission !== '0' &&
                                     <ul><li><Link to="/addtelecallerdata">Add Data</Link></li></ul>
                                 }

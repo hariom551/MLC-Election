@@ -2,17 +2,11 @@ import { MaterialReactTable } from 'material-react-table';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Form, Col, Button } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import { toast } from 'react-toastify';
+import { toast,ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const DaywiseReport = () => {
 
-  const formatDate = (date) => {
-    if (date instanceof Date && !isNaN(date)) {
-      return date.toISOString().split('T')[0]; // 
-    }
-    return '';
-  };
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);

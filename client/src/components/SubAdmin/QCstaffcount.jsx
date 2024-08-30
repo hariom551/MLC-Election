@@ -3,19 +3,14 @@ import React, { useMemo, useState } from 'react';
 import { Row, Form, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Box, Button as MUIButton } from '@mui/material';
 const QCstaffcount = () => {
-  
-  const formatDate = (date) => {
-    if (date instanceof Date && !isNaN(date)) {
-      return date.toISOString().split('T')[0]; 
-    }
-    return '';
-  };
+
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -61,7 +56,7 @@ const QCstaffcount = () => {
       Cell: ({ row }) => (
         <Link 
           to={`/daywisereport?content=${row.original.userid}`} 
-          className="btn btn-link" // Styling with Bootstrap class
+          className="btn btn-link" 
         >
           {row.original.name}
         </Link>
@@ -116,7 +111,6 @@ const QCstaffcount = () => {
   }
 };
 
-
   return (
     <main className='bg-gray-100'>
       <ToastContainer />
@@ -154,7 +148,7 @@ const QCstaffcount = () => {
           </Row>
         </Form>
         <hr className='my-4' />
-        {/* <h4 className='container mt-3 text-xl font-bold mb-3'>Feeding Staff List</h4> */}
+        
         <div className='overflow-x-auto'>
           <MaterialReactTable
             columns={columns}

@@ -1,24 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RxHamburgerMenu } from "react-icons/rx";
 import SideNavBar from './SideNavBar';
-
+import { toast,ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Header() {
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
     const [showNav, setShowNav] = useState(false);
     const [userId, setUserId] = useState('');
     const [role, setRole] = useState('not logged in');
+    const [name, setName] = useState('');
+
     const sideNavRef = useRef(null);
     const menuRef = useRef(null);
 
     useEffect(() => {
-        updateTime(); // Initial update
+        updateTime(); 
         const interval = setInterval(updateTime, 1000); // Update time every second
         return () => clearInterval(interval); // Clean up interval
     }, []);
 
     useEffect(() => {
         const user = localStorage.getItem("user");
+        
         if (user) {
             try {
                 const userData = JSON.parse(user);
@@ -26,9 +30,10 @@ function Header() {
 
                     setRole(userData.role);
                     setUserId(userData.userid);
+                    setName(userData.name)
                 }
             } catch (error) {
-                console.error("Error parsing user data:", error);
+                toast.error("Error parsing user data:", error);
             }
         }
     }, []);
@@ -75,7 +80,7 @@ function Header() {
                     <span className="text-white"><RxHamburgerMenu onClick={handleMenuClick} /></span>
                 </div>
                 <div className="text-center text-white">
-                    <span className="font-bold text-lg">{role}</span> <br />
+                    <span className="font-bold text-lg">{role} - {name}</span> <br />
                     <span className="text-lg">User ID: {userId}</span>
                 </div>
                 <div className="text-right text-white">
