@@ -3,7 +3,14 @@ import { MdOutlinePlaylistAddCheck } from 'react-icons/md';
 import { FaUserPlus } from 'react-icons/fa';
 
 const FormsAdminInfo = () => {
-    const [FAInfo, setFAInfo] = useState({ totalIncomingForms: 0, totalOutgoingForms: 0 });
+    const token = localStorage.getItem('token');
+    const [FAInfo, setFAInfo] = useState(
+        {
+            totalIncomingForms: 0,
+            totalOutgoingForms: 0,
+            RefIncForm: 0,
+            RefOutForm: 0,
+        });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -11,31 +18,28 @@ const FormsAdminInfo = () => {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/formsAdmin/formsAdminInfo`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch IncomingForms details');
                 }
-
                 const data = await response.json();
-   
                 if (!data) {
                     throw new Error('Empty or invalid IncomingForms details data');
                 }
-
                 setFAInfo(data);
             } catch (error) {
                 console.error('Error fetching IncomingForms data:', error);
             }
         };
-
         fetchData();
     }, []);
 
     return (
-        <div className="gap-4 lg:flex">
+        <div className="gap-4 lg:flex pl-10 py-6">
             <div className='gap-4 sm:flex my-2'>
                 <div className='h-24 lg:w-[20vw] w-full bg-sky-600 flex my-1 box1 hover:bg-sky-700 hover:transition-transform hover:transform-gpu'>
                     <div className='h-full w-36 bg-sky-800 flex items-center justify-center'>
@@ -65,7 +69,8 @@ const FormsAdminInfo = () => {
                     </div>
                     <div className='h-24 w-full flex items-start justify-center text-white flex-col px-3'>
                         <p>REF. OUTGOING</p>
-                        <span className='text-2xl'>-</span>
+                        <span className='text-2xl'>{FAInfo.RefOutForm}</span>
+                     
                     </div>
                 </div>
 
@@ -75,7 +80,7 @@ const FormsAdminInfo = () => {
                     </div>
                     <div className='h-24 w-full flex items-start justify-center text-white flex-col px-3'>
                         <p>REF. INCOMING</p>
-                        <span className='text-2xl'>-</span>
+                        <span className='text-2xl'>{FAInfo.RefIncForm}</span>
                     </div>
                 </div>
             </div>

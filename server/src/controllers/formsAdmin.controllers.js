@@ -86,15 +86,23 @@ const AddOutForm = asyncHandler(async (req, res) => {
 const OutFormDetails = asyncHandler(async (req, res) => {
 
     try {
-        const OutForms = await queryDatabase(`
+        let query = `
         SELECT O.Id, v1.VEName AS RName, V1.VHName as RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress,v1.VHAddress AS RHAddress,
         v2.VEName AS C1Name, v2.VHName AS CH1Name , V2.VMob1 as C1Mob, 
         DATE_FORMAT(O.SendingDate, '%d-%m-%Y') AS SendingDate, O.ERemark, O.NoOfForms
         FROM outgoingform AS O
         LEFT JOIN volunteer AS v1 ON O.RefId = v1.Id
         LEFT JOIN volunteer AS v2 ON O.COId = v2.Id
-      
-        `);
+        `;
+
+        let queryParams = [];
+        if (req.user.role === 'Forms Admin') {
+            query += " WHERE O.SBy = ?";
+            queryParams.push(req.user.userid);
+        }
+
+        const OutForms = await queryDatabase(query, queryParams);
+
         return res.json(OutForms);
         // res.status(200).json(new ApiResponse(200, incomingForms, "Fetched all Outgoing forms successfully"));
     } catch (error) {
@@ -360,21 +368,28 @@ const UpdateIncomForm = asyncHandler(async (req, res) => {
 });
 
 const incomFormDetails = asyncHandler(async (req, res) => {
-
     try {
-        const incomingForms = await queryDatabase(`
-        SELECT v1.Id As IncRefId, v1.VEName AS RName, V1.VHName AS RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress, V1.VHAddress AS RHAddress,
-        i.Id, i.PacketNo, i.NFormsKN,  i.NFormsKd, i.NFormsU, DATE_FORMAT(i.ReceivedDate, '%d-%m-%Y') AS ReceivedDate, i.ERemarks,
-        v2.VEName AS C1Name,v2.VHName AS C1HName, V2.VMob1 as C1Mob, 
-        v3.VEName AS C2Name, v3.VHName AS C2HName, V3.VMob1 as C2Mob, 
-        v4.VEName AS C3Name, v4.VHName AS C3HName, V4.VMob1 as C3Mob
-        FROM incomingform AS i
-        LEFT JOIN volunteer AS v1 ON i.RefId = v1.Id
-        LEFT JOIN volunteer AS v2 ON i.COId1 = v2.Id
-        LEFT JOIN volunteer AS v3 ON i.COId2 = v3.Id
-        LEFT JOIN volunteer AS v4 ON i.COId3 = v4.Id
-        
-        `);
+        let query = `
+            SELECT v1.Id AS IncRefId, v1.VEName AS RName, V1.VHName AS RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress, V1.VHAddress AS RHAddress,
+            i.Id, i.PacketNo, i.NFormsKN, i.NFormsKd, i.NFormsU, DATE_FORMAT(i.ReceivedDate, '%d-%m-%Y') AS ReceivedDate, i.ERemarks,
+            v2.VEName AS C1Name, v2.VHName AS C1HName, V2.VMob1 as C1Mob, 
+            v3.VEName AS C2Name, v3.VHName AS C2HName, V3.VMob1 as C2Mob, 
+            v4.VEName AS C3Name, v4.VHName AS C3HName, V4.VMob1 as C3Mob
+            FROM incomingform AS i
+            LEFT JOIN volunteer AS v1 ON i.RefId = v1.Id
+            LEFT JOIN volunteer AS v2 ON i.COId1 = v2.Id
+            LEFT JOIN volunteer AS v3 ON i.COId2 = v3.Id
+            LEFT JOIN volunteer AS v4 ON i.COId3 = v4.Id
+        `;
+
+        let queryParams = [];
+        if (req.user.role === 'Forms Admin') {
+            query += " WHERE i.SBy = ?";
+            queryParams.push(req.user.userid);
+        }
+
+        const incomingForms = await queryDatabase(query, queryParams);
+
         return res.json(incomingForms);
         // res.status(200).json(new ApiResponse(200, incomingForms, "Fetched all incoming forms successfully"));
     } catch (error) {
@@ -406,30 +421,41 @@ const SearchVMobNo = asyncHandler(async (req, res) => {
     }
 });
 
-const FormsAdminInfo= asyncHandler(async (req, res) => {
+const FormsAdminInfo = asyncHandler(async (req, res) => {
     try {
-        const result = await queryDatabase(`
-        SELECT 
-        (SELECT SUM(NFormsKN) + sum(NFormsKd) + sum(NFormsU) FROM incomingform) AS totalIncomingForms,
-        (SELECT SUM(NoOFForms) FROM outgoingform) AS totalOutgoingForms;
-    
-        `);
+        
+        let incomingFormsQuery = `SELECT SUM(NFormsKN) + SUM(NFormsKd) + SUM(NFormsU) AS totalIncomingForms, COUNT(*) AS RefIncForm FROM incomingform`;
+        let outgoingFormsQuery = `SELECT SUM(NoOFForms) AS totalOutgoingForms, COUNT(*) AS RefOutForm FROM outgoingform`;
+        
+        let queryParams = [];
 
-        if (result.length > 0) {
-            return res.json(result[0]); 
-        } else {
-            return res.json({ totalIncomingForms: 0, totalOutgoingForms: 0 });
+        // Conditionally add WHERE clause if the user is a Forms Admin
+        if (req.user.role === 'Forms Admin') {
+            incomingFormsQuery += ` WHERE SBy = ?`;
+            outgoingFormsQuery += ` WHERE SBy = ?`;
+            queryParams.push(req.user.userid); 
         }
 
-       
-        
+        // Execute both queries separately and get the results
+        const [incomingFormsResult] = await queryDatabase(incomingFormsQuery, queryParams);
+        const [outgoingFormsResult] = await queryDatabase(outgoingFormsQuery, queryParams);
+
+        // Combine the results
+        const result = {
+            totalIncomingForms: incomingFormsResult.totalIncomingForms || 0,
+            totalOutgoingForms: outgoingFormsResult.totalOutgoingForms || 0,
+            RefIncForm: incomingFormsResult.RefIncForm || 0,
+            RefOutForm: outgoingFormsResult.RefOutForm || 0
+        };
+
+        return res.json(result); 
+
     } catch (error) {
-        console.error('Error in fetching incoming forms:', error);
+        console.error('Error in fetching forms data:', error);
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
+});
 
-
-})
 
 export {
     SearchVMobNo,

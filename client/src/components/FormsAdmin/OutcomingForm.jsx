@@ -57,6 +57,7 @@ function OutgoingForms() {
     const loginUserId = user.userid;
     const role = user.role;
     const permission = user.permissionaccess;
+    const token = localStorage.getItem('token');
 
 
     const fetchSuggestedMobiles = async (input, setter) => {
@@ -88,7 +89,8 @@ function OutgoingForms() {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/FormsAdmin/outFormDetails`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 if (!response.ok) {

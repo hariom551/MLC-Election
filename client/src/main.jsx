@@ -39,6 +39,7 @@ import MISDistrict from './components/Admin/Reports/MISDistrict.jsx';
 import MISPollingStation from './components/Admin/Reports/MISPollingStation.jsx';
 import Publish from './components/SuperAdmin/Publish.jsx';
 import Whatsapp from './components/QCStaff/Whatsapp.jsx';
+import FormsAdminInfo from './components/FormsAdmin/FormsAdminInfo.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {
@@ -58,7 +59,7 @@ const getRoutesForRole = (role) => {
     case 'Forms Admin':
       return (
         <>
-          <Route path="/home" element={<Home />} />
+          <Route path="/home" element={<FormsAdminInfo />} />
           <Route path="/incomingForms" element={<IncomingForms />} />
           <Route path="/outgoingForms" element={<OutgoingForms />} />
         </>
