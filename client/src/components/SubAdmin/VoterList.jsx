@@ -17,6 +17,7 @@ function VoterList() {
     const DId = user ? user.DId : '';
     const userRole= user.role;
     const permission = user.permissionaccess;
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         const fetchWBOptions = async () => {
@@ -75,7 +76,8 @@ function VoterList() {
                 method: 'POST',
                 body: JSON.stringify({ Id }),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${token}`
                 }
             });
             console.log(result);

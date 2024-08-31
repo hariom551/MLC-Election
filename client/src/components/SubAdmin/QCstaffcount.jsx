@@ -15,7 +15,7 @@ const QCstaffcount = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [qcstaff, setQcstaff] = useState([]);          
-
+  const token = localStorage.getItem('token');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -23,7 +23,12 @@ const QCstaffcount = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subadmin/qcstaffcount`, {
         method: 'POST',
         body: JSON.stringify({startDate,endDate}),
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+           'Authorization': `Bearer ${token}`
+
+
+         },
       });
 
       if(!response.ok){

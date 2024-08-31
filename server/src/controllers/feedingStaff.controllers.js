@@ -223,7 +223,7 @@ const AddVoter = [
             const maxIdNoResult = await queryDatabase(`SELECT MAX(Id) AS maxIdNo FROM voterlist`);
             const IdNo = maxIdNoResult && maxIdNoResult.length > 0 && maxIdNoResult[0].maxIdNo !== null ? maxIdNoResult[0].maxIdNo + 1 : 1;
 
-            req.idNo = IdNo; // Set generated IdNo for the voter
+            req.idNo = IdNo; 
             next();
         } catch (error) {
 
@@ -300,8 +300,8 @@ const AddVoter = [
                 addressDetail.Landmark, voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
                 loginIdDetails.loginId, loginIdDetails.loginId, loginIdDetails.loginId, SDate, MDate
             ];
-
             await queryDatabase(query, values);
+
             return res.status(201).json(new ApiResponse(201, null, "Voter added successfully"));
         } catch (error) {
 
@@ -316,9 +316,15 @@ const UpdateVoter = [
             const { idNo } = req.params;
 
             const currentVoterResult = await queryDatabase(`SELECT * FROM voterlist WHERE Id = ?`, [idNo]);
+
             if (currentVoterResult.length === 0) {
                 return res.status(404).json(new ApiResponse(404, null, 'Voter not found'));
             }
+
+         
+
+
+
 
             req.currentVoter = currentVoterResult[0];
             req.idNo = idNo;
@@ -337,7 +343,6 @@ const UpdateVoter = [
                 return res.status(400).json(new ApiResponse(400, null, 'Missing required fields in the request body'));
             }
 
-            // Parse incoming JSON data
             let parsedReferenceDetails, parsedVoterDetails, parsedAddressDetail, loginIdDetails;
             try {
                 parsedReferenceDetails = JSON.parse(referenceDetails);
@@ -354,17 +359,17 @@ const UpdateVoter = [
             if (req.files['Image']) {
                 voterDocs.Image = req.files['Image'][0].filename;
             } else {
-                voterDocs.Image = req.currentVoter.Image; // Retain current image if not updated
+                voterDocs.Image = req.currentVoter.Image; 
             }
             if (req.files['IdProof']) {
                 voterDocs.IdProof = req.files['IdProof'][0].filename;
             } else {
-                voterDocs.IdProof = req.currentVoter.IdProof; // Retain current IdProof if not updated
+                voterDocs.IdProof = req.currentVoter.IdProof; 
             }
             if (req.files['Degree']) {
                 voterDocs.Degree = req.files['Degree'][0].filename;
             } else {
-                voterDocs.Degree = req.currentVoter.Degree; // Retain current Degree if not updated
+                voterDocs.Degree = req.currentVoter.Degree; 
             }
 
             const query = `UPDATE voterlist SET 
@@ -391,10 +396,33 @@ const UpdateVoter = [
                 parsedAddressDetail.HNo, parsedAddressDetail.Landmark,
                 voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
                 loginIdDetails.loginId, loginIdDetails.loginId, MDate,
-                req.params.idNo // The ID to update
+                req.params.idNo 
             ];
 
             await queryDatabase(query, values);
+
+            await queryDatabase(
+                `INSERT INTO evoterlist(
+                    Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
+                    CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
+                    Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
+                    DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
+                    IsEdited, IncFormId, PacketNo, ONStatus, MobileNoRemark, AddressRemark, NameRemark, 
+                    FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
+                    GPId, SBy, SDate, MBy, MDate
+                )
+                SELECT 
+                    Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
+                    CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
+                    Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
+                    DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
+                    IsEdited, IncFormId, PacketNo, ONStatus, MobileNoRemark, AddressRemark, NameRemark, 
+                    FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
+                    GPId, SBy, SDate, MBy, MDate
+                FROM voterlist 
+                WHERE Id  = ?`, 
+                [req.idNo ]
+            );
             return res.status(200).json(new ApiResponse(200, null, "Voter updated successfully"));
         } catch (error) {
 

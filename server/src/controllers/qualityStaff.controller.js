@@ -3,17 +3,12 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 import fetch from 'node-fetch';
-import uploadFiles from "../middleware/multer.middleware.js";
 import multer from "multer";
 import { fileURLToPath } from "url";
 import axios from 'axios';
 
-// import upload from '../middleware/upload.js';
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
  const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -27,14 +22,12 @@ const __dirname = path.dirname(__filename);
     }
   });
 
-  // Create the multer instance with the storage configuration
   const upload = multer({
     storage: storage,
     limits: {
         fileSize: 2 * 1024 * 1024, 
     },
 });
-
 
 const currentDate = new Date();
 const CDate = currentDate.toISOString(); 
@@ -181,10 +174,13 @@ const DeleteVoter = asyncHandler(async (req, res) => {
             WHERE Id  = ?`, 
             [Id]
         );
-        
-        
+
         await queryDatabase(
             'DELETE FROM voterlist WHERE Id = ?', [Id]
+        );
+
+        await queryDatabase(
+            'UPDATE dvoterlist SET Mby = ?, MDate=? WHERE Id = ?', [ req.user.userid, CDate, Id]
         );
 
         return res.status(200).json(
@@ -260,7 +256,6 @@ const prevletter = asyncHandler(async (req, res) => {
     }
 });
 
-
 const DisplayTelecallerData = asyncHandler(async (req, res) => {
     try {
         const result = await queryDatabase(`SELECT * FROM telecallerdetail`);
@@ -277,11 +272,6 @@ const DisplayTelecallerData = asyncHandler(async (req, res) => {
     }
 });
 
-
-
-
-
-  
 import fs from 'fs';
 import path from 'path';
 import csvParser from 'csv-parser';
@@ -373,10 +363,6 @@ const addtelecallerdata = asyncHandler(async (req, res) => {
             res.status(500).json({ message: "Error reading CSV file" });
         });
 });
-
-
-
-
 
 export { wardwiseVoterContact, sendSMS, whatsapp, DeleteVoter, voterDetailById , updateletter,prevletter, 
     DisplayTelecallerData,addtelecallerdata, upload}; 

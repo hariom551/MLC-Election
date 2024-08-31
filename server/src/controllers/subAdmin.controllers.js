@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -32,7 +31,6 @@ const voterList = asyncHandler(async (req, res) => {
     }
 });
 
-
 const NoMobvoterList = asyncHandler(async (req, res) => {
 
     const { WBId } = req.body;
@@ -61,19 +59,18 @@ const NoMobvoterList = asyncHandler(async (req, res) => {
     }
 });
 
-
 const FeedingStaff = asyncHandler(async (req, res) => {
     const { startDate, endDate } = req.body;
 
     try {
         const query = `
-        SELECT U.name, U.mobile1, U.userid,COUNT(U.userid) AS user_count
+        SELECT U.name, U.mobile1, U.userid, COUNT(U.userid) AS user_count
         FROM voterlist
-        LEFT JOIN userlogin AS U ON voterlist.SBy = U.userid
+         JOIN userlogin AS U ON voterlist.SBy = U.userid AND U.SBy= ?
         WHERE voterlist.SDate BETWEEN '${startDate}' AND '${endDate}'
        GROUP BY U.userid, U.name, U.mobile1;
       `;
-        const results = await queryDatabase(query, [startDate, endDate]);
+        const results = await queryDatabase(query, [req.user.userid, startDate, endDate]);
 
         return res.json(results);
     } catch (error) {
@@ -81,7 +78,6 @@ const FeedingStaff = asyncHandler(async (req, res) => {
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
-
 
 const DayWiseReport = asyncHandler(async (req, res) => {
     const { startDate, endDate, userId } = req.body;
@@ -117,16 +113,15 @@ const qcstaffcount = asyncHandler(async (req, res) => {
 
     try {
         const query = `
-        SELECT U.name, U.mobile1, U.userid,COUNT(U.userid) AS user_count
+        SELECT U.name, U.mobile1, U.userid, COUNT(U.userid) AS user_count
         FROM voterlist
-        LEFT JOIN userlogin AS U ON voterlist.MBy = U.userid
-        WHERE voterlist.MDate BETWEEN '${startDate}' AND '${endDate}'
-       GROUP BY U.userid, U.name, U.mobile1;
+        JOIN userlogin AS U ON voterlist.MBy = U.userid 
+        GROUP BY U.userid, U.name, U.mobile1;
       `;
-        const results = await queryDatabase(query, [startDate, endDate]);
+        const results = await queryDatabase(query, [ startDate, endDate]);
         return res.json(results);
     } catch (error) {
-
+        console.error('Database query error:', error);
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
@@ -148,7 +143,6 @@ const QCDayWiseReport = asyncHandler(async (req, res) => {
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
-
 
 const ReferenceVoterList = asyncHandler(async (req, res) => {
     const { number } = req.body;
