@@ -102,7 +102,7 @@ function AddVoter() {
         voterDocs: {},
     });
 
-    
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -341,7 +341,11 @@ function AddVoter() {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/qualityStaff/UpdateVoter/${content}`, {
                 method: 'PUT',
                 body: formData,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
+            
 
             const data = await response.json();
             if (!response.ok) {

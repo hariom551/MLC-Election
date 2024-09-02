@@ -86,8 +86,9 @@ const DayWiseReport = asyncHandler(async (req, res) => {
         const query = `SELECT DATE_FORMAT(SDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
                        FROM voterlist 
                        WHERE SBy = ? 
-                         AND SDate BETWEEN ? AND ? 
-                       GROUP BY SBy, SDate;`;
+                         AND DATE(SDate) BETWEEN ? AND ? 
+                       GROUP BY SBy, SDate
+                       ORDER BY SDate;`;
         const results = await queryDatabase(query, [userId, startDate, endDate]);
       
         return res.json(results);
@@ -114,14 +115,15 @@ const qcstaffcount = asyncHandler(async (req, res) => {
     try {
         const query = `
         SELECT U.name, U.mobile1, U.userid, COUNT(U.userid) AS user_count
-        FROM voterlist
-        JOIN userlogin AS U ON voterlist.MBy = U.userid 
+        FROM evoterlist AS ev
+        JOIN userlogin AS U ON ev.MBy = U.userid AND U.SBy= ?
+         WHERE ev.MDate BETWEEN '${startDate}' AND '${endDate}'
         GROUP BY U.userid, U.name, U.mobile1;
       `;
-        const results = await queryDatabase(query, [ startDate, endDate]);
+        const results = await queryDatabase(query, [ req.user.userid, startDate, endDate]);
         return res.json(results);
     } catch (error) {
-        console.error('Database query error:', error);
+        
         return res.status(500).json({ error: "A database error occurred." });
     }
 });
@@ -130,11 +132,12 @@ const QCDayWiseReport = asyncHandler(async (req, res) => {
     const { startDate, endDate, userId } = req.body;
     
     try {
-        const query = `SELECT DATE_FORMAT(SDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
+        const query = `SELECT DATE_FORMAT(MDate, '%d/%m/%Y') AS formatted_date, COUNT(SBy) AS Total 
                        FROM voterlist 
                        WHERE MBy = ? 
-                         AND MDate BETWEEN ? AND ? 
-                       GROUP BY MBy, MDate;`;
+                         AND DATE(MDate) BETWEEN ? AND ? 
+                       GROUP BY MBy, DATE(MDate)
+                       ORDER BY MDate ASC;`;
         const results = await queryDatabase(query, [userId, startDate, endDate]);
        
         return res.json(results);

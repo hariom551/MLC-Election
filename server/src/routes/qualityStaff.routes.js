@@ -13,7 +13,7 @@ QualityStaffRouter.route("/sendSMS").post(sendSMS);
 QualityStaffRouter.route("/whatsapp").post(whatsapp);
 QualityStaffRouter.route("/DeleteVoter").post(verifyJWT, DeleteVoter)
 QualityStaffRouter.route("/voterDetailById").post(voterDetailById)
-QualityStaffRouter.put('/UpdateVoter/:idNo', UpdateVoter);
+QualityStaffRouter.put('/UpdateVoter/:idNo',verifyJWT, UpdateVoter);
 QualityStaffRouter.get('/prevletter', prevletter);
 QualityStaffRouter.post('/updateletter', updateletter );
 QualityStaffRouter.get('/employeeDetails', DisplayTelecallerData );

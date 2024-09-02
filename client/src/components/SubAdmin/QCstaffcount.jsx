@@ -22,30 +22,34 @@ const QCstaffcount = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subadmin/qcstaffcount`, {
         method: 'POST',
-        body: JSON.stringify({startDate,endDate}),
-        headers: { 
+        body: JSON.stringify({ startDate, endDate }),
+        headers: {
           'Content-Type': 'application/json',
-           'Authorization': `Bearer ${token}`
-
-
-         },
+          'Authorization': `Bearer ${token}`
+        },
       });
-
-      if(!response.ok){
+  
+      if (!response.ok) {
         toast.error(`Error in fetching the data: ${response.statusText}`);
+        setQcstaff('');
+        return;
       }
-      else{
+  
       const data = await response.json();
-      if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid  data');
-
+  
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid data');
+      }
+  
       setQcstaff(data);
       toast.success("QC staff count list fetched successfully.");
-      }
-
+      
     } catch (error) {
-      toast.error('Error fetching QC staff details:', error);
+      toast.error(`Error fetching QC staff details: ${error.message}`);
+      setQcstaff(''); // Reset state in case of error
     }
   };
+  
 
   const columns = useMemo(() => [
     {

@@ -321,10 +321,28 @@ const UpdateVoter = [
                 return res.status(404).json(new ApiResponse(404, null, 'Voter not found'));
             }
 
-         
-
-
-
+            await queryDatabase(
+                `INSERT INTO evoterlist(
+                    Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
+                    CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
+                    Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
+                    DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
+                    IsEdited, IncFormId, PacketNo, ONStatus, MobileNoRemark, AddressRemark, NameRemark, 
+                    FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
+                    GPId, SBy, SDate, MBy
+                )
+                SELECT 
+                    Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
+                    CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
+                    Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
+                    DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
+                    IsEdited, IncFormId, PacketNo, ONStatus, MobileNoRemark, AddressRemark, NameRemark, 
+                    FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
+                    GPId, SBy, SDate, ?
+                FROM voterlist 
+                WHERE Id  = ?`,
+                [req.user.userid, idNo]
+            );
 
             req.currentVoter = currentVoterResult[0];
             req.idNo = idNo;
@@ -401,28 +419,10 @@ const UpdateVoter = [
 
             await queryDatabase(query, values);
 
-            await queryDatabase(
-                `INSERT INTO evoterlist(
-                    Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
-                    CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
-                    Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
-                    DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
-                    IsEdited, IncFormId, PacketNo, ONStatus, MobileNoRemark, AddressRemark, NameRemark, 
-                    FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
-                    GPId, SBy, SDate, MBy, MDate
-                )
-                SELECT 
-                    Id, SNo, EFName, HFName, ELName, HLName, RType, ERFName, HRFName, ERLName, HRLName, 
-                    CasteId, Qualification, Occupation, Age, DOB, Sex, MNo, MNo2, VIdNo, AadharNo, GCYear, 
-                    Image, HNo, SHNo, Landmark, HLandmark, MId, AreaId, ChkBlkId, WBId, VSId, CounId, TehId, 
-                    DId, StateId, Degree, IdProof, Document3, Status, Remarks, StaffId, QCStaff, AdminId, 
-                    IsEdited, IncFormId, PacketNo, ONStatus, MobileNoRemark, AddressRemark, NameRemark, 
-                    FatherNameRemark, RequiredForms, DeathRemark, ExtraRemark, SpecialRemark, MBActive, 
-                    GPId, SBy, SDate, MBy, MDate
-                FROM voterlist 
-                WHERE Id  = ?`, 
-                [req.idNo ]
-            );
+           
+            
+
+            
             return res.status(200).json(new ApiResponse(200, null, "Voter updated successfully"));
         } catch (error) {
 
