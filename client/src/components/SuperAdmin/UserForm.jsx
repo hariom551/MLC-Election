@@ -92,8 +92,8 @@ function UserForm() {
 
   useEffect(() => {
     fetchDistrictOptions();
-    fetchData(); // Fetch user data on component mount
-  }, [content]); // Run only once
+    fetchData(); 
+  }, [content]); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,7 +140,7 @@ function UserForm() {
       if (result.ok) {
         toast.success('Form submitted successfully.');
         setFormData(initialFormData);
-        fetchData(); // Refresh user data after submission
+        fetchData(); 
       } else {
         toast.error("Error submitting form: " + result.statusText);
       }
@@ -213,9 +213,8 @@ function UserForm() {
     ]
   
 )
-    
   
-
+  
   const table = useMaterialReactTable({
     columns,
     data: userData,

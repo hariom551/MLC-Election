@@ -4,9 +4,11 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadFiles } from "../middleware/multer.middleware.js";
 import { queryDatabase } from "../utils/queryDatabase.js";
 
-const currentDate = new Date();
-const SDate = currentDate.toISOString();
-const MDate = currentDate.toISOString();
+
+const isoDate = '2024-09-04T08:37:20.225Z';
+const date = new Date(isoDate);
+const CDate = date.toISOString().split('T')[0]; 
+
 
 const searchSurname = asyncHandler(async (req, res) => {
     const { query } = req.body;
@@ -197,15 +199,34 @@ const ReferenceDetails = asyncHandler(async (req, res) => {
     }
     try {
         const ReferenceDetails = await queryDatabase(`
-        SELECT v1.Id As IncRefId, v1.VEName AS RName, V1.VHName AS RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress, V1.VHAddress AS RHAddress,
-        v2.VEName AS C1Name,v2.VHName AS C1HName, V2.VMob1 as C1Mob, 
-        v3.VEName AS C2Name, v3.VHName AS C2HName, V3.VMob1 as C2Mob, 
-        v4.VEName AS C3Name, v4.VHName AS C3HName, V4.VMob1 as C3Mob
-        FROM incomingform AS i
-        LEFT JOIN volunteer AS v1 ON i.RefId = v1.Id
-        LEFT JOIN volunteer AS v2 ON i.COId1 = v2.Id
-        LEFT JOIN volunteer AS v3 ON i.COId2 = v3.Id
-        LEFT JOIN volunteer AS v4 ON i.COId3 = v4.Id
+        SELECT 
+    v1.Id AS IncRefId, 
+    v1.VEName AS RName, 
+    v1.VHName AS RHName, 
+    v1.VMob1 AS RMob1, 
+    v1.VEAddress AS RAddress, 
+    v1.VHAddress AS RHAddress,
+    v2.VEName AS C1Name,
+    v2.VHName AS C1HName, 
+    v2.VMob1 AS C1Mob, 
+    v3.VEName AS C2Name, 
+    v3.VHName AS C2HName, 
+    v3.VMob1 AS C2Mob, 
+    v4.VEName AS C3Name, 
+    v4.VHName AS C3HName, 
+    v4.VMob1 AS C3Mob
+    FROM 
+        incomingform AS i
+    LEFT JOIN 
+        volunteer AS v1 ON i.RefId = v1.Id
+    LEFT JOIN 
+        volunteer AS v2 ON i.COId1 = v2.Id
+    LEFT JOIN 
+        volunteer AS v3 ON i.COId2 = v3.Id
+    LEFT JOIN 
+        volunteer AS v4 ON i.COId3 = v4.Id
+
+
         WHERE i.PacketNo= ?`, [PKT]);
         return res.json(ReferenceDetails);
         // res.status(200).json(new ApiResponse(200, incomingForms, "Fetched all incoming forms successfully"));
@@ -223,7 +244,7 @@ const AddVoter = [
             const maxIdNoResult = await queryDatabase(`SELECT MAX(Id) AS maxIdNo FROM voterlist`);
             const IdNo = maxIdNoResult && maxIdNoResult.length > 0 && maxIdNoResult[0].maxIdNo !== null ? maxIdNoResult[0].maxIdNo + 1 : 1;
 
-            req.idNo = IdNo; 
+            req.idNo = IdNo;
             next();
         } catch (error) {
 
@@ -298,14 +319,14 @@ const AddVoter = [
                 voterDetails.AadharNo, voterDetails.VIdNo, voterDetails.GCYear, addressDetail.DId, addressDetail.AreaId, addressDetail.TehId,
                 addressDetail.counId, addressDetail.VSId, addressDetail.WBId, addressDetail.ChkBlkId, addressDetail.HNo,
                 addressDetail.Landmark, voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
-                loginIdDetails.loginId, loginIdDetails.loginId, loginIdDetails.loginId, SDate, MDate
+                loginIdDetails.loginId, loginIdDetails.loginId, loginIdDetails.loginId, CDate, CDate
             ];
             await queryDatabase(query, values);
 
             return res.status(201).json(new ApiResponse(201, null, "Voter added successfully"));
         } catch (error) {
-
-            return res.status(500).json(new ApiResponse(500, null, 'Database insert error'));
+            console.log(error);
+            return res.status(500).json(new ApiResponse(500, error, 'Database insert error'));
         }
     })
 ];
@@ -377,17 +398,17 @@ const UpdateVoter = [
             if (req.files['Image']) {
                 voterDocs.Image = req.files['Image'][0].filename;
             } else {
-                voterDocs.Image = req.currentVoter.Image; 
+                voterDocs.Image = req.currentVoter.Image;
             }
             if (req.files['IdProof']) {
                 voterDocs.IdProof = req.files['IdProof'][0].filename;
             } else {
-                voterDocs.IdProof = req.currentVoter.IdProof; 
+                voterDocs.IdProof = req.currentVoter.IdProof;
             }
             if (req.files['Degree']) {
                 voterDocs.Degree = req.files['Degree'][0].filename;
             } else {
-                voterDocs.Degree = req.currentVoter.Degree; 
+                voterDocs.Degree = req.currentVoter.Degree;
             }
 
             const query = `UPDATE voterlist SET 
@@ -413,16 +434,16 @@ const UpdateVoter = [
                 parsedAddressDetail.VSId, parsedAddressDetail.WBId, parsedAddressDetail.ChkBlkId,
                 parsedAddressDetail.HNo, parsedAddressDetail.Landmark,
                 voterDocs.Image, voterDocs.IdProof, voterDocs.Degree,
-                loginIdDetails.loginId, loginIdDetails.loginId, MDate,
-                req.params.idNo 
+                loginIdDetails.loginId, loginIdDetails.loginId, CDate,
+                req.params.idNo
             ];
 
             await queryDatabase(query, values);
 
-           
-            
 
-            
+
+
+
             return res.status(200).json(new ApiResponse(200, null, "Voter updated successfully"));
         } catch (error) {
 
@@ -481,7 +502,6 @@ const ChakNoBlock = asyncHandler(async (req, res) => {
         return res.status(500).send('A database error occured ok');
     }
 })
-
 
 export {
     SearchPacketNo, ReferenceDetails, searchSurname, searchCaste,

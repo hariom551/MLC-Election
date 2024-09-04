@@ -3,6 +3,7 @@ import { Form } from 'react-bootstrap';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { validateVoterDetails } from '../../Validation/voterDetailsValidation';
+import Select from 'react-select';
 
 function AddressInformationForm({ addressDetail, setAddressDetail, errors, setErrors }) {
   const [AreaVillOptions, setAreaVillOptions] = useState([]);
@@ -12,9 +13,42 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
   const [VSOption, setVSOption] = useState([]);
   const [WBOption, setWBOption] = useState([]);
   const [CBOption, setCBOption] = useState([]);
+  const [district, setDistrict] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("user")); 
-  const DId = user ? user.DId : '';
+  // Function to fetch district options
+  useEffect(() => {
+    const fetchDistrictOptions = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/DistrictDetails`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch District options');
+        }
+        const data = await response.json();
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          throw new Error('Empty or invalid District options data');
+        }
+
+        const options = data.map(District => ({ value: District.Id, label: District.EDistrict }));
+        setDistrict(options);
+
+      } catch (error) {
+        toast.error('Error fetching District options:', error);
+      }
+    };
+
+    fetchDistrictOptions();
+  }, [])
+
+
+
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  // const DId = user ? user.DId : '';
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -63,16 +97,16 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       const selectedCB = CBOption.find((CB) => CB.ChkBlkId == parseInt(value));
       if (selectedCB) {
         updateAddressDetailWithChakBlock(selectedCB);
-      
-     
-      } 
+
+
+      }
     }
-    
+
   };
 
   const fetchAreaVillOptions = async (input) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill/${addressDetail.DId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +128,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
   const fetchAllAreaDetails = async (EAreaVill, HnoRange) => {
     try {
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/allAreaDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/allAreaDetails/${addressDetail.DId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +227,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       updateAddressDetailWithChakBlock(singleCB);
     }
   }, [CBOption, setAddressDetail]);
-  
+
   const updateAddressDetailWithChakBlock = (selectedCB) => {
     setAddressDetail((prevDetails) => ({
       ...prevDetails,
@@ -206,9 +240,9 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
     }));
     console.log(addressDetail);
   };
-  
+
   useEffect(() => {
-    if (addressDetail.EAreaVill) {
+    if (addressDetail.EAreaVill && addressDetail.DId) {
       fetchAllAreaDetails(addressDetail.EAreaVill, addressDetail.HnoRange);
       fetchAreaVillOptions(addressDetail.EAreaVill);
     }
@@ -228,6 +262,39 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
 
       <div className="row flex mt-3">
 
+        <div className="col-md-3 mb-3">
+          <Form.Group>
+            <Form.Label>
+              Select District<sup className="text-red-600">*</sup>
+            </Form.Label>
+            <Select
+              id="DistrictSelect"
+              name="DId"
+              value={addressDetail.DId ? district.find(option => option.value === addressDetail.DId) : null}
+              onChange={option => {
+                setAddressDetail(prevDetails => ({
+                  ...prevDetails,
+                  DId: option ? option.value : null,
+                  AreaId: '',
+                  EAreaVill: '',
+                  HnoRange: '',
+                }));
+
+
+                setAreaVillOptions([]);
+                setTehsilOption([]);
+                setCouncilOption([]);
+                setVSOption([]);
+                setWBOption([]);
+                setCBOption([]);
+              }}
+              options={district}
+              placeholder="Select District"
+            />
+          </Form.Group>
+        </div>
+
+
         <div className="col-md-3 flex-col gap-2 flex mt-1">
           <Form.Group>
             <Form.Label>Area / Village</Form.Label>
@@ -235,7 +302,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
               id="area-village-typeahead"
               // Set the selected option based on the current addressDetail
               selected={
-                addressDetail.EAreaVill 
+                addressDetail.EAreaVill
                   ? [{ EAreaVill: addressDetail.EAreaVill }]
                   : []
               }
@@ -248,6 +315,12 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
                     ...prevDetails,
                     EAreaVill: '',
                     HnoRange: '',
+                    AreaId: '',
+                    TehId: '',
+                    counId: '',
+                    VSId: '',
+                    WBId: '',
+                    ChkBlkId: '',
                   }));
                 }
               }}
@@ -259,12 +332,12 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
                     ...prevDetails,
                     EAreaVill,
                     HnoRange,
-                    AreaId: '',
-                    TehId: '',
-                    counId: '',
-                    VSId: '',
-                    WBId: '',
-                    ChkBlkId: '',
+                    AreaId: '', // Reset AreaId when Area/Village changes
+                    TehId: '', // Reset TehId when Area/Village changes
+                    counId: '', // Reset counId when Area/Village changes
+                    VSId: '', // Reset VSId when Area/Village changes
+                    WBId: '', // Reset WBId when Area/Village changes
+                    ChkBlkId: '', // Reset ChkBlkId when Area/Village changes
                   }));
 
                   // Reset other options
@@ -289,6 +362,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
             />
           </Form.Group>
         </div>
+
 
         <div className="col-md-3 flex-col gap-2 flex mt-1">
           <Form.Group>

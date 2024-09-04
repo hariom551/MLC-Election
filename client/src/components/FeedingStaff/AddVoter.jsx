@@ -60,7 +60,7 @@ function AddVoter() {
     });
 
     const [addressDetail, setAddressDetail] = useState({
-        DId: DId,
+        DId: '',
         AreaId: '',
         EAreaVill: '',
         TehId: '',
