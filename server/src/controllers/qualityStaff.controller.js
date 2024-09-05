@@ -207,7 +207,7 @@ const voterDetailById = asyncHandler(async (req, res)=>{
                 Age, DATE_FORMAT(DOB, '%Y-%m-%d') AS DOB, Sex, MNo, MNo2,
                 AadharNo, VIdNo, GCYear FROM voterlist WHERE Id = ?`,[content]);
 
-        const result3 = await queryDatabase(`SELECT AreaId, TehId, 
+        const result3 = await queryDatabase(`SELECT DId, AreaId, TehId, 
                 CounId, VSId, WBId, ChkBlkId, HNo, areavill.EAreaVill, areavill.HnoRange, 
                 Landmark FROM voterlist JOIN areavill ON voterlist.AreaId = areavill.Id WHERE voterlist.Id=?`,[content]);
 

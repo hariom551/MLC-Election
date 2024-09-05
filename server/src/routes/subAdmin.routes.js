@@ -6,7 +6,7 @@ import { verifyJWT } from "../middleware/auth.middleware.js"
 const subAdminRouter = Router()
 
 
-subAdminRouter.route("/voterList/:DId").post(voterList)
+subAdminRouter.route("/voterList").post(voterList)
 subAdminRouter.route("/feedingstaffcount").post(verifyJWT, FeedingStaff)
 subAdminRouter.route("/daywisereport").post(DayWiseReport)
 subAdminRouter.route("/staffname").post(staffname)

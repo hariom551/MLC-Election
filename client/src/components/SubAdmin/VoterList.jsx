@@ -7,24 +7,25 @@ import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { Link } from 'react-router-dom';
+import DistrictSelect from '../Pages/DistrictSelect';
 
 function VoterList() {
     const [votersDetails, setVotersDetails] = useState([]);
-    const [formData, setFormData] = useState({ WBId: undefined });
+    const [formData, setFormData] = useState({ DId: '', WBId: undefined });
     const [WBOptions, setWBOptions] = useState([]);
 
     const user = JSON.parse(localStorage.getItem("user"));
-    const DId = user ? user.DId : '';
-    const userRole= user.role;
+
+    const userRole = user.role;
     const permission = user.permissionaccess;
     const token = localStorage.getItem('token');
 
     useEffect(() => {
 
-        
+
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${formData.DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -34,21 +35,30 @@ function VoterList() {
                 const data = await response.json();
                 if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid wardblock options data');
 
-                const options = data.map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }));
+                const options = data
+                    .map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }))
+                    .sort((a, b) => {
+                        const wardA = a.label.split(' - ')[0];  // Extract WardNo from label
+                        const wardB = b.label.split(' - ')[0];
+                        return wardA.localeCompare(wardB, undefined, { numeric: true, sensitivity: 'base' });
+                    });
+
                 setWBOptions(options);
+
 
             } catch (error) {
                 toast.error(`Error fetching wardblock options: ${error.message}`);
             }
         };
-        fetchWBOptions();
-    }, []);
+        if (formData.DId)
+            fetchWBOptions();
+    }, [formData.DId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subAdmin/voterList/${DId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subAdmin/voterList`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }
@@ -78,7 +88,7 @@ function VoterList() {
                 body: JSON.stringify({ Id }),
                 headers: {
                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`
                 }
             });
             console.log(result);
@@ -95,7 +105,7 @@ function VoterList() {
         }
     };
 
-   
+
 
     const columns = useMemo(() => {
         const baseColumns = [
@@ -190,7 +200,7 @@ function VoterList() {
             // },
         ];
 
-        if (userRole === 'QC Staff' && permission!=='0') {
+        if (userRole === 'QC Staff' && permission !== '0') {
             baseColumns.unshift(
                 {
                     header: 'Edit',
@@ -203,10 +213,10 @@ function VoterList() {
                         </Button>
                     ),
                 },
-     ) 
-    }
-                if (userRole === 'QC Staff' && permission==='2') {
-                    baseColumns.unshift(
+            )
+        }
+        if (userRole === 'QC Staff' && permission === '2') {
+            baseColumns.unshift(
                 {
                     header: 'Delete',
                     size: 10,
@@ -234,13 +244,25 @@ function VoterList() {
                 <h1 className="text-2xl font-bold mb-4">Voter Details</h1>
                 <Form onSubmit={handleSubmit} className="voter-form">
                     <Row className="mb-3">
+                        <DistrictSelect
+                            formData={formData}
+                            setFormData={setFormData}
+                            onDistrictChange={() => {
+                                setFormData(prevFormData => ({
+                                    ...prevFormData,
+                                    WBId: null
+                                }));
+                                setWBOptions([]);
+                            }}
+                        />
+
                         <div className="col-md-3 mb-3" style={{ zIndex: 10 }}>
                             <Form.Group>
                                 <Form.Label>Select WardBlock<sup className="text-red-600">*</sup></Form.Label>
                                 <Select
                                     id="WBSelect"
                                     name="WBId"
-                                    value={WBOptions.find(option => option.value === formData.WBId)}
+                                    value={WBOptions.find(option => option.value === formData.WBId) || null}
                                     onChange={option => {
                                         setFormData(prevFormData => ({ ...prevFormData, WBId: option.value }));
                                         setVotersDetails([]); // Clear the voter list when the selection changes
@@ -251,6 +273,7 @@ function VoterList() {
                             </Form.Group>
                         </div>
                     </Row>
+
                     <Button variant="primary" type="submit">Submit</Button>
                 </Form>
                 <hr className="my-4" />

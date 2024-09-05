@@ -5,8 +5,8 @@ import { queryDatabase } from '../utils/queryDatabase.js';
 
 
 const voterList = asyncHandler(async (req, res) => {
-    const { WBId } = req.body;
-    const { DId } = req.params;
+    const { WBId, DId} = req.body;
+    
     if (!WBId) {
         return res.status(400).json({ error: 'WBId parameter is required' });
     }
@@ -16,10 +16,10 @@ const voterList = asyncHandler(async (req, res) => {
             `SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName,
              CasteId, caste.ECaste, Age, 
             DATE_FORMAT(DOB, '%d/%m/%Y') as DOB, Sex, MNo, AadharNo, VIdNo,
-             AreaVill.EAreaVill ,AreaVill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark
+             areavill.EAreaVill ,areavill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark
             FROM voterlist 
             LEFT JOIN caste ON CasteId = caste.ID 
-            LEFT JOIN AreaVill ON AreaId= AreaVill.Id
+            LEFT JOIN areavill ON AreaId= areavill.Id
             WHERE WBId = ? AND DId=?`,
             [WBId, DId]
         );

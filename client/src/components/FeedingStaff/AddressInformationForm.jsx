@@ -15,7 +15,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
   const [CBOption, setCBOption] = useState([]);
   const [district, setDistrict] = useState([]);
 
-  // Function to fetch district options
+  
   useEffect(() => {
     const fetchDistrictOptions = async () => {
       try {

@@ -295,7 +295,7 @@ const VidhanSabhaDetails = asyncHandler(async (req, res) => {
 });
 
 const UpdateVidhanSabhaDetail = asyncHandler(async (req, res) => {
-    // counId, EVidhanSabha, HVidhanSabha, VSNo
+    
     const { Id, counId, EVidhanSabha, HVidhanSabha, VSNo, loginUserId } = req.body;
 
     if (!Id, !counId || !EVidhanSabha || !HVidhanSabha || !VSNo) {
