@@ -437,16 +437,10 @@ const UpdateVoter = [
                 loginIdDetails.loginId, loginIdDetails.loginId, CDate,
                 req.params.idNo
             ];
-
             await queryDatabase(query, values);
-
-
-
-
 
             return res.status(200).json(new ApiResponse(200, null, "Voter updated successfully"));
         } catch (error) {
-
             return res.status(500).json(new ApiResponse(500, null, 'Database update error'));
         }
     })
@@ -493,7 +487,20 @@ const getPerseemanDetails = asyncHandler(async (req, res) => {
 
 const ChakNoBlock = asyncHandler(async (req, res) => {
     try {
-        const result = await queryDatabase('select ECBPanch, ChakNo FROM chakblockpanch ORDER BY ChakNo')
+        const { DId } = req.query;
+        const result = await queryDatabase(`SELECT ECBPanch, ChakNo 
+            FROM chakblockpanch CBP
+            JOIN areavill AS AV ON CBP.Id = AV.CBPId 
+            JOIN wardblock AS WB ON WB.Id = CBP.WBId
+            JOIN vidhansabha AS V 
+            ON WB.VSID= V.Id
+            JOIN council AS C
+            ON C.Id= V.counId
+            JOIN tehsillist AS T
+            ON T.Id= C.TehId
+            WHERE T.Did=?
+            
+            ORDER BY ChakNo`,[DId])
 
         return res.json(result);
 

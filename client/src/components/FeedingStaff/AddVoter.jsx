@@ -17,7 +17,6 @@ function AddVoter() {
     const content = searchParams.get('content');
 
     const user = JSON.parse(localStorage.getItem("user"));
-    const DId = user ? user.DId : '';
     const userRole = user ? user.role : '';
     const loginUserId =user ? user.userid: '';
 
@@ -136,7 +135,6 @@ function AddVoter() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate voter details
         const voterDetailErrors = {};
         Object.keys(voterDetails).forEach((field) => {
             const error = validateVoterDetails(field, voterDetails[field]);
@@ -184,8 +182,6 @@ function AddVoter() {
             formData.append('addressDetail', JSON.stringify(addressDetail));
             formData.append('loginIdDetails',JSON.stringify({ loginId: loginUserId}));
 
-
-
             Object.keys(voterDocs).forEach(key => {
                 if (voterDocs[key].file) {
                     formData.append(key, voterDocs[key].file);
@@ -209,7 +205,6 @@ function AddVoter() {
 
 
                 toast.success('Voter created successfully!');
-                // Reset forms after successful submission
                 setReferenceDetails({
                     PacketNo: '',
                     IncRefId: '',

@@ -4,15 +4,15 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
-
 import Select from 'react-select';
-
 import {
     MaterialReactTable,
     useMaterialReactTable,
 } from 'material-react-table';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DistrictSelect from '../Pages/DistrictSelect';
 
 function SearchChakBlock() {
     const [perseemanDetails, setPerseemanDetails] = useState([]);
@@ -24,23 +24,21 @@ function SearchChakBlock() {
         ChakNo: '',
         ECBPanch: '',
         EAreaVill: '',
+        DId: '',
     });
-
-    const user = JSON.parse(localStorage.getItem("user"));
-    const DId = user ? user.DId : '';
-
-   
-
-    
 
     const fetchCBOptions = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingstaff/ChakNoBlock`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/v1/feedingstaff/ChakNoBlock?DId=${encodeURIComponent(formData.DId)}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
             if (!response.ok) {
                 throw new Error('Failed to fetch chakblock options');
@@ -51,40 +49,63 @@ function SearchChakBlock() {
                 throw new Error('Empty or invalid chakblock options data');
             }
 
-            
+           
             const options = Array.from(
                 new Set(data.map((CB) => CB.ChakNo))
-              ).sort((a, b) => parseFloat(a) - parseFloat(b)) 
-                .map((value) => ({
-                  value,
-                  label: value,
-                }));
-              
+            ).sort((a, b) => {
+                const regex = /(\d+|\D+)/g;
+                const aParts = a.match(regex);
+                const bParts = b.match(regex);
 
+                for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+                    const aPart = aParts[i] || '';
+                    const bPart = bParts[i] || '';
+
+                    if (aPart !== bPart) {
+                        const isANumber = !isNaN(aPart);
+                        const isBNumber = !isNaN(bPart);
+
+                        if (isANumber && isBNumber) {
+                            return parseInt(aPart, 10) - parseInt(bPart, 10);
+                        }
+                        return aPart.localeCompare(bPart);
+                    }
+                }
+                return 0;
+            }).map((value) => ({
+                value,
+                label: value,
+            }));
+
+           
             const Boptions = Array.from(
                 new Set(data.map((CB) => CB.ECBPanch))
-            ).sort((a, b) => a.localeCompare(b)) 
+            ).sort((a, b) => a.localeCompare(b))
                 .map((value) => ({
                     value,
                     label: value,
                 }));
 
-
+           
             setCNOptions(options);
             setCBOptions(Boptions);
+
         } catch (error) {
             console.error('Error fetching CB options:', error);
             toast.error('Error fetching CB options');
         }
     };
 
+
     useEffect(() => {
-        fetchCBOptions();
-    }, []);
+        if (formData.DId) {
+            fetchCBOptions();
+        }
+    }, [formData.DId]);
 
     const fetchAreaVillOptions = async (input) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill/${DId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/feedingStaff/searchAreaVill/${formData.DId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -95,9 +116,7 @@ function SearchChakBlock() {
             if (!response.ok) {
                 throw new Error('Failed to fetch suggested AreaVill');
             }
-
             const data = await response.json();
-            
             setAreaVillOptions(data);
         } catch (error) {
             console.error('Error fetching suggested AreaVill:', error);
@@ -125,8 +144,6 @@ function SearchChakBlock() {
                 throw new Error('Empty or invalid details data');
             }
             else {
-
-
                 setPerseemanDetails(data);
             }
             // setFormData({
@@ -171,10 +188,10 @@ function SearchChakBlock() {
             header: 'Area',
             size: 20,
             Cell: ({ cell }) => {
-              const { HnoRange, EAreaVill } = cell.row.original;
-              return HnoRange ? `${EAreaVill} || ${HnoRange}` : EAreaVill;
+                const { HnoRange, EAreaVill } = cell.row.original;
+                return HnoRange ? `${EAreaVill} || ${HnoRange}` : EAreaVill;
             }
-          },
+        },
         {
             accessorKey: 'WardNoEWardBlock',
             header: 'WardNo',
@@ -198,6 +215,9 @@ function SearchChakBlock() {
                 <h1 className="text-2xl font-bold mb-4">Search Details</h1>
                 <Form onSubmit={handleSubmit} className="SearchCB-form">
                     <Row className="mb-3">
+
+                        <DistrictSelect formData={formData} setFormData={setFormData} />
+
                         <div className="col-md-3 mb-3">
                             <Form.Group>
                                 <Form.Label>ChakNo</Form.Label>
@@ -255,7 +275,7 @@ function SearchChakBlock() {
                                             ...prevDetails,
                                             EAreaVill: inputValue,
                                         }));
-                                        fetchAreaVillOptions(inputValue); 
+                                        fetchAreaVillOptions(inputValue);
                                     }}
                                     onChange={(selected) => {
                                         if (selected.length > 0) {
@@ -267,7 +287,7 @@ function SearchChakBlock() {
                                         } else {
                                             setFormData((prevDetails) => ({
                                                 ...prevDetails,
-                                                EAreaVill: '', 
+                                                EAreaVill: '',
                                             }));
                                         }
                                     }}
@@ -278,9 +298,9 @@ function SearchChakBlock() {
                                     isClearable
                                     renderMenuItemChildren={(option) => (
                                         <div>
-                                          {option.EAreaVill} | {option.HnoRange}
+                                            {option.EAreaVill} | {option.HnoRange}
                                         </div>
-                                      )}
+                                    )}
                                 />
 
 

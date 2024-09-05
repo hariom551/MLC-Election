@@ -332,22 +332,20 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
                     ...prevDetails,
                     EAreaVill,
                     HnoRange,
-                    AreaId: '', // Reset AreaId when Area/Village changes
-                    TehId: '', // Reset TehId when Area/Village changes
-                    counId: '', // Reset counId when Area/Village changes
-                    VSId: '', // Reset VSId when Area/Village changes
-                    WBId: '', // Reset WBId when Area/Village changes
-                    ChkBlkId: '', // Reset ChkBlkId when Area/Village changes
+                    AreaId: '',
+                    TehId: '', 
+                    counId: '',
+                    VSId: '',
+                    WBId: '',
+                    ChkBlkId: '',
                   }));
 
-                  // Reset other options
                   setTehsilOption([]);
                   setCouncilOption([]);
                   setVSOption([]);
                   setWBOption([]);
                   setCBOption([]);
 
-                  // Fetch additional area details
                   fetchAllAreaDetails(EAreaVill, HnoRange);
                 }
               }}
