@@ -20,6 +20,8 @@ function VoterList() {
     const token = localStorage.getItem('token');
 
     useEffect(() => {
+
+        
         const fetchWBOptions = async () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
@@ -39,7 +41,6 @@ function VoterList() {
                 toast.error(`Error fetching wardblock options: ${error.message}`);
             }
         };
-
         fetchWBOptions();
     }, []);
 

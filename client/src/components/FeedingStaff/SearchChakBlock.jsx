@@ -214,10 +214,10 @@ function SearchChakBlock() {
             <div className="container py-4 pl-6 text-black">
                 <h1 className="text-2xl font-bold mb-4">Search Details</h1>
                 <Form onSubmit={handleSubmit} className="SearchCB-form">
-                    <Row className="mb-3">
+                    
 
                         <DistrictSelect formData={formData} setFormData={setFormData} />
-
+                        <Row className="mb-3">
                         <div className="col-md-3 mb-3">
                             <Form.Group>
                                 <Form.Label>ChakNo</Form.Label>
