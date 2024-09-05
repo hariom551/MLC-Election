@@ -13,7 +13,7 @@ const voterList = asyncHandler(async (req, res) => {
 
     try {
         const results = await queryDatabase(
-            `SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName,
+            `SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName, ERFName, HRFName, ERLName, HRLName
              CasteId, caste.ECaste, Age, 
             DATE_FORMAT(DOB, '%d/%m/%Y') as DOB, Sex, MNo, AadharNo, VIdNo,
              areavill.EAreaVill ,areavill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark

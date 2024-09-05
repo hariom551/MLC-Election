@@ -7,21 +7,20 @@ import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import UpdateLetter from './UpdateLetter';
+import DistrictSelect from '../Pages/DistrictSelect';
 
 
 function DispatchLetter() {
     const [votersDetails, setVotersDetails] = useState([]);
-    const [formData, setFormData] = useState({ WBId: undefined });
+    const [formData, setFormData] = useState({ DId: '', WBId: undefined });
     const [WBOptions, setWBOptions] = useState([]);
     const [letters, setLetters] = useState([]);
-    const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
-    const DId = user ? user.DId : '';
-
+    
 
     useEffect(() => {
         const fetchWBOptions = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${formData.DId}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -31,16 +30,24 @@ function DispatchLetter() {
                 const data = await response.json();
                 if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid wardblock options data');
 
-                const options = data.map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }));
+                const options = data
+                    .map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }))
+                    .sort((a, b) => {
+                        const wardA = a.label.split(' - ')[0];  // Extract WardNo from label
+                        const wardB = b.label.split(' - ')[0];
+                        return wardA.localeCompare(wardB, undefined, { numeric: true, sensitivity: 'base' });
+                    });
+
                 setWBOptions(options);
+
 
             } catch (error) {
                 toast.error(`Error fetching wardblock options: ${error.message}`);
             }
         };
-
-        fetchWBOptions();
-    }, []);
+        if (formData.DId)
+            fetchWBOptions();
+    }, [formData.DId]);
 
 
     useEffect(()=>{
@@ -78,14 +85,13 @@ function DispatchLetter() {
         e.preventDefault();
 
         try {
-            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subAdmin/voterList/${DId}`, {
+            const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/subAdmin/voterList`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' }
             });
 
             if (result.ok) {
-
                 const results = await result.json();
                 const data= results.data;
                 if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid voter list data');
@@ -273,6 +279,18 @@ function DispatchLetter() {
                 <h1 className="text-xl font-bold mb-4">Dispatch Letter</h1>
                 <Form onSubmit={handleSubmit} className="voter-form">
                     <Row className="mb-3">
+                    <DistrictSelect
+                            formData={formData}
+                            setFormData={setFormData}
+                            onDistrictChange={() => {
+                                setFormData(prevFormData => ({
+                                    ...prevFormData,
+                                    WBId: null
+                                }));
+                                setWBOptions([]);
+                            }}
+                        />
+
                         <div className="col-md-3 mb-3" style={{ zIndex: 10 }}>
                             <Form.Group>
                                 <Form.Label>Select WardBlock<sup className="text-red-600">*</sup></Form.Label>
