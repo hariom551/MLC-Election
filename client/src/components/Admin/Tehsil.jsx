@@ -1,51 +1,50 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from 'material-react-table';
+import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DistrictSelect from '../Pages/DistrictSelect';
 
 function Tehsil() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const content = searchParams.get('content');
+  const navigate = useNavigate();
 
   const [tehsilDetails, setTehsilDetails] = useState([]);
   const [formData, setFormData] = useState({
-    Id: content || '',
+    Id: '',
     EName: '',
     HName: '',
+    DId: '',
   });
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const DId = user ? user.DId : '';
+  const user = JSON.parse(localStorage.getItem('user'));
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
 
-  useEffect(() => {
-    fetchTehsilData();
-  }, [DId, content]);
-
   const fetchTehsilData = async () => {
+    if (!formData.DId) return;
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${DId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${formData.DId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch Tehsil details');
       }
 
       const data = await response.json();
-
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error('Empty or invalid Tehsil details data');
       }
@@ -53,9 +52,12 @@ function Tehsil() {
       setTehsilDetails(data);
 
       if (content) {
-        const Tehsil = data.find(item => item.Id == content); // Use == for loose equality
-        if (Tehsil) {
-          setFormData(Tehsil);
+        const tehsil = data.find((item) => item.Id == content);
+        if (tehsil) {
+          setFormData(prevFormData => ({
+            ...prevFormData,
+            ...tehsil
+          }));
         } else {
           toast.error(`Tehsil with ID ${content} not found`);
         }
@@ -65,62 +67,63 @@ function Tehsil() {
     }
   };
 
+  useEffect(() => {
+    fetchTehsilData();
+  }, [formData.DId, content]);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/addTehsil/${DId}`, {
-        method: 'POST',
-        body: JSON.stringify({ ...formData, loginUserId }),
-        headers: {
-          'Content-Type': 'application/json'
+      const result = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/admin/addTehsil/${formData.DId}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ ...formData, loginUserId }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (result.ok) {
-        toast.success("Tehsil Added Successfully.");
-        setFormData({ Id: '', EName: '', HName: '' });
-        fetchTehsilData(); // Refresh table data
+        toast.success('Tehsil added successfully.');
+        setFormData({ Id: '', EName: '', HName: '', DId: formData.DId });
+        fetchTehsilData();
       } else {
-        toast.error("Error in Adding Tehsil:", result.statusText);
+        toast.error('Error in adding Tehsil:', result.statusText);
       }
     } catch (error) {
-      toast.error("Error in Adding Tehsil:", error.message);
+      toast.error('Error in adding Tehsil:', error.message);
     }
   };
 
   const handleEdit = async (e) => {
     e.preventDefault();
-
-    const Id = content;
-    const EName = document.getElementById("EName").value;
-    const HName = document.getElementById("HName").value;
-
-    const requestBody = {
-      Id,
-      EName,
-      HName,
-      loginUserId
-    };
-
     try {
-      const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateTehsilDetail`, {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json'
+      const result = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/admin/updateTehsilDetail`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ ...formData, loginUserId }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
-
+      );
+  
       if (result.ok) {
-        toast.success("Tehsil Updated successfully.");
-        setFormData({ Id: '', EName: '', HName: '' });
-        fetchTehsilData();
-        window.location.href = '/tehsil'
+
+        await fetchTehsilData();
+        setFormData({ Id: '', EName: '', HName: '', DId: formData.DId });
+        toast.success('Tehsil updated successfully.');
+        setTimeout(() => navigate('/tehsil'), 2000); // Navigate after 2 seconds
       } else {
-        toast.error("Error in Updating Tehsil:", result.statusText);
+        const errorData = await result.json();
+        toast.error(`Error in updating Tehsil: ${errorData.message || result.statusText}`);
       }
     } catch (error) {
-      toast.error("Error in updating :", error.message);
+      toast.error(`Error in updating: ${error.message}`);
     }
   };
 
@@ -130,22 +133,25 @@ function Tehsil() {
 
   const handleDelete = async (Id) => {
     try {
-      let result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteTehsilDetail`, {
-        method: 'POST',
-        body: JSON.stringify({ Id }),
-        headers: {
-          'Content-Type': 'application/json'
+      let result = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteTehsilDetail`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ Id }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (result.ok) {
-        toast.success("Tehsil Deleted Successfully.");
+        toast.success('Tehsil deleted successfully.');
         fetchTehsilData(); // Refresh table data after deletion
       } else {
-        toast.error("Error in Deleting Tehsil:", result.statusText);
+        toast.error('Error in deleting Tehsil:', result.statusText);
       }
     } catch (error) {
-      toast.error("Error in Deleting Tehsil:", error.message);
+      toast.error('Error in deleting Tehsil:', error.message);
     }
   };
 
@@ -178,16 +184,21 @@ function Tehsil() {
           <>
             <Button variant="primary" className="changepassword">
               <Link
-                to={{ pathname: "/tehsil", search: `?content=${row.original.Id}` }}
+                to={{ pathname: '/tehsil', search: `?content=${row.original.Id}` }}
               >
                 Edit
               </Link>
             </Button>
-            {permission == '2' &&
-              <Button variant="danger" onClick={() => handleDelete(row.original.Id)} className="delete" type='button'>
+            {permission === '2' && (
+              <Button
+                variant="danger"
+                onClick={() => handleDelete(row.original.Id)}
+                className="delete"
+                type="button"
+              >
                 Delete
               </Button>
-            }
+            )}
           </>
         ),
       });
@@ -201,26 +212,50 @@ function Tehsil() {
   });
 
   return (
-
     <main className="bg-gray-100">
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
-        {permission !== '0' && (
+        <h1 className="text-2xl font-bold mb-4">Tehsil</h1>
 
+        <DistrictSelect
+          formData={formData}
+          setFormData={setFormData}
+        />
+
+        {permission !== '0' && formData.DId && (
           <>
-            <h1 className="text-2xl font-bold mb-4">Add Tehsil</h1>
             <Form onSubmit={content ? handleEdit : handleSubmit} className="Tehsil-form">
               <Row className="mb-3">
                 <div className="col-md-3 mb-3">
                   <Form.Group>
-                    <Form.Label>Tehsil Name (English)<sup className='text-red-600'>*</sup></Form.Label>
-                    <Form.Control type="text" placeholder="Tehsil Name (English)" id="EName" name="EName" value={formData.EName} onChange={handleChange} required />
+                    <Form.Label>
+                      Tehsil Name (English)<sup className="text-red-600">*</sup>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Tehsil Name (English)"
+                      id="EName"
+                      name="EName"
+                      value={formData.EName}
+                      onChange={handleChange}
+                      required
+                    />
                   </Form.Group>
                 </div>
                 <div className="col-md-3 mb-3">
                   <Form.Group>
-                    <Form.Label>Tehsil Name (Hindi)<sup className='text-red-600'>*</sup></Form.Label>
-                    <Form.Control type="text" placeholder="Tehsil Name (Hindi)" id="HName" name="HName" value={formData.HName} onChange={handleChange} required />
+                    <Form.Label>
+                      Tehsil Name (Hindi)<sup className="text-red-600">*</sup>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Tehsil Name (Hindi)"
+                      id="HName"
+                      name="HName"
+                      value={formData.HName}
+                      onChange={handleChange}
+                      required
+                    />
                   </Form.Group>
                 </div>
               </Row>
@@ -230,8 +265,8 @@ function Tehsil() {
             </Form>
             <hr className="my-4" />
           </>
-        )
-        }
+        )}
+
         <h4 className="container mt-3 text-xl font-bold mb-3">Tehsil List</h4>
         <div className="overflow-x-auto">
           <MaterialReactTable table={table} />

@@ -4,9 +4,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { queryDatabase } from '../utils/queryDatabase.js';
 
 
-const currentDate = new Date();
-const SDate = currentDate.toISOString(); 
-const MDate = currentDate.toISOString(); 
+const isoDate = '2024-09-04T08:37:20.225Z';
+const date = new Date(isoDate);
+const CDate = date.toISOString().split('T')[0]; 
 
 const AddCaste = asyncHandler(async (req, res) => {
     const { ESurname, HSurname, ECaste, HCaste, loginUserId } = req.body;
@@ -23,14 +23,14 @@ const AddCaste = asyncHandler(async (req, res) => {
         else{
             const result= await queryDatabase(
                 'INSERT INTO caste (ECaste, HCaste, SBy, MBy, SDate, MDate) VALUES (?, ?, ?, ?, ?, ?)',
-                [ECaste, HCaste, loginUserId, loginUserId, SDate, MDate]
+                [ECaste, HCaste, loginUserId, loginUserId, CDate, CDate]
             );
             CasteId = result.insertId;
         }
       
         await queryDatabase(
             'INSERT INTO surname (ESurname, HSurname, CasteId , SBy, MBy, SDate, MDate) VALUES (?, ?, ?,?,?,?, ?)',
-            [ESurname, HSurname, CasteId, loginUserId, loginUserId, SDate, MDate]
+            [ESurname, HSurname, CasteId, loginUserId, loginUserId, CDate, CDate]
         );
 
         const addedCaste = {
@@ -71,14 +71,14 @@ const UpdateCasteDetail = asyncHandler(async (req, res) => {
         else{
             const result= await queryDatabase(
                 'INSERT INTO caste (ECaste, HCaste, SBy, MBy,MDate,SDate) VALUES (?, ?, ?,?,?,?)',
-                [ECaste, HCaste, loginUserId, loginUserId,MDate,SDate]
+                [ECaste, HCaste, loginUserId, loginUserId,CDate,CDate]
             );
             CasteId = result.insertId;
         }
 
         await queryDatabase(
             'UPDATE surname SET ESurname= ?, HSurname= ?, casteId= ?, MBy=?,MDate=? WHERE ID= ?',
-            [ESurname, HSurname, CasteId,loginUserId,MDate, ID ]
+            [ESurname, HSurname, CasteId,loginUserId,CDate, ID ]
         );
 
         const updatedCaste = {
@@ -103,7 +103,7 @@ const AddTehsil = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO tehsillist (EName, HName, Did, SBy, MBy,SDate,MDate) VALUES (?, ?,?,?,?,?,?)',
-            [EName, HName, DId, loginUserId, loginUserId,SDate,MDate]
+            [EName, HName, DId, loginUserId, loginUserId,CDate,CDate]
         );
 
         const addedTehsil = {
@@ -137,8 +137,8 @@ const UpdateTehsilDetail = asyncHandler(async (req, res) => {
     }
     try {
         await queryDatabase(
-            'UPDATE Tehsillist SET EName= ?, HName= ?, MBy=?,MDate=? WHERE Id= ?',
-            [EName, HName, loginUserId,MDate, Id]
+            'UPDATE tehsillist SET EName= ?, HName= ?, MBy=?,MDate=? WHERE Id= ?',
+            [EName, HName, loginUserId,CDate, Id]
         );
 
         const updatedCaste = {
@@ -186,7 +186,7 @@ const AddCouncil = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO council (TehId, ECouncil, HCouncil, SBy, MBy,SDate,MDate) VALUES (?, ?, ?,?,?,?,?)',
-            [TehId, ECouncil, HCouncil,loginUserId, loginUserId,SDate,MDate]
+            [TehId, ECouncil, HCouncil,loginUserId, loginUserId,CDate,CDate]
         );
 
         const AddedCouncil = {
@@ -222,7 +222,7 @@ const UpdateCouncilDetail = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'UPDATE council SET ECouncil= ?, HCouncil= ?, TehId= ?, MBy=?,MDate=? WHERE Id= ?',
-            [ECouncil, HCouncil, TehId, loginUserId, MDate,Id]
+            [ECouncil, HCouncil, TehId, loginUserId, CDate,Id]
         );
 
         const updatedCouncil = {
@@ -267,7 +267,7 @@ const AddVidhanSabha = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO vidhansabha (counId, EVidhanSabha, HVidhanSabha, VSNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?, ?, ?,?,?)',
-            [counId, EVidhanSabha, HVidhanSabha, VSNo, loginUserId, loginUserId,SDate,MDate]
+            [counId, EVidhanSabha, HVidhanSabha, VSNo, loginUserId, loginUserId,CDate,CDate]
         );
         const AddedCouncil = {
             counId, EVidhanSabha, HVidhanSabha, VSNo
@@ -304,7 +304,7 @@ const UpdateVidhanSabhaDetail = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'UPDATE vidhansabha SET EVidhanSabha= ?, HVidhanSabha= ?, VSNo =?, counId =?, MBy=?, MDate =? WHERE Id= ?',
-            [EVidhanSabha, HVidhanSabha, VSNo, counId, loginUserId, MDate, Id]
+            [EVidhanSabha, HVidhanSabha, VSNo, counId, loginUserId, CDate, Id]
         );
 
         const updatedVS = {
@@ -350,7 +350,7 @@ const AddWardBlock = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO wardblock (VSId, EWardBlock, HWardBlock, WardNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?, ?, ?,?,?)',
-            [VSId, EWardBlock, HWardBlock, WardNo, loginUserId, loginUserId,SDate,MDate]
+            [VSId, EWardBlock, HWardBlock, WardNo, loginUserId, loginUserId,CDate,CDate]
         );
 
         const AddedCouncil = {
@@ -396,7 +396,7 @@ const UpdateWardBlockDetail = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'UPDATE wardblock SET EWardBlock= ?, HWardBlock= ?, VSId= ?, WardNo=?, MBy=?,Mdate=? WHERE Id= ?',
-            [EWardBlock, HWardBlock, VSId, WardNo, loginUserId,MDate, Id]
+            [EWardBlock, HWardBlock, VSId, WardNo, loginUserId,CDate, Id]
         );
 
         const updatedCouncil = {
@@ -442,7 +442,7 @@ const AddChakBlock = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO chakblockpanch (WBId, ECBPanch, HCBPanch, ChakNo, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?, ?,?,?, ?)',
-            [WBId, ECBPanch, HCBPanch, ChakNo, loginUserId, loginUserId,SDate,MDate]
+            [WBId, ECBPanch, HCBPanch, ChakNo, loginUserId, loginUserId,CDate,CDate]
         );
 
         const AddedCouncil = {
@@ -490,7 +490,7 @@ const UpdateChakBlockDetail = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'UPDATE chakblockpanch SET ECBPanch= ?, HCBPanch= ?, WBId= ?, ChakNo=?, MBy=?,MDate=? WHERE Id= ?',
-            [ECBPanch, HCBPanch, WBId, ChakNo,loginUserId,MDate,  Id]
+            [ECBPanch, HCBPanch, WBId, ChakNo,loginUserId,CDate,  Id]
         );
 
         const updatedCouncil = {
@@ -535,7 +535,7 @@ const AddAreaVill = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO areavill (CBPId, EAreaVill, HAreaVill, HnoRange, SBy, MBy,SDate,MDate) VALUES (?, ?, ?, ?,?, ?,?,?)',
-            [CBPId, EAreaVill, HAreaVill, HnoRange, loginUserId, loginUserId,SDate,MDate]
+            [CBPId, EAreaVill, HAreaVill, HnoRange, loginUserId, loginUserId,CDate,CDate]
         );
         const AddedCouncil = {
             CBPId, EAreaVill, HAreaVill, HnoRange
@@ -584,7 +584,7 @@ const UpdateAreaVillDetail = asyncHandler(async (req, res) => {
     try {
         const ans= await queryDatabase(
             'UPDATE areavill SET EAreaVill= ?, HAreaVill= ?, HnoRange =?, CBPId =?, MBy=?,SDate=?,MDate=? WHERE Id= ?',
-            [EAreaVill, HAreaVill, HnoRange, CBPId, loginUserId,SDate,MDate,Id]
+            [EAreaVill, HAreaVill, HnoRange, CBPId, loginUserId,CDate,CDate,Id]
         );
  
         const updatedVS = {
@@ -627,7 +627,7 @@ const AddPSList = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO pollingstation (EPSArea, HPSArea, PSNo, EPSName, HPSName, RoomNo, SBy, MBy,SDate,MDate, DId) VALUES (?, ?, ?,?, ?, ?,?,?,?,?,?)',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, loginUserId,SDate,MDate, DId]
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, loginUserId,CDate,CDate, DId]
         );
         const AddedPSList = {
             HSPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo
@@ -664,7 +664,7 @@ const UpdatePSListDetail = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'UPDATE pollingstation SET EPSArea= ?, HPSArea= ?, PSNo =?, EPSName =?, HPSName=?, RoomNo=?, MBy=?, MDate=? WHERE Id= ?',
-            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, MDate, content]
+            [ESPArea, HSPArea, PSNo, ESPName, HSPName, RoomNo, loginUserId, CDate, content]
         );
 
         const updatedPSList = {
@@ -747,7 +747,7 @@ const addPSA = asyncHandler(async (req, res) => {
     try {
         await queryDatabase(
             'INSERT INTO pstationallot (PSId, WId, VtsFrom, VtsTo, SBy, MBy, SDate, MDate) VALUES (?, ?,?, ?, ?,?,?,?)',
-            [PSId, WBId, VtsFrom, VtsTo, loginUserId, loginUserId, SDate, MDate, ]
+            [PSId, WBId, VtsFrom, VtsTo, loginUserId, loginUserId, CDate, CDate]
         );
         const AddedPSList = {
             PSId, WBId,VtsFrom, VtsTo, loginUserId 

@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Caste from './components/Admin/Caste.jsx';
 import District from './components/SuperAdmin/District.jsx';
 import EditDistrictDetails from './components/SuperAdmin/EditDistrictDetails.jsx';
-import Tehsil from './components/Admin/Tehsil.jsx';
+
 import Council from './components/Admin/Council.jsx';
 import VidhanSabha from './components/Admin/VidhanSabha.jsx';
 import WardBlock from './components/Admin/WardBlock.jsx';
@@ -40,6 +40,7 @@ import MISPollingStation from './components/Admin/Reports/MISPollingStation.jsx'
 import Publish from './components/SuperAdmin/Publish.jsx';
 import Whatsapp from './components/QCStaff/Whatsapp.jsx';
 import FormsAdminInfo from './components/FormsAdmin/FormsAdminInfo.jsx';
+import Tehsil from './components/Admin/Tehsil.jsx';
 
 const getRoutesForRole = (role) => {
   switch (role) {

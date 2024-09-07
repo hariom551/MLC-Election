@@ -39,6 +39,7 @@ const DistrictSelect = ({ formData, setFormData }) => {
       <Form.Group>
         <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>
         <Select
+        className="relative z-50"
           id="DistrictSelect"
           name="DId"
           value={district.find(option => option.value === formData.DId)}

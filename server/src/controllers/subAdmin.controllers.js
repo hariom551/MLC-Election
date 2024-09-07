@@ -14,9 +14,9 @@ const voterList = asyncHandler(async (req, res) => {
     try {
         const results = await queryDatabase(
             `SELECT voterlist.Id, PacketNo, EFName, HFName, ELName, HLName, ERFName, HRFName, ERLName, HRLName,
-             CasteId, caste.ECaste, Age, 
+            CasteId, caste.ECaste, Age, 
             DATE_FORMAT(DOB, '%d/%m/%Y') as DOB, Sex, MNo, AadharNo, VIdNo,
-             areavill.EAreaVill ,areavill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark
+            areavill.EAreaVill ,areavill.HAreaVill, AreaId, TehId, CounId, VSId, WBId, ChkBlkId, HNo, Landmark
             FROM voterlist 
             LEFT JOIN caste ON CasteId = caste.ID 
             LEFT JOIN areavill ON AreaId= areavill.Id
