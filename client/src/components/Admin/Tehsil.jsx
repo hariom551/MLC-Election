@@ -41,11 +41,13 @@ function Tehsil() {
       );
 
       if (!response.ok) {
+        
         throw new Error('Failed to fetch Tehsil details');
       }
 
       const data = await response.json();
       if (!data || !Array.isArray(data) || data.length === 0) {
+        setTehsilDetails([]);
         throw new Error('Empty or invalid Tehsil details data');
       }
 
@@ -63,7 +65,7 @@ function Tehsil() {
         }
       }
     } catch (error) {
-      toast.error(`Error fetching Tehsil data: ${error.message}`);
+      toast.error(` ${error.message}`);
     }
   };
 
@@ -117,7 +119,7 @@ function Tehsil() {
         await fetchTehsilData();
         setFormData({ Id: '', EName: '', HName: '', DId: formData.DId });
         toast.success('Tehsil updated successfully.');
-        setTimeout(() => navigate('/tehsil'), 2000); // Navigate after 2 seconds
+        setTimeout(() => navigate('/tehsil'), 2000); 
       } else {
         const errorData = await result.json();
         toast.error(`Error in updating Tehsil: ${errorData.message || result.statusText}`);
@@ -145,8 +147,9 @@ function Tehsil() {
       );
 
       if (result.ok) {
+        await fetchTehsilData();
         toast.success('Tehsil deleted successfully.');
-        fetchTehsilData(); // Refresh table data after deletion
+       
       } else {
         toast.error('Error in deleting Tehsil:', result.statusText);
       }
