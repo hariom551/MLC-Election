@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation,useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DistrictSelect from '../Pages/DistrictSelect';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -14,7 +15,8 @@ import {
 function Council() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const content = searchParams.get('content');
+  let content = searchParams.get('content');
+  const navigate = useNavigate();
 
   const [councilDetails, setCouncilDetails] = useState([]);
   const [formData, setFormData] = useState({
@@ -22,19 +24,19 @@ function Council() {
     ECouncil: '',
     HCouncil: '',
     EName: '',
-    TehId: ''
+    TehId: '',
+    DId: ''
   });
 
   const [tehsilOptions, setTehsilOptions] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
-  const DId = user ? user.DId : '';
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
 
   const fetchTehsilOptions = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -56,7 +58,7 @@ function Council() {
 
   const fetchCouncilDetails = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -73,7 +75,10 @@ function Council() {
       if (content) {
         const Council = data.find(item => item.Id == content);
         if (Council) {
-          setFormData(Council);
+          setFormData(prevFormData => ({
+            ...prevFormData,
+            ...Council
+          }));
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           toast.error(`Council with ID ${content} not found`);
@@ -85,9 +90,21 @@ function Council() {
   };
 
   useEffect(() => {
-    fetchTehsilOptions();
-    fetchCouncilDetails();
-  }, [DId, content]);
+    if (formData.DId) {
+      fetchTehsilOptions();
+      fetchCouncilDetails();
+      setFormData(prevData => ({ ...prevData, TehId: '' }));
+      
+    }
+  }, [formData.DId]);
+
+  useEffect(() => {
+    if (content) {
+      fetchCouncilDetails();
+    }
+  }, [content]);
+  
+
 
   const resetFormData = () => {
     setFormData({
@@ -95,7 +112,8 @@ function Council() {
       ECouncil: '',
       HCouncil: '',
       EName: '',
-      TehId: ''
+      TehId: '',
+      DId: formData.DId
     });
   };
 
@@ -114,7 +132,7 @@ function Council() {
       if (result.ok) {
         toast.success("Council Added Successfully.");
         resetFormData();
-        await fetchCouncilDetails(); // Refresh the table data
+        await fetchCouncilDetails(); 
       } else {
         toast.error("Error in Adding Council:", result.statusText);
       }
@@ -125,28 +143,35 @@ function Council() {
 
   const handleEdit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/updateCouncilDetail`, {
         method: 'POST',
         body: JSON.stringify({ ...formData, loginUserId }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-
+  
       if (result.ok) {
-        toast.success("Council Updated successfully.");
+        toast.success("Council updated successfully.");
+        content = '';
         resetFormData();
-        await fetchCouncilDetails();
-        window.location.href = '/Council'
+  
+        setTimeout(async () => {
+          await fetchCouncilDetails();
+          navigate('/Council');
+        }, 2000);
+  
       } else {
-        toast.error("Error in Updating Council:", result.statusText);
+        const errorText = await result.text();
+        toast.error(`Error in Updating Council: ${errorText}`);
       }
     } catch (error) {
-      toast.error("Error in updating :", error.message);
+      toast.error(`Error in updating: ${error.message}`);
     }
   };
+  
 
   const handleDelete = async (Id) => {
     try {
@@ -160,7 +185,7 @@ function Council() {
 
       if (result.ok) {
         toast.success("Council Deleted Successfully.");
-        await fetchCouncilDetails(); // Refresh the table data
+        // await fetchCouncilDetails();
       } else {
         toast.error("Error in Deleting Council:", result.statusText);
       }
@@ -169,12 +194,17 @@ function Council() {
     }
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value
-    }));
+  // const handleChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setFormData(prevFormData => ({
+  //     ...prevFormData,
+  //     [name]: value
+  //   }));
+  // };
+
+  const handleChange = (e) => {
+    
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const columns = useMemo(() => {
@@ -244,6 +274,12 @@ function Council() {
           <>
             <h1 className="text-2xl font-bold mb-4">Add Council</h1>
             <Form onSubmit={content ? handleEdit : handleSubmit} className="Council-form">
+
+              <DistrictSelect
+                formData={formData}
+                handleChange={handleChange}
+              />
+
               <Row className="mb-3">
                 <div className="col-md-3 mb-3">
                   <Form.Group>

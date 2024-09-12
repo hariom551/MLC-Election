@@ -63,7 +63,7 @@ const loginUser = asyncHandler(async (req, res) => {
                     userid: user.userid,
                     role: user.role,
                     name: user.name,
-                    DId: user.DId,
+                
                     permissionaccess:user.permissionaccess
                     
                 };
@@ -105,23 +105,22 @@ const DistrictDetails = asyncHandler(async(req, res)=>{
 });
 
 const submitDetails = asyncHandler(async (req, res) => {
-    const { userId, password, DId, name, mobile1, mobile2, email, address, permission, role, loginUserId } = req.body;
+    const { userId, password, name, mobile1, mobile2, email, address, permission, role, loginUserId } = req.body;
 
-    if (!userId || !password || !DId || !name || !mobile1 || !role || !loginUserId) {
+    if (!userId || !password || !name || !mobile1 || !role || !loginUserId) {
         throw new ApiError(400, "Please enter all details!");
     }
 
 
     try {
         await queryDatabase(
-            'INSERT INTO userlogin (userId, password,DId, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [userId, password,DId, name, mobile1, mobile2, email, address, permission, role, loginUserId, CDate ]
+            'INSERT INTO userlogin (userId, password, name, mobile1, mobile2, email, address, permissionAccess, role, SBy, SDate) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [userId, password, name, mobile1, mobile2, email, address, permission, role, loginUserId, CDate ]
         );
 
         const createdUser = {
             userId,
             name,
-            DId,
             mobile1,
             mobile2,
             email,

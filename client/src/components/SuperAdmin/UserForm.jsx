@@ -29,8 +29,7 @@ function UserForm() {
     mobile2: '',
     email: '',
     address: '',
-    permission: '',
-    DId: DId ? DId : ''
+    permission: ''
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -42,34 +41,7 @@ function UserForm() {
 
   const token = localStorage.getItem('token');
 
-  const [district, setDistrict] = useState([]);
   
-  // Function to fetch district options
-  const fetchDistrictOptions = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/DistrictDetails`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch District options');
-      }
-      const data = await response.json();
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        throw new Error('Empty or invalid District options data');
-      }
-
-      const options = data.map(District => ({ value: District.Id, label: District.EDistrict }));
-      setDistrict(options);
-
-    } catch (error) {
-      toast.error('Error fetching District options:', error);
-    }
-  };
-
-  // Function to fetch user data
   const fetchData = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/hariom`, {
@@ -91,7 +63,6 @@ function UserForm() {
   };
 
   useEffect(() => {
-    fetchDistrictOptions();
     fetchData(); 
   }, [content]); 
 
@@ -353,21 +324,7 @@ function UserForm() {
               </Form.Group>
             </div>
 
-            {userrole === "Super Admin" &&
-              <div className="col-md-3 mb-3">
-                <Form.Group>
-                  <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>
-                  <Select
-                    id="DistrictSelect"
-                    name="DId"
-                    value={district.find(option => option.value === formData.DId)}
-                    onChange={option => setFormData(prevFormData => ({ ...prevFormData, DId: option.value }))}
-                    options={district}
-                    placeholder="Select District"
-                  />
-                </Form.Group>
-              </div>
-            }
+          
             <div className="col-md-3 mb-3">
               <Form.Group>
                 <Form.Label>Permission:</Form.Label>

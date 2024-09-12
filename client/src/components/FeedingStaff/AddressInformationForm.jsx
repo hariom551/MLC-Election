@@ -121,7 +121,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       const data = await response.json();
       setAreaVillOptions(data);
     } catch (error) {
-      console.error('Error fetching suggested AreaVill:', error);
+      toast.error('Error fetching suggested AreaVill:', error);
     }
   };
 
@@ -153,7 +153,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       setTehsilOption(Tehsil);
 
     } catch (error) {
-      console.error('Error fetching all area details:', error);
+    toast.error('Error fetching all area details:', error);
     }
   };
 
@@ -238,7 +238,7 @@ function AddressInformationForm({ addressDetail, setAddressDetail, errors, setEr
       WBId: selectedCB.WBId,
       ChkBlkId: selectedCB.ChkBlkId,
     }));
-    console.log(addressDetail);
+  
   };
 
   useEffect(() => {

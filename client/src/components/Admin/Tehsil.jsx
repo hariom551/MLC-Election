@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import DistrictSelect from '../Pages/DistrictSelect';
 
 function Tehsil() {
+  
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const content = searchParams.get('content');
@@ -16,7 +17,7 @@ function Tehsil() {
 
   const [tehsilDetails, setTehsilDetails] = useState([]);
   const [formData, setFormData] = useState({
-    Id: '',
+    Id: content || '',
     EName: '',
     HName: '',
     DId: '',
@@ -41,7 +42,7 @@ function Tehsil() {
       );
 
       if (!response.ok) {
-        
+
         throw new Error('Failed to fetch Tehsil details');
       }
 
@@ -70,6 +71,7 @@ function Tehsil() {
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     fetchTehsilData();
   }, [formData.DId, content]);
 
@@ -113,14 +115,20 @@ function Tehsil() {
           },
         }
       );
-  
-      if (result.ok) {
 
+      if (result.ok) {
+       
         await fetchTehsilData();
-        setFormData({ Id: '', EName: '', HName: '', DId: formData.DId });
+        setFormData({
+          Id: '',
+          EName: '',
+          HName: '',
+          DId: formData.DId
+        });
         toast.success('Tehsil updated successfully.');
-        setTimeout(() => navigate('/tehsil'), 2000); 
-      } else {
+        setTimeout(() => navigate('/tehsil'), 2000);
+      }
+      else {
         const errorData = await result.json();
         toast.error(`Error in updating Tehsil: ${errorData.message || result.statusText}`);
       }
@@ -130,11 +138,16 @@ function Tehsil() {
   };
 
   const handleChange = (e) => {
+    console.log("first", e.target.name, e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  
   const handleDelete = async (Id) => {
     try {
+
+      const currentDId = formData.DId;
+
       let result = await fetch(
         `${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteTehsilDetail`,
         {
@@ -147,9 +160,9 @@ function Tehsil() {
       );
 
       if (result.ok) {
-        await fetchTehsilData();
+        console.log("Delete - Current DId:", formData.DId);
+         fetchTehsilData();
         toast.success('Tehsil deleted successfully.');
-       
       } else {
         toast.error('Error in deleting Tehsil:', result.statusText);
       }
@@ -219,15 +232,14 @@ function Tehsil() {
       <ToastContainer />
       <div className="container py-4 pl-6 text-black">
         <h1 className="text-2xl font-bold mb-4">Tehsil</h1>
+        <Form onSubmit={content ? handleEdit : handleSubmit} className="Tehsil-form">
+          <DistrictSelect
+            formData={formData}
+            handleChange={handleChange}
+          />
 
-        <DistrictSelect
-          formData={formData}
-          setFormData={setFormData}
-        />
-
-        {permission !== '0' && formData.DId && (
-          <>
-            <Form onSubmit={content ? handleEdit : handleSubmit} className="Tehsil-form">
+          {permission !== '0' && formData.DId && (
+            <>
               <Row className="mb-3">
                 <div className="col-md-3 mb-3">
                   <Form.Group>
@@ -265,10 +277,13 @@ function Tehsil() {
               <Button variant="primary" type="submit">
                 {content ? 'Update' : 'Submit'}
               </Button>
-            </Form>
-            <hr className="my-4" />
-          </>
-        )}
+            </>
+          )}
+        </Form>
+
+        <hr className="my-4" />
+
+
 
         <h4 className="container mt-3 text-xl font-bold mb-3">Tehsil List</h4>
         <div className="overflow-x-auto">

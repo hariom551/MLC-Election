@@ -10,7 +10,7 @@ const router = Router()
 
 router.route("/login").post(loginUser)
 router.route("/DistrictDetails").get(DistrictDetails)
-router.route("/submitdetails").post(verifyJWT, submitDetails)
+router.route("/submitdetails").post( submitDetails)
 router.route("/hariom").post(verifyJWT,  hariom)
 router.route("/changePassword").post(verifyJWT,changePassword)
 router.route("/addDistrict").post(AddDistrict)

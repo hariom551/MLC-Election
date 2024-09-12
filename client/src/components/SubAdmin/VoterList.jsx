@@ -20,6 +20,12 @@ function VoterList() {
     const permission = user.permissionaccess;
     const token = localStorage.getItem('token');
 
+    const handleChange = (e) => {
+        
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+      };
+    
+
     useEffect(() => {
 
 
@@ -91,7 +97,8 @@ function VoterList() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(result);
+         
+            
 
             if (result.ok) {
                 setVotersDetails(prevVoters => prevVoters.filter(voter => voter.Id !== Id));
@@ -246,7 +253,7 @@ function VoterList() {
                     <Row className="mb-3">
                         <DistrictSelect
                             formData={formData}
-                            setFormData={setFormData}
+                            handleChange={handleChange}
                             onDistrictChange={() => {
                                 setFormData(prevFormData => ({
                                     ...prevFormData,

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 import Form from 'react-bootstrap/Form';
-const DistrictSelect = ({ formData, setFormData }) => {
-  const [district, setDistrict] = useState([]);
 
+const DistrictSelect = ({ formData, handleChange }) => {
+  const [districtOptions, setDistrictOptions] = useState([]);
 
   const fetchDistrictOptions = async () => {
     try {
@@ -23,7 +23,7 @@ const DistrictSelect = ({ formData, setFormData }) => {
       }
 
       const options = data.map(district => ({ value: district.Id, label: district.EDistrict }));
-      setDistrict(options);
+      setDistrictOptions(options);
 
     } catch (error) {
       toast.error('Error fetching District options:', error);
@@ -39,12 +39,12 @@ const DistrictSelect = ({ formData, setFormData }) => {
       <Form.Group>
         <Form.Label>Select District<sup className='text-red-600'>*</sup></Form.Label>
         <Select
-        className="relative z-50"
+          className="relative z-10"
           id="DistrictSelect"
           name="DId"
-          value={district.find(option => option.value === formData.DId)}
-          onChange={option => setFormData(prevFormData => ({ ...prevFormData, DId: option.value }))}
-          options={district}
+          value={districtOptions.find(option => option.value == formData.DId)}
+          onChange={option => handleChange({ target: { name: 'DId', value: option.value } })}
+          options={districtOptions}
           placeholder="Select District"
         />
       </Form.Group>
