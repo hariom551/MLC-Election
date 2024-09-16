@@ -429,18 +429,16 @@ const FormsAdminInfo = asyncHandler(async (req, res) => {
         
         let queryParams = [];
 
-        // Conditionally add WHERE clause if the user is a Forms Admin
         if (req.user.role === 'Forms Admin') {
             incomingFormsQuery += ` WHERE SBy = ?`;
             outgoingFormsQuery += ` WHERE SBy = ?`;
             queryParams.push(req.user.userid); 
         }
 
-        // Execute both queries separately and get the results
         const [incomingFormsResult] = await queryDatabase(incomingFormsQuery, queryParams);
         const [outgoingFormsResult] = await queryDatabase(outgoingFormsQuery, queryParams);
 
-        // Combine the results
+
         const result = {
             totalIncomingForms: incomingFormsResult.totalIncomingForms || 0,
             totalOutgoingForms: outgoingFormsResult.totalOutgoingForms || 0,
@@ -451,7 +449,6 @@ const FormsAdminInfo = asyncHandler(async (req, res) => {
         return res.json(result); 
 
     } catch (error) {
-        console.error('Error in fetching forms data:', error);
         return res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
     }
 });

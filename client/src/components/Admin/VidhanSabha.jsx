@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -9,11 +9,13 @@ import {
 } from 'material-react-table';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DistrictSelect from '../Pages/DistrictSelect';
 
 function VidhanSabha() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const content = searchParams.get('content');
+  let content = searchParams.get('content');
+  const navigate = useNavigate();
 
   const [VidhanSabhaDetails, setVidhanSabhaDetails] = useState([]);
   const [formData, setFormData] = useState({
@@ -24,21 +26,21 @@ function VidhanSabha() {
     EName: '',
     TehId: '',
     counId: '',
-    Ecouncil: ''
+    Ecouncil: '',
+    DId: ''
   });
 
   const [tehsilOptions, setTehsilOptions] = useState([]);
   const [councilOptions, setCouncilOptions] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const DId = user ? user.DId : '';
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
 
 
   const fetchTehsilOptions = async () => {
     try {
-      const response = await fetch(`/api/v1/admin/tehsilDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/tehsilDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -60,7 +62,7 @@ function VidhanSabha() {
 
   const fetchCouncilOptions = async (tehId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/councilDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -87,7 +89,7 @@ function VidhanSabha() {
 
   const fetchVidhanSabhaDetails = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -117,9 +119,19 @@ function VidhanSabha() {
   };
 
   useEffect(() => {
-    fetchTehsilOptions();
-    fetchVidhanSabhaDetails();
-  }, [DId, content]);
+    if (formData.DId) {
+      fetchTehsilOptions();
+      fetchVidhanSabhaDetails();
+    }
+  }, [formData.DId]);
+
+  useEffect(() => {
+    if (content) {
+      fetchVidhanSabhaDetails();
+    }
+  }, [content]);
+
+
 
   const resetFormData = () => {
     setFormData({
@@ -130,7 +142,9 @@ function VidhanSabha() {
       EName: '',
       TehId: '',
       counId: '',
-      Ecouncil: ''
+      Ecouncil: '',
+      DId: formData.DId
+
     });
   };
 
@@ -147,8 +161,8 @@ function VidhanSabha() {
 
       if (result.ok) {
         toast.success("VidhanSabha Added Successfully.");
-        resetFormData(); // Reset form data
-        await fetchVidhanSabhaDetails(); // Refresh the table data
+        resetFormData();
+        await fetchVidhanSabhaDetails();
       } else {
         toast.error("Error in Adding VidhanSabha:", result.statusText);
       }
@@ -156,6 +170,18 @@ function VidhanSabha() {
       toast.error("Error in Adding VidhanSabha:", error.message);
     }
   };
+
+  // const handleChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setFormData(prevFormData => ({
+  //     ...prevFormData,
+  //     [name]: value
+  //   }));
+
+  //   if (name === 'TehId') {
+  //     fetchCouncilOptions(value);
+  //   }
+  // };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -169,6 +195,8 @@ function VidhanSabha() {
     }
   };
 
+
+
   const handleDelete = async (Id) => {
     try {
       const result = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/Admin/deleteVidhanSabhaDetail`, {
@@ -181,7 +209,7 @@ function VidhanSabha() {
 
       if (result.ok) {
         toast.success("VidhanSabha Deleted Successfully.");
-        await fetchVidhanSabhaDetails(); // Refresh the table data
+        // await fetchVidhanSabhaDetails();
       } else {
         toast.error("Error in Deleting VidhanSabha:", result.statusText);
       }
@@ -202,9 +230,13 @@ function VidhanSabha() {
       });
       if (result.ok) {
         toast.success("VidhanSabha Updated successfully.");
-        resetFormData(); // Reset form data
+          content = '';
+        resetFormData();
         await fetchVidhanSabhaDetails();
-        window.location.href = '/VidhanSabha'
+      
+        
+        navigate('/VidhanSabha');
+
       } else {
         toast.error("Error in Updating VidhanSabha:", result.statusText);
       }
@@ -274,6 +306,7 @@ function VidhanSabha() {
     return baseColumns;
   }, [permission]);
 
+
   const table = useMaterialReactTable({
     columns,
     data: VidhanSabhaDetails,
@@ -287,6 +320,19 @@ function VidhanSabha() {
           <>
             <h1 className="text-2xl font-bold mb-4">Add VidhanSabha</h1>
             <Form onSubmit={content ? handleEdit : handleSubmit} className="VidhanSabha-form">
+              <DistrictSelect
+                formData={formData}
+                handleChange={handleChange}
+                onDistrictChange={() => {
+                  setFormData(prevFormData => ({
+                    ...prevFormData,
+                    TehId: null
+                  }));
+                  setTehsilOptions([]);
+                }}
+              />
+
+
               <Row className="mb-3">
                 <div className="col-md-3 mb-3">
                   <Form.Group>

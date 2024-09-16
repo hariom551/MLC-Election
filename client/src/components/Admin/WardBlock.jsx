@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -7,11 +7,13 @@ import Select from 'react-select';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DistrictSelect from '../Pages/DistrictSelect';
 
 function WardBlock() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const content = searchParams.get('content');
+  let content = searchParams.get('content');
+  const navigate = useNavigate();
 
   const [WardBlockDetails, setWardBlockDetails] = useState([]);
   const [formData, setFormData] = useState({
@@ -20,19 +22,18 @@ function WardBlock() {
     HWardBlock: '',
     WardNo: '',
     EVidhanSabha: '',
-    VSId: ''
+    VSId: '',
+    DId: ''
   });
 
   const [vsOptions, setVSOptions] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user")); 
-  const DId = user ? user.DId : '';
+  const user = JSON.parse(localStorage.getItem("user"));
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
 
-
   const fetchVSOptions = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/vidhanSabhaDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -57,7 +58,7 @@ function WardBlock() {
 
   const fetchWardBlockDetails = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -85,9 +86,17 @@ function WardBlock() {
   };
 
   useEffect(() => {
-    fetchVSOptions();
-    fetchWardBlockDetails();
-  }, [DId, content]);
+    if (formData.DId) {
+      fetchVSOptions();
+      fetchWardBlockDetails();
+    }
+  }, [formData.DId]);
+
+  useEffect(() => {
+    if (content) {
+      fetchWardBlockDetails();
+    }
+  }, [content]);
 
   const resetFormData = () => {
     setFormData({
@@ -96,7 +105,8 @@ function WardBlock() {
       HWardBlock: '',
       WardNo: '',
       EVidhanSabha: '',
-      VSId: ''
+      VSId: '',
+      DId: formData.DId
     });
   };
 
@@ -113,8 +123,8 @@ function WardBlock() {
 
       if (result.ok) {
         toast.success('WardBlock Added Successfully.');
-        resetFormData(); // Reset form data
-        await fetchWardBlockDetails(); // Refresh the table data
+        resetFormData();
+        await fetchWardBlockDetails();
       } else {
         toast.error('Error in Adding WardBlock: ' + result.statusText);
       }
@@ -136,9 +146,14 @@ function WardBlock() {
 
       if (result.ok) {
         toast.success('WardBlock Updated successfully.');
-        resetFormData(); // Reset form data
+
+        content = '';
+        resetFormData();
         await fetchWardBlockDetails();
-        window.location.href = '/WardBlock'
+
+
+        navigate('/WardBlock');
+
       } else {
         toast.error('Error in Updating WardBlock: ' + result.statusText);
       }
@@ -167,7 +182,7 @@ function WardBlock() {
 
       if (result.ok) {
         toast.success('WardBlock Deleted Successfully.');
-        await fetchWardBlockDetails(); // Refresh the table data
+        // await fetchWardBlockDetails();
       } else {
         toast.error('Error in Deleting WardBlock: ' + result.statusText);
       }
@@ -239,6 +254,18 @@ function WardBlock() {
           <>
             <h1 className="text-2xl font-bold mb-4">{content ? 'Edit WardBlock' : 'Add WardBlock'}</h1>
             <Form onSubmit={content ? handleEdit : handleSubmit} className="WardBlock-form">
+              <DistrictSelect
+                formData={formData}
+                handleChange={handleChange}
+                onDistrictChange={() => {
+                  setFormData(prevFormData => ({
+                    ...prevFormData,
+                    VSId: null
+                  }));
+                  setVSOptions([]);
+                }}
+              />
+
               <Row className="mb-3">
                 <div className="col-md-3 mb-3">
                   <Form.Group>

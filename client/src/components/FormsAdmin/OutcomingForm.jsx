@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form, Row } from 'react-bootstrap';
 import { Box, Button as MUIButton } from '@mui/material';
 import { Typeahead } from 'react-bootstrap-typeahead';
@@ -30,6 +30,7 @@ function OutgoingForms() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const content = searchParams.get('content');
+    const navigate = useNavigate();
 
     const [OFDetails, setOFListDetails] = useState([]);
     const initialFormData = {
@@ -53,7 +54,7 @@ function OutgoingForms() {
     const [suggestedCareOfMobiles, setSuggestedCareOfMobiles] = useState([]);
 
     const user = JSON.parse(localStorage.getItem("user"));
-    const DId = user ? user.DId : '';
+
     const loginUserId = user.userid;
     const role = user.role;
     const permission = user.permissionaccess;
@@ -210,7 +211,8 @@ function OutgoingForms() {
                     VMob1: '',
                     CMob1: ''
                 });
-                window.location.href='/outgoingForms'
+                navigate('/outgoingForms')
+              
             } else {
                 toast.error("Error in updatinh OutgoingForms:", result.statusText);
             }

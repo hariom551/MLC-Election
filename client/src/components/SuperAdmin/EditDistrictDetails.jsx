@@ -1,5 +1,5 @@
 import React, {useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -10,6 +10,7 @@ function EditDistrictDetails() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const content = searchParams.get('content');
+    const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     DistCode: content || '', 
@@ -50,7 +51,8 @@ function EditDistrictDetails() {
       if (result.ok) {
      
         toast.success("District Updated successfully.");
-        window.location.href = '/district';
+        
+        navigate('/district')
       } else {
         toast.error("Error in Updating District:", result.statusText);
       }

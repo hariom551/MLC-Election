@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Select from 'react-select';
+import DistrictSelect from '../Pages/DistrictSelect';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -14,7 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function AreaVill() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const content = searchParams.get('content');
+  let content = searchParams.get('content');
 
   const [AreaVillDetails, setAreaVillDetails] = useState([]);
   const [formData, setFormData] = useState({
@@ -25,48 +26,45 @@ function AreaVill() {
     EWardBlock: '',
     WBID: '',
     CBPId: '',
-    ECBPanch: ''
+    ECBPanch: '',
+    DId: ''
   });
 
   const [wbOptions, setWBOptions] = useState([]);
   const [cbOptions, setCBOptions] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const DId = user ? user.DId : '';
+
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
-
-  useEffect(() => {
-    const fetchWBOptions = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${DId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch Ward block options');
+  const navigate = useNavigate();
+  const fetchWBOptions = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${formData.DId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
-        const data = await response.json();
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          throw new Error('Empty or invalid Ward block options data');
-        }
+      });
 
-        const options = data.map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }));
-        setWBOptions(options);
-      } catch (error) {
-        console.error('Error fetching wb options:', error);
+      if (!response.ok) {
+        throw new Error('Failed to fetch Ward block options');
       }
-    };
+      const data = await response.json();
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error('Empty or invalid Ward block options data');
+      }
 
-    fetchWBOptions();
-  }, [DId]);
+      const options = data.map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }));
+      setWBOptions(options);
+    } catch (error) {
+      toast.error('Error fetching wb options:', error);
+    }
+  };
 
   const fetchCBOptions = async (wbId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/chakBlockDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/chakBlockDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -87,13 +85,13 @@ function AreaVill() {
 
       setCBOptions(options);
     } catch (error) {
-      console.error('Error fetching CB options:', error);
+      toast.error('Error fetching CB options:', error);
     }
   };
 
   const fetchAreaVillDetails = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/AreaVillDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/AreaVillDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -119,24 +117,35 @@ function AreaVill() {
             HnoRange: AreaVill.HnoRange,
             EWardBlock: AreaVill.EWardBlock,
             CBPId: AreaVill.CBPId,
-            ECBPanch: AreaVill.ECBPanch
+            ECBPanch: AreaVill.ECBPanch,
+            DId: AreaVill.DId
           });
 
           fetchCBOptions(AreaVill.WBId);
         } else {
-          console.error(`AreaVill with ID ${content} not found`);
+          toast.error(`AreaVill with ID ${content} not found`);
         }
       }
     } catch (error) {
-      console.error('Error fetching AreaVill data:', error);
+      toast.error('Error fetching AreaVill data:', error);
     }
   };
 
   useEffect(() => {
-    fetchAreaVillDetails();
-  }, [content, DId]);
+    if (formData.DId) {
+      fetchWBOptions();
+      fetchAreaVillDetails();
+    }
+  }, [formData.DId]);
 
-  // Reset form data
+
+  useEffect(() => {
+    if (content) {
+      fetchAreaVillDetails();
+    }
+  }, [content]);
+
+
   const resetFormData = () => {
     setFormData({
       Id: '',
@@ -146,7 +155,8 @@ function AreaVill() {
       EWardBlock: '',
       WBID: '',
       CBPId: '',
-      ECBPanch: ''
+      ECBPanch: '',
+      DId: formData.DId
     });
   };
 
@@ -163,26 +173,39 @@ function AreaVill() {
 
       if (result.ok) {
         toast.success("AreaVill Added Successfully.");
-        resetFormData(); // Reset form data
-        await fetchAreaVillDetails(); // Refresh the table data
+        resetFormData();
+        await fetchAreaVillDetails();
       } else {
         toast.error("Error in Adding AreaVill:", result.statusText);
       }
     } catch (error) {
-      console.error("Error in Adding AreaVill:", error.message);
+      toast.error("Error in Adding AreaVill:", error.message);
     }
   };
 
-  const handleChange = (selectedOption, name) => {
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: selectedOption.value
-    }));
+  const handleChange = (input, name) => {
 
-    if (name === 'WBID') {
-      fetchCBOptions(selectedOption.value);
+    if (input?.target) {
+
+      const { name, value } = input.target;
+
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: value
+      }));
+    } else {
+
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: input.value
+      }));
+
+      if (name === 'WBID') {
+        fetchCBOptions(input.value);
+      }
     }
   };
+
 
   const handleDelete = async (Id) => {
     try {
@@ -199,7 +222,7 @@ function AreaVill() {
       }
 
       toast.success("AreaVill deleted successfully.");
-      await fetchAreaVillDetails(); // Refresh the table data
+      // await fetchAreaVillDetails(); 
     } catch (error) {
       toast.error("Error deleting AreaVill:", error.message);
     }
@@ -218,9 +241,12 @@ function AreaVill() {
 
       if (result.ok) {
         toast.success("AreaVill Updated successfully.");
-        resetFormData(); // Reset form data
+        content = '';
+        resetFormData();
         await fetchAreaVillDetails();
-        window.location.href = '/AreaVill';
+        // navigate('/AreaVill')
+        navigate('/AreaVill');
+
       } else {
         toast.error("Error in Updating AreaVill:", result.statusText);
       }
@@ -296,6 +322,19 @@ function AreaVill() {
           <>
             <h1 className="text-2xl font-bold mb-4">Add AreaVill</h1>
             <Form onSubmit={content ? handleEdit : handleSubmit} className="AreaVill-form">
+              <DistrictSelect
+                formData={formData}
+                handleChange={handleChange}
+                onDistrictChange={() => {
+                  setFormData(prevFormData => ({
+                    ...prevFormData,
+                    WBId: null
+                  }));
+                  setWBOptions([]);
+                }}
+              />
+
+
               <Row className="mb-3">
                 <div className="col-md-3 mb-3">
                   <Form.Group>
@@ -310,6 +349,7 @@ function AreaVill() {
                       isSearchable={true}
                       required
                     />
+
                   </Form.Group>
                 </div>
 

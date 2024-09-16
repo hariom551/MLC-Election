@@ -160,7 +160,7 @@ function Tehsil() {
       );
 
       if (result.ok) {
-        console.log("Delete - Current DId:", formData.DId);
+        
          fetchTehsilData();
         toast.success('Tehsil deleted successfully.');
       } else {

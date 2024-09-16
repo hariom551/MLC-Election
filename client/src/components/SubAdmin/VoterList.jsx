@@ -21,14 +21,12 @@ function VoterList() {
     const token = localStorage.getItem('token');
 
     const handleChange = (e) => {
-        
+
         setFormData({ ...formData, [e.target.name]: e.target.value });
-      };
-    
+    };
+
 
     useEffect(() => {
-
-
         const fetchWBOptions = async () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/wardBlockDetails/${formData.DId}`, {
@@ -97,8 +95,6 @@ function VoterList() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-         
-            
 
             if (result.ok) {
                 setVotersDetails(prevVoters => prevVoters.filter(voter => voter.Id !== Id));
@@ -112,8 +108,7 @@ function VoterList() {
         }
     };
 
-
-
+    
     const columns = useMemo(() => {
         const baseColumns = [
             {

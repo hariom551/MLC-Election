@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form, Row } from 'react-bootstrap';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -18,7 +18,8 @@ function IncomingForms() {
 
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
-    const content = searchParams.get('content');
+    let content = searchParams.get('content');
+    const navigate = useNavigate();
 
     const formatDate = (date) => {
         const d = new Date(date);
@@ -56,7 +57,6 @@ function IncomingForms() {
     const [suggestedMobiles, setSuggestedMobiles] = useState([]);
     const [suggestedCareOfMobiles, setSuggestedCareOfMobiles] = useState([]);
     const user = JSON.parse(localStorage.getItem("user"));
-    const DId = user ? user.DId : '';
     const loginUserId = user.userid;
     const role = user.role;
     const permission = user.permissionaccess;
@@ -230,8 +230,31 @@ function IncomingForms() {
 
             if (result.ok) {
                 toast.success("incomingForms Updated successfully.");
-                fetchData();
-                window.location.href = './incomingForms'
+                content='';
+                setFormData({
+
+                    VMob1: '',
+                    VMob2: '',
+                    VEName: '',
+                    VHName: '',
+                    VEAddress: '',
+                    VHAddress: '',
+                    NoOfFormsKN: 0,
+                    NoOfFormsKD: 0,
+                    NoOfFormsU: 0,
+                    PacketNo: '',
+                    ReceivedDate: today,
+                    ERemarks: '',
+                    COList: [{
+                        VMob1: '',
+                        VEName: '',
+                        VHName: '',
+                    }]
+                })
+                
+                await fetchData();
+                
+                navigate('/incomingForms')
                 
 
             } else {

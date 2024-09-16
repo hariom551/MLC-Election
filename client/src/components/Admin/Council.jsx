@@ -30,7 +30,7 @@ function Council() {
 
   const [tehsilOptions, setTehsilOptions] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("user")); // Parse the user object from localStorage
+  const user = JSON.parse(localStorage.getItem("user")); 
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
 
@@ -94,7 +94,6 @@ function Council() {
       fetchTehsilOptions();
       fetchCouncilDetails();
       setFormData(prevData => ({ ...prevData, TehId: '' }));
-      
     }
   }, [formData.DId]);
 
@@ -104,7 +103,6 @@ function Council() {
     }
   }, [content]);
   
-
 
   const resetFormData = () => {
     setFormData({
@@ -194,16 +192,8 @@ function Council() {
     }
   };
 
-  // const handleChange = (event) => {
-  //   const { name, value } = event.target;
-  //   setFormData(prevFormData => ({
-  //     ...prevFormData,
-  //     [name]: value
-  //   }));
-  // };
 
   const handleChange = (e) => {
-    
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 

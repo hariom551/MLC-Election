@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
+import DistrictSelect from '../Pages/DistrictSelect';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -14,7 +15,8 @@ import {
 function ChakBlock() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const content = searchParams.get('content');
+  let content = searchParams.get('content');
+  const navigate = useNavigate();
 
   const [chakBlockDetails, setChakBlockDetails] = useState([]);
   const [formData, setFormData] = useState({
@@ -23,22 +25,20 @@ function ChakBlock() {
     HCBPanch: '',
     ChakNo: '',
     EWardBlock: '',
-    WBId: undefined
+    WBId: undefined,
+    DId:''
   });
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const DId = user ? user.DId : '';
   const loginUserId = user.userid;
   const permission = user.permissionaccess;
 
-
   const [WBOptions, setWBOptions] = useState([]);
 
-  // Fetch WardBlock options
-  useEffect(() => {
+
     const fetchWBOptions = async () => {
       try {
-        const response = await fetch(`/api/v1/admin/wardBlockDetails/${DId}`, {
+        const response = await fetch(`/api/v1/admin/wardBlockDetails/${formData.DId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -61,13 +61,13 @@ function ChakBlock() {
       }
     };
 
-    fetchWBOptions();
-  }, [DId]);
 
-  // Fetch ChakBlock details
+
+
+  
   const fetchChakBlockDetails = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/chakBlockDetails/${DId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/chakBlockDetails/${formData.DId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -95,8 +95,18 @@ function ChakBlock() {
   };
 
   useEffect(() => {
+    if(formData.DId){
+    fetchWBOptions();
     fetchChakBlockDetails();
-  }, [content, DId]);
+    }
+  }, [formData.DId]);
+
+  useEffect(() => {
+    if(formData.DId){
+
+    fetchChakBlockDetails();
+    }
+  }, [content]);
 
   // Reset form data
   const resetFormData = () => {
@@ -106,7 +116,8 @@ function ChakBlock() {
       HCBPanch: '',
       ChakNo: '',
       EWardBlock: '',
-      WBId: undefined
+      WBId: undefined,
+      DId: formData.DId
     });
   };
 
@@ -125,8 +136,8 @@ function ChakBlock() {
 
       if (result.ok) {
         toast.success("ChakBlock Added Successfully.");
-        resetFormData(); // Reset form data
-        await fetchChakBlockDetails(); // Refresh the table data
+        resetFormData(); 
+        await fetchChakBlockDetails(); 
       } else {
         toast.error("Error in Adding ChakBlock:", result.statusText);
       }
@@ -150,9 +161,11 @@ function ChakBlock() {
 
       if (result.ok) {
         toast.success("ChakBlock Updated successfully.");
-        resetFormData(); // Reset form data
+        content='';
+        resetFormData();
         await fetchChakBlockDetails();
-        window.location.href = '/ChakBlock'
+        navigate('/ChakBlock')
+   
       } else {
         toast.error("Error in Updating ChakBlock:", result.statusText);
       }
@@ -183,7 +196,7 @@ function ChakBlock() {
 
       if (result.ok) {
         toast.success("ChakBlock Deleted Successfully.");
-        await fetchChakBlockDetails(); // Refresh the table data
+        // await fetchChakBlockDetails(); 
       } else {
         toast.error("Error in Deleting ChakBlock:", result.statusText);
       }
@@ -257,7 +270,22 @@ function ChakBlock() {
           <>
             <h1 className="text-2xl font-bold mb-4">Add ChakBlock</h1>
             <Form onSubmit={content ? handleEdit : handleSubmit} className="ChakBlock-form">
+            <DistrictSelect
+                formData={formData}
+                handleChange={handleChange}
+                onDistrictChange={() => {
+                  setFormData(prevFormData => ({
+                    ...prevFormData,
+                    WBId: null
+                  }));
+                  setWBOptions([]);
+                }}
+              />
+             
+             
               <Row className="mb-3">
+            
+
                 <div className="col-md-3 mb-3">
                   <Form.Group>
                     <Form.Label>Select WardBlock<sup className="text-red-600">*</sup></Form.Label>
