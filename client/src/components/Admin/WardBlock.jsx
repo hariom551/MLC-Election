@@ -44,7 +44,7 @@ function WardBlock() {
       }
       const data = await response.json();
       if (!data || !Array.isArray(data) || data.length === 0) {
-        throw new Error('Empty or invalid vidhansabha options data');
+        throw new Error('No Data Found ');
       }
       const options = data.map(vs => ({
         value: vs.Id,
@@ -52,7 +52,7 @@ function WardBlock() {
       }));
       setVSOptions(options);
     } catch (error) {
-      toast.error('Error fetching vidhanSabha options: ' + error.message);
+      toast.error(error.message);
     }
   };
 
@@ -69,7 +69,7 @@ function WardBlock() {
       }
       const data = await response.json();
       if (!data || !Array.isArray(data) || data.length === 0) {
-        throw new Error('Empty or invalid WardBlock details data');
+        throw new Error('No Data Found');
       }
       setWardBlockDetails(data);
       if (content) {
@@ -81,7 +81,7 @@ function WardBlock() {
         }
       }
     } catch (error) {
-      toast.error('Error fetching WardBlock data: ' + error.message);
+      toast.error(error.message);
     }
   };
 

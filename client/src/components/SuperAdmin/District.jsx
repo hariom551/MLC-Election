@@ -100,7 +100,7 @@ const District = () => {
     if (user?.role === 'Super Admin') {
       fetchData();
     }
-  }, [user]);
+  }, []);
 
   const columns = useMemo(() => [
     {

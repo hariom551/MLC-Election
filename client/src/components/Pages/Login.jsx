@@ -42,7 +42,6 @@ function Login() {
         }
       });
       const data = await response.json();
-
       if (response.ok) {
         const { user, token } = data.data;
         localStorage.setItem('user', JSON.stringify(user));

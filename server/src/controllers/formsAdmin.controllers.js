@@ -87,12 +87,12 @@ const OutFormDetails = asyncHandler(async (req, res) => {
 
     try {
         let query = `
-        SELECT O.Id, v1.VEName AS RName, V1.VHName as RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress,v1.VHAddress AS RHAddress,
-        v2.VEName AS C1Name, v2.VHName AS CH1Name , V2.VMob1 as C1Mob, 
+        SELECT O.Id, v1.VEName AS RName, v1.VHName as RHName, v1.VMob1 AS RMob1, v1.VEAddress AS RAddress,v1.VHAddress AS RHAddress,
+        v2.VEName AS C1Name, v2.VHName AS CH1Name , v2.VMob1 as C1Mob, 
         DATE_FORMAT(O.SendingDate, '%d-%m-%Y') AS SendingDate, O.ERemark, O.NoOfForms
         FROM outgoingform AS O
         LEFT JOIN volunteer AS v1 ON O.RefId = v1.Id
-        LEFT JOIN volunteer AS v2 ON O.COId = v2.Id
+        LEFT JOIN volunteer AS v2 ON O.COId = v2.Id 
         `;
 
         let queryParams = [];
@@ -370,11 +370,11 @@ const UpdateIncomForm = asyncHandler(async (req, res) => {
 const incomFormDetails = asyncHandler(async (req, res) => {
     try {
         let query = `
-            SELECT v1.Id AS IncRefId, v1.VEName AS RName, V1.VHName AS RHName, V1.VMob1 AS RMob1, v1.VEAddress AS RAddress, V1.VHAddress AS RHAddress,
+            SELECT v1.Id AS IncRefId, v1.VEName AS RName, v1.VHName AS RHName, v1.VMob1 AS RMob1, v1.VEAddress AS RAddress, v1.VHAddress AS RHAddress,
             i.Id, i.PacketNo, i.NFormsKN, i.NFormsKd, i.NFormsU, DATE_FORMAT(i.ReceivedDate, '%d-%m-%Y') AS ReceivedDate, i.ERemarks,
-            v2.VEName AS C1Name, v2.VHName AS C1HName, V2.VMob1 as C1Mob, 
-            v3.VEName AS C2Name, v3.VHName AS C2HName, V3.VMob1 as C2Mob, 
-            v4.VEName AS C3Name, v4.VHName AS C3HName, V4.VMob1 as C3Mob
+            v2.VEName AS C1Name, v2.VHName AS C1HName, v2.VMob1 as C1Mob, 
+            v3.VEName AS C2Name, v3.VHName AS C2HName, v3.VMob1 as C2Mob, 
+            v4.VEName AS C3Name, v4.VHName AS C3HName, v4.VMob1 as C3Mob
             FROM incomingform AS i
             LEFT JOIN volunteer AS v1 ON i.RefId = v1.Id
             LEFT JOIN volunteer AS v2 ON i.COId1 = v2.Id

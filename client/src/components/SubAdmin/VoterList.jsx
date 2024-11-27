@@ -37,7 +37,7 @@ function VoterList() {
                 if (!response.ok) throw new Error('Failed to fetch wardblock options');
 
                 const data = await response.json();
-                if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid wardblock options data');
+                if (!data || !Array.isArray(data) || data.length === 0) throw new Error('No Data Found');
 
                 const options = data
                     .map(wb => ({ value: wb.Id, label: `${wb.WardNo} - ${wb.EWardBlock}` }))
@@ -51,7 +51,7 @@ function VoterList() {
 
 
             } catch (error) {
-                toast.error(`Error fetching wardblock options: ${error.message}`);
+                toast.error(`Error : ${error.message}`);
             }
         };
         if (formData.DId)
@@ -71,7 +71,7 @@ function VoterList() {
             if (response.ok) {
                 const result = await response.json();
                 const data = result.data;
-                if (!data || !Array.isArray(data) || data.length === 0) throw new Error('Empty or invalid voter list data');
+                if (!data || !Array.isArray(data) || data.length === 0) throw new Error('No Data Found');
 
                 setVotersDetails(data);
                 toast.success("Voter list fetched successfully.");
@@ -81,7 +81,7 @@ function VoterList() {
             }
         } catch (error) {
             setVotersDetails([]);
-            toast.error(`Error in fetching: ${error.message}`);
+            toast.error(`Error  : ${error.message}`);
         }
     };
 
