@@ -38,7 +38,6 @@ function PollingStationAllotment() {
   const permission = user.permissionaccess;
 
   const [WBOptions, setWBOptions] = useState([]);
-
   useEffect(() => {
     const fetchWBOptions = async () => {
       try {
@@ -63,7 +62,7 @@ function PollingStationAllotment() {
     };
 
     fetchWBOptions();
-  }, []);
+  }, [DId]);
 
   useEffect(() => {
     const fetchTotalVoters = async () => {
